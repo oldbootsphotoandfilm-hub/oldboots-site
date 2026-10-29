@@ -1,0 +1,258 @@
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://script.google.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antic&family=Chonburi&family=Luxurious+Script&family=Montserrat:wght@500;600;700&display=swap">
+<style>
+/* ===== Propostas Old Boots · estilo das páginas (proporção 4:5 como o PDF) ===== */
+:root{--ob-ol:#454205;--ob-cr:#fff4cf;--ob-dk:#2b2a07;--ob-rd:#8a3b2e;
+--ob-olive:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-textura-oliva.jpg);--ob-papel:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-papel.jpg)}
+body:has(.ob-sl),body.ob-on{background:var(--ob-dk)!important;margin:0}
+.elementor-section.ob-cfg{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden}
+.elementor-editor-active .elementor-section.ob-cfg{height:auto!important;min-height:44px!important;width:min(100vw,540px)!important;margin:0 auto!important;background:#c08a2b!important}
+.elementor-editor-active .elementor-section.ob-cfg::before{content:"CÓDIGO DA PROPOSTA · NÃO APAGAR · ENDPOINT E IMAGENS DE FUNDO";display:block;padding:14px;font:600 11px/1.3 Montserrat,Arial,sans-serif;letter-spacing:.14em;color:#2b2a07;text-align:center}
+.elementor-section.ob-sl,.elementor-section.ob-exp{width:min(100vw,540px)!important;max-width:540px!important;margin:0 auto!important;padding:0!important;container-type:inline-size;position:relative;box-sizing:border-box;font-family:Montserrat,Arial,sans-serif;left:auto!important}
+.elementor-section.ob-sl{aspect-ratio:4/5;overflow:hidden}
+/* cada página separada da seguinte, como as folhas do PDF */
+.elementor-section.ob-sl:not(:last-child){margin-bottom:max(10px,2.4cqw)!important}
+.ob-sl>.elementor-container,.ob-exp>.elementor-container{height:100%;max-width:none!important;width:100%!important}
+.ob-sl>.elementor-container>.elementor-column,.ob-exp>.elementor-container>.elementor-column{width:100%!important}
+.ob-sl>.elementor-container>.elementor-column>.elementor-widget-wrap{height:100%;display:flex!important;flex-direction:column;flex-wrap:nowrap!important;align-content:normal!important;padding:4.4cqw 6cqw 3.6cqw!important;box-sizing:border-box;position:relative}
+.ob-exp>.elementor-container>.elementor-column>.elementor-widget-wrap{display:flex!important;flex-direction:column;flex-wrap:nowrap!important;gap:2.4cqw;padding:5cqw 6cqw!important}
+/* zera as margens do Elementor sem anular as nossas (ob-mt1, ob-over, ob-logo…) */
+.ob-sl :where(.elementor-element),.ob-exp :where(.elementor-element){margin:0!important;--widgets-spacing:0px}
+.ob-sl,.ob-sl *,.ob-sl *::before,.ob-sl *::after,.ob-exp,.ob-exp *{box-sizing:border-box}
+/* estrutura base (igual à do Elementor; garante o mesmo resultado mesmo que o Elementor carregue o CSS por partes) */
+.ob-sl :where(.elementor-container),.ob-exp :where(.elementor-container){display:flex;position:relative}
+.ob-sl :where(.elementor-column),.ob-exp :where(.elementor-column){position:relative;min-height:1px;display:flex;width:100%}
+.ob-sl :where(.elementor-widget-wrap),.ob-exp :where(.elementor-widget-wrap){position:relative;width:100%;display:flex;flex-wrap:wrap;align-content:flex-start}
+.ob-sl :where(.elementor-widget-wrap>.elementor-element),.ob-exp :where(.elementor-widget-wrap>.elementor-element){width:100%;position:relative}
+.ob-sl .elementor-widget-container,.ob-exp .elementor-widget-container{margin:0!important;padding:0!important}
+.ob-sl .elementor-section .elementor-container{max-width:none!important}
+.ob-sl .elementor-section .elementor-column>.elementor-widget-wrap{padding:0!important}
+.ob-ol{background:var(--ob-ol) var(--ob-olive) center/cover!important;color:var(--ob-cr)}
+.ob-cr{background:var(--ob-cr)!important;color:var(--ob-dk)}
+.ob-exp{display:none!important;background:var(--ob-cr)!important;color:var(--ob-dk);border-bottom:1px dashed #8a5a34}
+body.ob-expirada .ob-exp{display:block!important}
+/* papel amarrotado: faixas e cartões */
+.ob-sl .elementor-section.ob-paper{background:#f6f5f2 var(--ob-papel) center/cover!important;color:var(--ob-dk);margin:3cqw -6cqw 0!important;width:auto!important;padding:3cqw 0 3.4cqw!important}
+.ob-sl .elementor-section.ob-card{background:#f6f5f2 var(--ob-papel) center/cover!important;color:var(--ob-dk);width:55cqw!important;margin:2.5cqw auto 0!important;padding:3cqw 0!important}
+/* tipografia (os tamanhos acompanham a largura da página) */
+.ob-T,.ob-S,.ob-tx,.ob-hd,.ob-li,.ob-pr,.ob-iva,.ob-ft,.ob-lab{color:inherit}
+.ob-T *,.ob-S *,.ob-tx *,.ob-hd *,.ob-li *,.ob-pr *,.ob-iva *,.ob-ft *,.ob-lab *{font:inherit!important;color:inherit!important;letter-spacing:inherit!important;text-transform:inherit!important;line-height:inherit!important;margin:0;text-align:inherit!important}
+.ob-T{font-family:Chonburi,Georgia,serif!important;text-transform:uppercase;line-height:.94;font-weight:400}
+.ob-S{font-family:'Luxurious Script',cursive!important;line-height:1;font-weight:400;text-transform:none}
+.ob-t1{font-size:21cqw}.ob-t2{font-size:13cqw}.ob-t3{font-size:10cqw}.ob-t4{font-size:7cqw}.ob-t5{font-size:6.4cqw;line-height:1.04}.ob-t6{font-size:3.6cqw;line-height:1.06}
+.ob-s1{font-size:13cqw}.ob-s2{font-size:8.6cqw}.ob-s3{font-size:7cqw}.ob-s4{font-size:6.6cqw}.ob-s5{font-size:5.6cqw}
+.ob-over{margin-top:-.36em!important;position:relative;z-index:1}
+.ob-pacote .ob-s2{font-size:11.5cqw}
+.ob-hd{font:1.9cqw/1 Antic,sans-serif;letter-spacing:.06em;text-align:center;margin-bottom:3cqw!important}
+.ob-tx{font:500 2.05cqw/1.6 Montserrat,sans-serif;letter-spacing:.05em;text-transform:uppercase}
+.ob-lab{font:2.1cqw/1.5 Antic,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.ob-li{font:500 1.95cqw/1.55 Montserrat,sans-serif;letter-spacing:.03em;text-transform:uppercase;padding:0 6cqw 0 21cqw!important}
+.ob-li ul{margin:1cqw 0 0!important;padding-left:3.4cqw!important}.ob-li li{list-style:disc}
+.ob-pr{font:3.5cqw/1 Antic,sans-serif;letter-spacing:.04em;text-transform:uppercase;text-align:center;margin-top:2cqw!important}
+.ob-iva{font:500 1.85cqw/1 Montserrat,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.75;text-align:center;margin-top:1.3cqw!important}
+body.ob-sem-iva .ob-iva{display:none!important}
+.ob-ft{margin-top:auto!important;font:500 1.7cqw/1 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.ob-ft p{display:flex!important;justify-content:space-between}.ob-ft b,.ob-ft strong{font-weight:700!important}
+.ob-c{text-align:center}.ob-l{text-align:left}.ob-r{text-align:right}
+.ob-dx{transform:translateX(9cqw)}.ob-px{padding-left:8cqw!important}
+.ob-just{padding:0 16cqw!important;text-align:justify!important;text-align-last:justify}
+.ob-just *{text-align:justify!important;text-align-last:justify}
+.ob-stmt{text-align:justify!important;text-align-last:left;hyphens:auto;-webkit-hyphens:auto;margin-top:5cqw!important}
+.ob-stmt *{text-align:justify!important;text-align-last:left}
+.ob-mt1{margin-top:2cqw!important}.ob-mt2{margin-top:4cqw!important}.ob-mt3{margin-top:7cqw!important}.ob-mt4{margin-top:11cqw!important}
+.ob-half{width:50cqw}.ob-half.ob-r{margin-left:auto!important}
+.ob-sl .elementor-section.ob-ex{padding-left:5cqw!important}
+.ob-ex .ob-tx{font-weight:600;margin-top:.6cqw!important}
+.ob-extras.ob-ex-muitos .ob-ex .ob-s4{font-size:5.2cqw}.ob-extras.ob-ex-muitos .ob-sl .elementor-section.ob-ex,.ob-extras.ob-ex-muitos .elementor-section.ob-ex{margin-top:1.1cqw!important}
+.ob-sl .elementor-section.ob-paper .ob-tx,.ob-sl .elementor-section.ob-paper .ob-lab{color:var(--ob-dk)}
+/* imagens */
+.ob-im img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover;display:block;border-radius:0!important}
+.ob-im{overflow:hidden}
+.ob-im-capa{width:40cqw;height:50cqw;margin:2cqw auto!important}
+.ob-im-sobre{width:52cqw;height:32cqw;margin:0 auto!important}
+.ob-sl .elementor-section.ob-grid{padding:0 13cqw!important;margin-top:.7cqw!important}
+.ob-sl .elementor-section.ob-grid .elementor-container{gap:.7cqw;flex-wrap:nowrap}
+.ob-sl .elementor-section.ob-grid .elementor-column{width:auto!important;flex:1 1 0}
+.ob-im-grid{height:23cqw;width:100%}
+.ob-pfphoto{position:absolute!important;left:15cqw;top:0;width:70cqw;height:100%;z-index:0}
+.ob-pf .elementor-element:not(.ob-pfphoto){position:relative;z-index:1}
+.ob-pf .elementor-section.ob-paper{margin-top:1cqw!important}
+.ob-icon{width:12cqw;margin:auto auto 2cqw!important}
+.ob-icon img{width:100%!important;height:auto!important;max-width:none!important;display:block}
+.ob-link a{color:inherit!important;text-decoration:none}
+.ob-fim .ob-bgphoto{position:absolute!important;inset:0;z-index:0}
+.ob-fim .ob-bgphoto img{object-position:50% 50%!important}
+.ob-fim .ob-bgphoto::after{content:"";position:absolute;inset:0;background:rgba(48,46,10,.52)}
+.ob-fim .elementor-element:not(.ob-bgphoto){position:relative;z-index:1}
+/* logótipo da última página: a imagem PNG, no mesmo sítio e tamanho do PDF */
+.ob-fim .ob-logoimg,.ob-fim .ob-logo{position:absolute!important;left:19cqw;top:44.3cqw;width:65.8cqw!important;height:36.5cqw;margin:0!important;z-index:1}
+.ob-fim .ob-logoimg img{width:100%!important;height:100%!important;max-width:none!important;object-fit:contain;display:block}
+/* páginas antigas (logótipo escrito em texto): mostram a imagem no lugar do texto */
+.ob-fim .ob-logo{background:url(https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/ob-logo-final.png) center/contain no-repeat}
+.ob-fim .ob-logo *{visibility:hidden}
+.ob-fim .ob-rot{display:none!important}
+.ob-fim .ob-fecho{position:absolute!important;left:55.4cqw;top:90.6cqw;width:34.7cqw!important;margin:0!important;text-align:justify!important;text-align-last:justify;z-index:1}
+.ob-fecho *{text-align:justify!important;text-align-last:left}
+/* botões */
+.ob-btn .elementor-button{background:var(--ob-ol)!important;color:var(--ob-cr)!important;border-radius:0!important;font:600 2.1cqw/1 Montserrat,sans-serif!important;letter-spacing:.2em!important;text-transform:uppercase;padding:3.2cqw 5.6cqw!important;border:0!important}
+.ob-btn .elementor-button:hover{background:var(--ob-dk)!important}
+.ob-btn{text-align:center;margin-top:5cqw!important}
+.ob-exp .ob-btn{text-align:left;margin-top:1cqw!important}
+.ob-exp .ob-red{color:var(--ob-rd)}
+/* vídeo */
+.ob-vf{width:76cqw;aspect-ratio:16/9;margin:0 auto;background:var(--ob-dk);color:var(--ob-cr);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2cqw;font:600 1.9cqw/1.4 Montserrat,sans-serif;letter-spacing:.18em;text-align:center}
+.ob-vf iframe{width:100%;height:100%;border:0;display:block}
+.ob-vf svg{width:10cqw;height:10cqw}
+/* enquanto carrega */
+body.ob-carregando .ob-sl,body.ob-carregando .ob-exp{visibility:hidden}
+#ob-load{position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--ob-ol) var(--ob-olive) center/cover;color:var(--ob-cr);font:16px Antic,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-align:center;padding:24px}
+#ob-load b{font:400 46px/1 'Luxurious Script',cursive;letter-spacing:0;text-transform:none}
+@media (prefers-reduced-motion:no-preference){#ob-load b{animation:obp 1.6s ease-in-out infinite}}
+@keyframes obp{50%{opacity:.45}}
+</style>
+<script>
+(function () {
+'use strict';
+/* ====== CONFIGURAÇÃO ====== */
+var ENDPOINT = 'https://script.google.com/macros/s/AKfycbx4n8j-iVVB-ZvfpuBFKufXv5hWg73QAMbPIrGoOknSuwgJjmbTwdEq8zjFa6RBrehp/exec';   // termina em /exec
+var WHATSAPP = '351913116155';
+var IDIOMA = 'pt';                                     // 'pt' nesta página, 'en' na inglesa
+/* ========================== */
+var B = document.body;
+if (!B || B.classList.contains('elementor-editor-active') || /elementor-preview/.test(location.search)) return; // no editor do Elementor mostra as etiquetas para editar
+var EN = IDIOMA === 'en';
+var L = EN ? { carregar: 'Preparing your proposal', falta: 'This link is incomplete. Please ask us for a new one.', nao: 'We could not open this proposal. Please try again in a moment or message us on WhatsApp.', semData: 'date to be confirmed', calc: 'To be calculated', consulta: 'On request', video: 'VIDEO IN THE ONLINE VERSION OF THIS PROPOSAL',
+  reservar: 'Hi! We saw the Old Boots proposal for {casal} ({data}) and would love to book the date.', renovar: 'Hi! The Old Boots proposal for {casal} has expired. Could you send us an updated one?' }
+  : { carregar: 'A preparar a vossa proposta', falta: 'Este link está incompleto. Peça-nos um novo, por favor.', nao: 'Não conseguimos abrir esta proposta. Tente daqui a pouco ou fale connosco pelo WhatsApp.', semData: 'data a definir', calc: 'À calcular', consulta: 'Sob consulta', video: 'VÍDEO NA VERSÃO ONLINE DESTA PROPOSTA',
+  reservar: 'Olá! Vimos a proposta Old Boots para {casal} ({data}) e gostávamos de reservar a data.', renovar: 'Olá! A proposta Old Boots para {casal} expirou. Podem enviar-nos uma proposta atualizada?' };
+var q = new URLSearchParams(location.search), PDF = q.get('pdf') === '1', PREVIA = PDF || q.get('pre') === '1';
+var COD = (location.hash || '').replace(/^#/, '').trim();
+B.classList.add('ob-on', 'ob-carregando');
+var load = document.createElement('div'); load.id = 'ob-load'; load.setAttribute('role', 'status');
+load.innerHTML = '<b>Old Boots</b><span></span>'; load.lastChild.textContent = L.carregar + '…';
+if (!PDF) B.appendChild(load);
+
+function msg(t) { load.innerHTML = '<b>Old Boots</b><span></span>'; load.lastChild.textContent = t; if (!load.parentNode) B.appendChild(load); }
+function dinheiro(n) {
+  if (n === '' || n == null || isNaN(+n)) return L.consulta;
+  n = Math.round(+n * 100) / 100; var i = Math.floor(n), d = Math.round((n - i) * 100);
+  return String(i).replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (d ? ',' + String(d).padStart(2, '0') : '') + '€';
+}
+function dataLonga(s) { if (!s) return L.semData; var d = new Date(s + 'T12:00:00'); return d.toLocaleDateString(EN ? 'en-GB' : 'pt-PT', { day: 'numeric', month: 'long', year: 'numeric' }); }
+function dataCurta(s) { if (!s) return L.semData.toUpperCase(); var p = s.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+function wa(t) { return 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t); }
+
+function aplicar(d) {
+  var v = { casal: d.casal || '', data: dataLonga(d.data), data_curta: dataCurta(d.data), local: d.local || '', validade: dataLonga(d.validade),
+    deslocacao: d.deslocacao === '' || d.deslocacao == null ? L.calc : dinheiro(d.deslocacao) };
+  ['fotos_meio', 'fotos_completo', 'filme_meio', 'filme_completo', 'ff_meio', 'ff_completo', 'seg_fot', 'seg_vid', 'cer', 'hora', 'drone'].forEach(function (k) {
+    var p = (d.precos || {})[k]; v[k] = dinheiro(p); v[k + '_iva'] = p === '' || p == null ? L.consulta : dinheiro(p * 1.23);
+  });
+  // troca {etiquetas} pelo texto da proposta (só em texto: nunca vira código)
+  var raizes = document.querySelectorAll('.ob-sl, .ob-exp');
+  Array.prototype.forEach.call(raizes, function (r) {
+    var w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, null), n, l = [];
+    while ((n = w.nextNode())) if (n.nodeValue.indexOf('{') >= 0) l.push(n);
+    l.forEach(function (t) { t.nodeValue = t.nodeValue.replace(/\{([a-z_]+)\}/g, function (m, k) { return Object.prototype.hasOwnProperty.call(v, k) ? v[k] : m; }); });
+  });
+  if (!d.iva) B.classList.add('ob-sem-iva');
+  ['seg_fot', 'seg_vid', 'cer', 'hora', 'drone'].forEach(function (k) {
+    if ((d.extras || []).indexOf(k) < 0) Array.prototype.forEach.call(document.querySelectorAll('.ob-ex-' + k), function (e) { e.style.display = 'none'; });
+  });
+  // extras acrescentados só nesta proposta: copiam o desenho de um extra que já existe na página
+  var mais = (d.extras || []).filter(function (x) { return x && typeof x === 'object' && x.n; }).slice(0, 8);
+  Array.prototype.forEach.call(document.querySelectorAll('.ob-extras'), function (pag) {
+    var modelo = pag.querySelector('.ob-ex'), todos = pag.querySelectorAll('.ob-ex'), fim = todos[todos.length - 1];
+    if (!modelo || !fim) return;
+    mais.forEach(function (x) {
+      var c = modelo.cloneNode(true); c.style.display = ''; c.className = c.className.replace(/\bob-ex-[a-z_]+\b/g, '') + ' ob-ex-mais';
+      var tit = c.querySelector('.ob-S .elementor-heading-title') || c.querySelector('.ob-S'), val = c.querySelector('.ob-tx p') || c.querySelector('.ob-tx');
+      if (tit) tit.textContent = String(x.n);
+      if (val) val.textContent = dinheiro(x.p);
+      fim.parentNode.insertBefore(c, fim);
+    });
+    var vis = Array.prototype.filter.call(pag.querySelectorAll('.ob-ex'), function (e) { return e.style.display !== 'none'; }).length;
+    if (vis > 6) pag.classList.add('ob-ex-muitos');
+  });
+  var vids = document.querySelectorAll('.ob-video');
+  Array.prototype.forEach.call(vids, function (s) {
+    var f = s.querySelector('.ob-vf'), u = String(d.video || ''), y = /(?:youtu\.be\/|[?&]v=|embed\/|shorts\/)([\w-]{11})/.exec(u), m = /vimeo\.com\/(?:video\/)?(\d+)/.exec(u);
+    if (!y && !m) { s.style.display = 'none'; return; }
+    if (!f) return;
+    if (PDF) { f.textContent = L.video; return; }
+    var i = document.createElement('iframe');
+    i.src = y ? 'https://www.youtube-nocookie.com/embed/' + y[1] + '?rel=0' : 'https://player.vimeo.com/video/' + m[1];
+    i.title = EN ? 'Video: how it works' : 'Vídeo: como funciona o processo'; i.allow = 'fullscreen; picture-in-picture'; i.allowFullscreen = true; i.loading = 'lazy';
+    f.textContent = ''; f.appendChild(i);
+  });
+  var t1 = wa(L.reservar.replace('{casal}', v.casal).replace('{data}', v.data)), t2 = wa(L.renovar.replace('{casal}', v.casal));
+  Array.prototype.forEach.call(document.querySelectorAll('.ob-wa a'), function (a) { a.href = t1; a.target = '_blank'; a.rel = 'noopener'; });
+  Array.prototype.forEach.call(document.querySelectorAll('.ob-wa2 a'), function (a) { a.href = t2; a.target = '_blank'; a.rel = 'noopener'; });
+  // páginas antigas: troca a foto final pelo enquadramento do PDF
+  Array.prototype.forEach.call(document.querySelectorAll('.ob-fim .ob-bgphoto img'), function (im) {
+    var u = im.getAttribute('src') || '', ds = im.getAttribute('data-src') || '';
+    if (/ob-final\.jpg/.test(u + ds)) { var n = 'https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/ob-final-2.jpg'; im.removeAttribute('srcset'); im.removeAttribute('data-srcset'); im.removeAttribute('sizes'); if (ds) im.setAttribute('data-src', n); im.setAttribute('src', n); }
+  });
+  if (d.expirada) B.classList.add('ob-expirada');
+  document.title = (EN ? 'Proposal · ' : 'Proposta · ') + v.casal + ' · Old Boots';
+}
+
+// títulos: encolhem até caberem dentro das margens da página
+function ajustar() {
+  Array.prototype.forEach.call(document.querySelectorAll('.ob-fit'), function (e) {
+    e.style.fontSize = '';
+    var base = parseFloat(getComputedStyle(e).fontSize), s = base, i = 0, t = e.firstElementChild || e;
+    while (i++ < 40 && (t.scrollWidth > e.clientWidth + 1 || e.scrollWidth > e.clientWidth + 1) && s > base * .45) { s *= .96; e.style.fontSize = s + 'px'; }
+  });
+}
+var tm; window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(ajustar, 150); });
+
+function pronto() { return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { ajustar(); }); }
+function imagens() {
+  return Promise.all(Array.prototype.map.call(document.querySelectorAll('.ob-sl img'), function (im) {
+    // o WordPress (loading="lazy") e o LiteSpeed (data-src) só carregam imagens quando aparecem no ecrã;
+    // a página do PDF está escondida, por isso pedimos todas já
+    var ds = im.getAttribute('data-src') || im.getAttribute('data-lazy-src'), dss = im.getAttribute('data-srcset') || im.getAttribute('data-lazy-srcset');
+    if (dss) im.setAttribute('srcset', dss);
+    if (ds && im.getAttribute('src') !== ds) im.setAttribute('src', ds);
+    try { im.loading = 'eager'; } catch (e) { } im.removeAttribute('loading');
+    if (im.complete && im.naturalWidth) return Promise.resolve();
+    return new Promise(function (r) { var t = setTimeout(r, 15000); im.addEventListener('load', function () { clearTimeout(t); r(); }); im.addEventListener('error', function () { clearTimeout(t); r(); }); if (im.decode) im.decode().then(function () { clearTimeout(t); r(); }, function () { }); });
+  }));
+}
+function lib(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+function gerarPDF() {
+  var avisar = function (o) { try { parent.postMessage(Object.assign({ tipo: 'ob-pdf', codigo: COD }, o), location.origin); } catch (e) { } };
+  Promise.all([lib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'), lib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'), imagens(), pronto()])
+    .then(function () {
+      var secs = Array.prototype.filter.call(document.querySelectorAll('.ob-sl'), function (s) { return s.offsetParent !== null; });
+      var doc = new window.jspdf.jsPDF({ unit: 'pt', format: [810, 1012.5], compress: true }), i = 0;
+      var proxima = function () {
+        if (i >= secs.length) { avisar({ data: doc.output('datauristring') }); return; }
+        var s = secs[i];
+        return window.html2canvas(s, { scale: 1080 / s.offsetWidth, useCORS: true, backgroundColor: null, logging: false }).then(function (c) {
+          if (i > 0) doc.addPage([810, 1012.5]);
+          doc.addImage(c.toDataURL('image/jpeg', .84), 'JPEG', 0, 0, 810, 1012.5, undefined, 'FAST');
+          i++; return proxima();
+        });
+      };
+      return proxima();
+    }).catch(function (e) { avisar({ erro: String(e && e.message || e) }); });
+}
+
+if (!/^[A-Za-z0-9]{20,40}$/.test(COD)) { msg(L.falta); return; }
+var ctrl = new AbortController(), tempo = setTimeout(function () { ctrl.abort(); }, 25000);
+fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: 'ver', a: [COD, PREVIA] }), signal: ctrl.signal, credentials: 'omit' })
+  .then(function (r) { return r.json(); })
+  .then(function (j) {
+    clearTimeout(tempo);
+    if (!j || !j.ok) throw new Error((j && j.e) || 'erro');
+    aplicar(j.r);
+    return pronto().then(function () {
+      B.classList.remove('ob-carregando'); if (load.parentNode) load.parentNode.removeChild(load);
+      if (PDF) gerarPDF();
+    });
+  })
+  .catch(function () { clearTimeout(tempo); msg(L.nao); if (PDF) try { parent.postMessage({ tipo: 'ob-pdf', codigo: COD, erro: 'A proposta não abriu.' }, location.origin); } catch (e) { } });
+})();
+</script>
