@@ -52,6 +52,14 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .pl li{margin:2px 0;word-break:break-word}
 #ob .cm{margin-top:6px;font-size:13.5px;color:var(--oc);border-left:2px solid var(--gd);padding-left:8px}
 #ob .ped .rt{flex-wrap:wrap;justify-content:flex-end}
+#ob .mtv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+#ob .mtv label{display:flex;align-items:center;border:1px solid var(--sf);padding:11px 12px;cursor:pointer;font-size:14.5px;line-height:1.3;position:relative}
+#ob .mtv input{position:absolute;opacity:0;pointer-events:none}
+#ob .mtv span::before{content:"";display:inline-block;width:14px;height:14px;border:1px solid var(--mt);border-radius:50%;margin-right:10px;vertical-align:-2px;box-sizing:border-box}
+#ob .mtv label:has(input:checked){border-color:var(--ink);background:rgba(74,68,41,.06)}
+#ob .mtv input:checked+span::before{border:4px solid var(--ink)}
+#ob .mtv input:focus-visible+span{outline:2px solid var(--bt);outline-offset:3px}
+@media (max-width:600px){#ob .mtv{grid-template-columns:1fr}#ob #m .bt3{gap:10px 18px;flex-wrap:wrap}}
 #ob .b1.sm1{padding:9px 16px;font-size:11px}
 #ob .eqf{margin-top:24px;grid-template-columns:1fr 1fr}
 @media (max-width:600px){#ob .eqf{grid-template-columns:1fr}#ob .ped{grid-template-columns:1fr!important}#ob .ped .rt{grid-column:1!important;justify-content:flex-end}}
@@ -743,7 +751,8 @@ var CAMPOS_PLANO = [['valor_final', 'Valor final (€)', 'number'], ['forma_de_p
   ['total_de_parcelas', function (v) { return v.forma_de_pagamento === 'Entrada + parcelas' ? 'Nº de parcelas (depois da entrada)' : 'Nº de parcelas'; }, 'number', null, function (v) { return v.forma_de_pagamento !== 'À vista'; }],
   ['inicio_das_parcelas', function (v) { return v.forma_de_pagamento === 'À vista' ? 'Data do pagamento' : 'A 1.ª parcela vence em'; }, 'date']];
 var limpaCat = function (x) { if (ehCas(x)) { x.subtipo = ''; } if (x.categoria !== 'Ensaio' && 'ligado_a' in x) x.ligado_a = ''; return x; };
-var FO = [['Pedido', [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['origem', 'Origem do contacto', 'sel', SEL.origem], ['data_do_evento', 'Data do evento', 'date'], ['local', 'Local', 'text'], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['valor_orcado', 'Valor orçado (€)', 'number'], ['status', 'Status', 'sel', SEL.orc], ['proximo_contacto', 'Próximo contacto', 'date'], ['observacoes', 'Observações', 'area']]]];
+var MOTIVOS = ['Achou caro', 'Já não tínhamos a data', 'Fechou com outro profissional', 'Deixou de responder', 'Casamento adiado ou cancelado', 'Procurava outro estilo', 'Só queria fotos ou só vídeo', 'Local longe (deslocação)'];
+var FO = [['Pedido', [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['origem', 'Origem do contacto', 'sel', SEL.origem], ['data_do_evento', 'Data do evento', 'date'], ['local', 'Local', 'text'], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['valor_orcado', 'Valor orçado (€)', 'number'], ['status', 'Status', 'sel', SEL.orc], ['motivo_da_perda', 'Porque não fechou', 'text', null, function (v) { return v.status === 'Perdido'; }], ['proximo_contacto', 'Próximo contacto', 'date'], ['observacoes', 'Observações', 'area']]]];
 var FC = function (eu) { var casL = [['', '—']].concat(D.cli.filter(function (c) { return ehCas(c) && c.id !== eu; }).map(function (c) { return [c.id, c.nome_do_casal + (c.data_do_evento ? ' · ' + fd(c.data_do_evento) : '')]; }));
 return [[function (v) { return ehCas(v) ? 'Casal' : 'Cliente'; }, [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['nome_completo_contrato', 'Nome completo (para o contrato)', 'text'], ['nif', 'NIF', 'text'], ['email', 'Email', 'email'], ['telefone', 'Telefone', 'tel'], ['ligado_a', 'Casamento ligado (opcional)', 'sel', casL, function (v) { return v.categoria === 'Ensaio'; }]]],
 ['Evento', [['data_do_evento', function (v) { return ehCas(v) ? 'Data do evento' : 'Data'; }, 'date'], ['hora', 'Hora', 'time'], ['local_da_cerimonia', function (v) { return ehCas(v) ? 'Local da cerimónia' : 'Local'; }, 'text'], ['local_da_rececao', 'Local da receção', 'text', null, ehCas], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['origem', 'Origem do contacto', 'sel', SEL.origem]].concat(CAMPOS_PAC).concat(eu ? [] : CAMPOS_EXT)],
@@ -798,7 +807,7 @@ function vOrc() {
     var quando = openO(x) && pc ? 'contactar ' + fdc(pc) :
       (x.status === 'Novo pedido' && ped !== null ? 'pedido ' + (ped === 0 ? 'hoje' : ped === 1 ? 'ontem' : 'há ' + ped + ' dias') : '');
     return '<div class="rw r2 ro" data-a="o" data-id="' + E(x.id) + '"><div><span class="nm">' + E(nc(x.nome_do_casal)) + '</span>' + tg(x.status) + tg2(x) + (x.aviso ? tg(av(x.aviso), 'rd') : '') +
-      '<small>' + [x.data_do_evento ? '<span class="ev">' + fdc(x.data_do_evento) + '</span>' : '', E(x.origem), quando].filter(Boolean).join(' · ') + '</small></div>' +
+      '<small>' + [x.data_do_evento ? '<span class="ev">' + fdc(x.data_do_evento) + '</span>' : '', E(x.origem), quando, x.status === 'Perdido' && x.motivo_da_perda ? E(x.motivo_da_perda) : ''].filter(Boolean).join(' · ') + '</small></div>' +
       '<div class="rt">' + (x.valor_orcado ? '<span class="num s">' + eur(x.valor_orcado) + '</span>' : '') + (openO(x) && x.telefone ? '<a class="wab" href="' + E(wa(x.telefone)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : '') + '</div></div>'; }; };
   var grp = function (t, l, k, cls, comEstado) { return l.length ? '<hr class="st"><p class="lb gl' + (cls ? ' ' + cls : '') + '" id="g-' + k + '">' + t + ' · ' + l.length + '</p>' + l.map(row(comEstado)).join('') : ''; };
   return '<div class="w1"><div class="pt"><div><p class="lb">Pedidos de orçamento</p><h1 class="h1">Orçamentos</h1></div><button class="b1" data-a="no">Novo orçamento</button></div>' +
@@ -1083,6 +1092,19 @@ function vProp() { return ''; }
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
 var kv = function (k, v) { return v ? '<div class="kv"><span class="lb">' + k + '</span><span class="v">' + v + '</span></div>' : ''; };
+function naoFechou(id) {
+  var o = D.orc.find(function (x) { return x.id === id; }); if (!o) return;
+  openM('<p class="lb">Orçamento ' + E(o.id) + '</p><h3 class="h2 mh2">Não fechou · ' + E(nc(o.nome_do_casal)) + '</h3><p class="sm">Porque não fechou? Ajuda a perceber onde estamos a perder clientes.</p>' +
+    '<div class="mtv">' + MOTIVOS.concat(['Outro']).map(function (m, i) { return '<label><input type="radio" name="mtv" value="' + E(m) + '"' + (i === 0 ? '' : '') + '><span>' + E(m) + '</span></label>'; }).join('') + '</div>' +
+    '<div class="fm" style="margin-top:14px"><label><span>Detalhe (opcional)</span><textarea id="mtd" rows="3" placeholder="Ex.: o orçamento deles era 1500 €"></textarea></label></div>' +
+    '<div class="btns"><button class="b2" data-a="o" data-id="' + E(id) + '">Voltar</button><button class="b1" id="mok">Marcar como perdido</button></div>');
+  $('#mok').onclick = function () {
+    var r = $('#m input[name=mtv]:checked'), dt = $('#mtd').value.trim();
+    if (!r) return toast('Escolha um motivo.', 1); if (r.value === 'Outro' && !dt) return toast('Escreva o motivo em «Detalhe».', 1);
+    var m = r.value === 'Outro' ? dt : r.value + (dt ? ': ' + dt : '');
+    run(rpc('api_upd', 'Orçamentos', id, { status: 'Perdido', motivo_da_perda: m.slice(0, 300), proximo_contacto: '' }), 'Marcado como perdido', function () { orcF(id); });
+  };
+}
 function orcF(id) {
   var o = D.orc.find(function (x) { return x.id === id; }); if (!o) return; cur = id; atualizaProp(id);
   var est = ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'];
@@ -1093,8 +1115,8 @@ function orcF(id) {
     (o.status !== 'Convertido' ? '<div class="mq"><p class="lb">Estado</p><div class="stp">' + est.map(function (t) { return '<button data-a="ost" data-id="' + E(id) + '" data-v="' + E(t) + '" style="--c:' + CORO[t] + '" class="' + (o.status === t ? 'on' : '') + '">' + t + '</button>'; }).join('') + '</div></div>' +
       '<div class="mq"><p class="lb">Próximo contacto · ' + (pc ? (dd < 0 ? '<span class="atr">' + fdc(pc) + ' (atrasado)</span>' : fdc(pc)) : 'sem data') + '</p><div class="stp">' +
       [[1, 'Amanhã'], [3, 'Daqui a 3 dias'], [7, 'Daqui a 1 semana'], [0, 'Sem data']].map(function (x) { return '<button data-a="opc" data-id="' + E(id) + '" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' : '<p class="tgs" style="margin-top:14px">' + tg('Convertido') + '</p>') +
-    '<div class="g2" style="margin-top:18px">' + ln('Data do evento', fdc(o.data_do_evento)) + ln('Valor orçado', o.valor_orcado ? eur(o.valor_orcado) : '') + ln('Serviço', E(o.tipo_de_servico)) + ln('Origem', E(o.origem)) + ln('Local', E(o.local), 1) + ln('Notas', E(o.observacoes), 1) + '</div>' +
-    caixaProp(o) + '<div class="btns"><button class="b2" data-a="eo" data-id="' + E(id) + '">Editar</button>' + (o.status !== 'Convertido' ? '<button class="b1" data-a="conv" data-id="' + E(id) + '">Fechou: criar cliente</button>' : '') + '</div>');
+    '<div class="g2" style="margin-top:18px">' + ln('Data do evento', fdc(o.data_do_evento)) + ln('Valor orçado', o.valor_orcado ? eur(o.valor_orcado) : '') + ln('Serviço', E(o.tipo_de_servico)) + ln('Origem', E(o.origem)) + (o.status === 'Perdido' ? ln('Porque não fechou', E(o.motivo_da_perda || 'sem motivo indicado'), 1) : '') + ln('Local', E(o.local), 1) + ln('Notas', E(o.observacoes), 1) + '</div>' +
+    caixaProp(o) + '<div class="btns bt3"><button class="b2" data-a="eo" data-id="' + E(id) + '">Editar</button>' + (o.status !== 'Convertido' && o.status !== 'Perdido' ? '<button class="b2" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + (o.status !== 'Convertido' ? '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou' : 'Fechou: criar cliente') + '</button>' : '') + '</div>');
 }
 
 function ficha(id, tab, topo) { if (!D.cli.some(function (x) { return x.id === id; })) return; cat = cli(id).status === 'Concluído' ? 'conc' : ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
@@ -1369,7 +1391,8 @@ var act = {
     openM('<p class="lb">Sair</p><h3 class="h2 mh2">Terminar a sessão</h3><p class="sm">Neste aparelho fica 7 dias sem pedir login. Para voltar a pedir já, saia aqui.</p><div class="btns"><button class="b2" data-a="sairT">Sair de todos os aparelhos</button><button class="b1" data-a="sairA">Sair deste aparelho</button></div>'); },
   sairA: function () { var s0 = SES; if (s0) post('sair').catch(function () { }); if (gis) try { google.accounts.id.disableAutoSelect(); } catch (e) { } toLogin(''); },
   sairT: function () { busy(1); post('sairTodos').then(function () { toast('Sessões terminadas em todos os aparelhos.'); }, function () { }).finally(function () { busy(0); if (gis) try { google.accounts.id.disableAutoSelect(); } catch (e) { } toLogin('Sessões terminadas em todos os aparelhos.'); }); },
-  ost: function (d) { run(rpc('api_upd', 'Orçamentos', d.id, { status: d.v }), 'Estado: ' + d.v, function () { orcF(d.id); }); },
+  perdeu: function (d) { naoFechou(d.id); },
+  ost: function (d) { if (d.v === 'Perdido') return naoFechou(d.id); run(rpc('api_upd', 'Orçamentos', d.id, { status: d.v }), 'Estado: ' + d.v, function () { orcF(d.id); }); },
   opc: function (d) { var n = +d.v, v = ''; if (n) { var t = new Date(); t.setDate(t.getDate() + n); v = iso(t); } run(rpc('api_upd', 'Orçamentos', d.id, { proximo_contacto: v }), v ? 'Próximo contacto: ' + fdc(v) : 'Próximo contacto sem data', function () { orcF(d.id); }); },
   apps: function () { abrirApps(); },
   dec: function (d) {
