@@ -649,10 +649,12 @@ function initGis() {
 /* ---------- interface base ---------- */
 function toast(t, e, acao) { var x = $('#t'); x.textContent = t; if (acao) { var b = document.createElement('button'); b.setAttribute('data-a', 'reab'); b.textContent = acao; x.appendChild(b); } x.className = (e ? 'e' : /…$/.test(t) ? 'i' : '') + ' on'; clearTimeout(toast.h); toast.h = setTimeout(function () { x.classList.remove('on'); }, acao ? 15000 : e ? 6000 : 2400); }
 var svT = 0, svOk = false;
-function svMostra(t, ok) { var x = $('#sv'); clearTimeout(svT); x.querySelector('.vh').textContent = t; x.classList.toggle('ok', !!ok); x.classList.toggle('on', !!t && !ok); if (ok) svT = setTimeout(function () { x.classList.remove('ok'); x.querySelector('.vh').textContent = ''; }, 1100); }
-function sv() { if (nGrav > 0) { svOk = true; svMostra(nGrav > 1 ? 'A guardar ' + nGrav + ' alterações' : 'A guardar'); } else { svMostra(svOk ? 'Guardado' : '', svOk); svOk = false; } busy(nGrav > 0); }
+var NB = 0, SVT = '';
+function svPinta() { var x = $('#sv'); x.classList.toggle('on', !x.classList.contains('ok') && (NB > 0 || nGrav > 0 || !!SVT)); }
+function svMostra(t, ok) { var x = $('#sv'); clearTimeout(svT); x.querySelector('.vh').textContent = t; x.classList.toggle('ok', !!ok); if (ok) svT = setTimeout(function () { x.classList.remove('ok'); x.querySelector('.vh').textContent = SVT; svPinta(); }, 1100); svPinta(); }
+function sv() { if (nGrav > 0) { svOk = true; svMostra(nGrav > 1 ? 'A guardar ' + nGrav + ' alterações' : 'A guardar'); } else { svMostra(svOk ? 'Guardado' : SVT, svOk); svOk = false; } }
 function reabrir(nos) { lastF = document.activeElement; R.classList.add('mopen'); var m = $('#m'); m.innerHTML = ''; nos.forEach(function (n) { m.appendChild(n); }); m.scrollTop = 0; $('#ov').classList.add('on'); }
-function busy(b) { R.classList.toggle('busy', !!b); }
+function busy(b) { NB = Math.max(0, NB + (b ? 1 : -1)); R.classList.toggle('busy', NB > 0); svPinta(); }
 var lastF = null;
 var toque = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 var sujo = false; // formulário com alterações por guardar
@@ -971,11 +973,11 @@ function avisaPedidos() {
   if (novos.length && !$('#ov').classList.contains('on') && APP !== 'prop') verPedidos();
 }function vEquipa() {
   var l = D.ped || [];
-  if (EQ === null) { rpcAgora('api_equipa', []).then(function (r) { EQ = Array.isArray(r) ? r : []; if (APP === 'eq') render(); }, function () { EQ = []; }); }
+  if (EQ === null) { EQ = undefined; busy(1); rpcAgora('api_equipa', []).finally(function () { busy(0); }).then(function (r) { EQ = Array.isArray(r) ? r : []; if (APP === 'eq') render(); }, function () { EQ = []; }); }
   return '<div class="w1"><div class="pt"><div><p class="lb">Bastidores</p><h1 class="h1">Equipa e acessos</h1></div></div>' +
     '<p class="lead2">Pessoas da equipa (por exemplo, uma secretária) entram com a sua conta Google. Podem preparar clientes e orçamentos (que só entram depois de o Gabriel ou a Ylana aprovarem) e criar e enviar propostas (que ficam por aprovar para revisão). <b>Não veem finanças.</b> Ao dar acesso, a pessoa recebe um e-mail com o link e as instruções para pôr a app no telemóvel.</p>' +
     '<hr class="st"><p class="lb gl">Pedidos para aprovar · ' + nPed() + '</p>' + (blocoPedidos() || '<p class="em">Sem pedidos pendentes.</p>') +
-    '<hr class="st"><p class="lb gl">Equipa com acesso</p>' + (EQ === null ? '<p class="em">A carregar…</p>' : (EQ.map(function (x) { return '<div class="rw r2"><div><b>' + E(x.nome || x.email) + '</b><small>' + E(x.email) + '</small></div><div class="rt"><button class="bt" data-a="eqdel" data-v="' + E(x.email) + '">Retirar acesso</button></div></div>'; }).join('') || '<p class="em">Ainda ninguém. Adicione abaixo.</p>')) +
+    '<hr class="st"><p class="lb gl">Equipa com acesso</p>' + (!EQ ? '<p class="em">A carregar…</p>' : (EQ.map(function (x) { return '<div class="rw r2"><div><b>' + E(x.nome || x.email) + '</b><small>' + E(x.email) + '</small></div><div class="rt"><button class="bt" data-a="eqdel" data-v="' + E(x.email) + '">Retirar acesso</button></div></div>'; }).join('') || '<p class="em">Ainda ninguém. Adicione abaixo.</p>')) +
     '<div class="fm eqf"><label><span>E-mail Google da pessoa</span><input id="eqe" type="email" autocomplete="off" placeholder="nome@gmail.com"></label><label><span>Nome (opcional)</span><input id="eqn" type="text" autocomplete="off"></label></div><div class="btns" style="position:static;margin:16px 0 0;border:0;padding:0"><button class="b1" data-a="eqadd">Dar acesso</button></div>' +
     '<p class="sm" style="margin-top:14px">O acesso total (Gabriel, Ylana e a conta Old Boots) continua a ser gerido na aba «Acessos» da planilha.</p></div>';
 }
@@ -1385,8 +1387,8 @@ var act = {
     ask('Devolver a proposta para corrigir?', function () { var c = $('#cmt').value.trim(); if (!c) return toast('Escreva o que é preciso corrigir.', 1); faz(c); }, 'Devolver', '<div class="fm"><label><span>O que é preciso corrigir</span><textarea id="cmt" rows="3"></textarea></label></div>');
   },
   corrigirMeu: function (d) { var x = (D.ped || []).find(function (p) { return p.id === d.id; }); if (!x) return; abrirPedido(x, function (payload) { return ['api_corrigir', [d.id, x.fn, x.fn === 'api_upd' ? [x.a[0], x.a[1], payload] : [x.a[0], payload]]]; }); },
-  eqadd: function () { var e = $('#eqe').value.trim(), n = $('#eqn').value.trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e)) return toast('Escreva um e-mail válido.', 1); rpcAgora('api_equipa_add', [e, n]).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso dado a ' + e); }, function (x) { toast(x.message, 1); }); },
-  eqdel: function (d) { ask('Retirar o acesso de ' + E(d.v) + '? A pessoa sai logo de todos os aparelhos.', function () { closeM(); rpcAgora('api_equipa_del', [d.v]).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso retirado'); }, function (x) { toast(x.message, 1); }); }, 'Retirar acesso'); },
+  eqadd: function () { var e = $('#eqe').value.trim(), n = $('#eqn').value.trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e)) return toast('Escreva um e-mail válido.', 1); busy(1); rpcAgora('api_equipa_add', [e, n]).finally(function () { busy(0); }).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso dado a ' + e); }, function (x) { toast(x.message, 1); }); },
+  eqdel: function (d) { ask('Retirar o acesso de ' + E(d.v) + '? A pessoa sai logo de todos os aparelhos.', function () { closeM(); busy(1); rpcAgora('api_equipa_del', [d.v]).finally(function () { busy(0); }).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso retirado'); }, function (x) { toast(x.message, 1); }); }, 'Retirar acesso'); },
   app: function (d) { trocarApp(d.v); },
   fin: function (d) { trocarApp('fin', d.v); },
   pes: function (d) { PES = d.v; FND = false; render(); },
@@ -1432,7 +1434,7 @@ R.addEventListener('input', function (e) { if (e.target.closest && e.target.clos
 R.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeM(); if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.rw[data-a]')) { e.preventDefault(); e.target.click(); } });
 /* ---------- atualizar: puxar para baixo, ou sozinho ao voltar ao app ---------- */
 var aAtualizar = false;
-function sv1(t) { if (nGrav) return; svMostra(t); }
+function sv1(t) { SVT = t || ''; if (nGrav) return svPinta(); svMostra(SVT); }
 function atualizar(calado, puxar) {
   if (!ME || aAtualizar || nGrav) return Promise.resolve(false);
   aAtualizar = true; if (!calado && !puxar) sv1('A atualizar…');
