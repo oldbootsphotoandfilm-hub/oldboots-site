@@ -256,8 +256,7 @@ function painelTabela() {
     '<div class="acts"><button type="button" class="bt" data-a="edtab">Cancelar</button><button type="button" class="b1" data-a="savetab">Guardar tabela de ' + E(F.ano) + '</button></div></div>';
 }
 function resultado(p) {
-  if (p.aprov) return '<div class="res" id="res"><p class="lb">Proposta ' + E(p.id) + ' guardada</p><p class="lk" style="font-size:15px">Fica à espera de aprovação do Gabriel ou da Ylana. Só depois o link funciona para o cliente.</p>' + (p.pdf ? '' : '<span class="lb" id="pdfst">A gerar o PDF…</span>') + '</div>';
-  return '<div class="res" id="res"><p class="lb">Proposta ' + E(p.id) + ' pronta</p><p class="lk">' + E(linkDe(p)) + '</p>' +
+  return '<div class="res" id="res"><p class="lb">Proposta ' + E(p.id) + ' pronta' + (p.aprov ? ' · fica por aprovar pelo Gabriel ou pela Ylana' : '') + '</p><p class="lk">' + E(linkDe(p)) + '</p>' +
     '<div style="display:flex;gap:22px;flex-wrap:wrap;align-items:center"><button type="button" class="bt" data-a="copiar" data-id="' + E(p.id) + '">Copiar link</button>' +
     (p.tel ? '<a class="bt" href="' + E(waCliente(p)) + '" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>' : '') +
     '<a class="bt" href="' + E(linkDe(p).replace('#', '?pre=1#')) + '" target="_blank" rel="noopener">Abrir</a>' +
@@ -268,10 +267,10 @@ function lateral() {
   return '<aside class="side" aria-label="Últimas propostas"><p class="lb">Últimas propostas</p>' + (l.map(cartao).join('') || '<p class="em">Ainda sem propostas.</p>') +
     (D.propostas.length > 6 ? '<p style="margin-top:14px"><button type="button" class="bt" data-a="go" data-v="lista">Ver todas</button></p>' : '') + '</aside>';
 }
-function aprovTag(p) { return p.aprov === 'Por aprovar' ? '<span class="tg oc">À espera de aprovação</span>' : p.aprov === 'Devolvida' ? '<span class="tg rd">Devolvida</span>' : ''; }
+// proposta da equipa ainda por rever: pode ser enviada ao cliente; só fica a etiqueta (e o comentário, se foi devolvida)
+function aprovTag(p) { return p.aprov === 'Por aprovar' ? '<span class="tg oc">Por aprovar</span>' : p.aprov === 'Devolvida' ? '<span class="tg rd">Devolvida</span>' : ''; }
 function cartao(p) {
-  if (p.aprov) return '<div class="card"><p class="nm">' + E(p.casal) + '</p><p style="margin:6px 0">' + aprovTag(p) + '</p>' + (p.coment ? '<p style="font-size:13.5px;color:var(--oc);border-left:2px solid currentColor;padding-left:8px;margin:6px 0">Para corrigir: ' + E(p.coment) + '</p>' : '') + '<p style="font-size:13px;color:var(--mt)">' + E(p.id) + ' · ainda não está visível para o cliente' + (PAPEL === 'dono' ? ' · aprove nos Bastidores' : '') + '</p><div class="ac">' + (p.pdf ? '' : '<button type="button" class="bt" data-a="pdf" data-id="' + E(p.id) + '" style="font-size:11px">Gerar PDF</button>') + '<button type="button" class="bt" data-a="editar" data-id="' + E(p.id) + '" style="font-size:11px">' + (p.aprov === 'Devolvida' ? 'Corrigir' : 'Editar') + '</button></div></div>';
-  return '<div class="card"><p class="nm">' + E(p.casal) + '</p><p style="margin:6px 0">' + estado(p) + '</p><p style="font-size:13px;color:var(--mt)">' + E(p.id) + (p.orc ? ' · pedido ' + E(p.orc) : '') + ' · ' + (p.idioma === 'en' ? 'EN' : 'PT') + ' · válida até ' + fd(p.validade) +
+  return '<div class="card"><p class="nm">' + E(p.casal) + '</p><p style="margin:6px 0">' + estado(p) + aprovTag(p) + '</p>' + (p.coment ? '<p style="font-size:13.5px;color:var(--oc);border-left:2px solid currentColor;padding-left:8px;margin:6px 0">Para corrigir: ' + E(p.coment) + '</p>' : '') + '<p style="font-size:13px;color:var(--mt)">' + E(p.id) + (p.orc ? ' · pedido ' + E(p.orc) : '') + ' · ' + (p.idioma === 'en' ? 'EN' : 'PT') + ' · válida até ' + fd(p.validade) +
     (p.ultima ? ' · aberta ' + E(fd(p.ultima)) + ' ' + E(String(p.ultima).slice(11, 16)) : '') + '</p><div class="ac">' +
     '<button type="button" class="bt" data-a="copiar" data-id="' + E(p.id) + '" style="font-size:11px">Copiar link</button>' +
     (p.tel ? '<a class="bt" style="font-size:11px" href="' + E(waCliente(p)) + '" target="_blank" rel="noopener">WhatsApp</a>' : '') +

@@ -242,7 +242,7 @@ function gerarPDF() {
 
 if (!/^[A-Za-z0-9]{20,40}$/.test(COD)) { msg(L.falta); return; }
 var ctrl = new AbortController(), tempo = setTimeout(function () { ctrl.abort(); }, 25000);
-fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: 'ver', a: [COD, PREVIA], s: PREVIA ? (function () { try { return localStorage.getItem('ob_propostas_sessao') || ''; } catch (e) { return ''; } })() : '' }), signal: ctrl.signal, credentials: 'omit' })
+fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: 'ver', a: [COD, PREVIA] }), signal: ctrl.signal, credentials: 'omit' })
   .then(function (r) { return r.json(); })
   .then(function (j) {
     clearTimeout(tempo);

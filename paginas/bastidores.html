@@ -957,13 +957,13 @@ function pedRows(l) {
       '<div class="rt"><button class="bt" data-a="dec" data-id="' + E(x.id) + '" data-v="recusar">Recusar</button><button class="bt" data-a="dec" data-id="' + E(x.id) + '" data-v="devolver">Devolver</button>' + (podeCorr(x) ? '<button class="bt" data-a="dec" data-id="' + E(x.id) + '" data-v="corrigir">Corrigir e aprovar</button>' : '') + '<button class="b1 sm1" data-a="dec" data-id="' + E(x.id) + '" data-v="aprovar">Aprovar</button></div></div>'; }).join('');
 }
 function pedRowsP(l) {
-  return l.map(function (x) { return '<div class="rw r2 ped"><div><b>' + E(x.nome || x.quem) + '</b><small>' + fdh(x.quando) + '</small><p class="pr"><b>Proposta ' + E(x.id) + ' · ' + E(x.casal) + '</b></p><ul class="pl"><li>Ainda não está visível para o cliente.</li>' + (x.pdf ? '<li>PDF gerado; a pessoa passa a vê-lo depois de aprovar.</li>' : '') + '</ul></div>' +
+  return l.map(function (x) { return '<div class="rw r2 ped"><div><b>' + E(x.nome || x.quem) + '</b><small>' + fdh(x.quando) + '</small><p class="pr"><b>Proposta ' + E(x.id) + ' · ' + E(x.casal) + '</b></p><ul class="pl"><li>Criada ou alterada pela equipa; o link já pode ter sido enviado ao cliente.</li><li>Reveja no gerador e aprove, ou devolva com o que corrigir.</li></ul></div>' +
     '<div class="rt"><button class="bt" data-a="abrirProp" data-u="' + E(SITE + '/propostas/#abrir=' + encodeURIComponent(x.id)) + '">Abrir no gerador</button><button class="bt" data-a="propdec" data-id="' + E(x.id) + '" data-v="devolver">Devolver</button><button class="b1 sm1" data-a="propdec" data-id="' + E(x.id) + '" data-v="aprovar">Aprovar</button></div></div>'; }).join('');
 }
 var nPed = function () { return (D.ped || []).length + (D.pedP || []).length; };
 function blocoPedidos() { return pedRows(D.ped || []) + pedRowsP(D.pedP || []); }function verPedidos() {
   if (!nPed()) { closeM(); return; }
-  openM('<p class="lb">Equipa</p><h3 class="h2 mh2">' + pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') + '</h3><p class="sm">Nada disto fica ativo antes de o aprovar. Pode aprovar, corrigir antes de aprovar, devolver com um comentário para a pessoa corrigir, ou recusar.</p>' + blocoPedidos());
+  openM('<p class="lb">Equipa</p><h3 class="h2 mh2">' + pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') + '</h3><p class="sm">Alterações a clientes e orçamentos só entram depois de aprovar; propostas já podem estar com o cliente. Pode aprovar, corrigir antes de aprovar, devolver com um comentário para a pessoa corrigir, ou recusar.</p>' + blocoPedidos());
 }// abre sozinho quando chegam pedidos novos (uma vez por pedido)
 function avisaPedidos() {
   if (!dono()) return; var todos = (D.ped || []).concat(D.pedP || []), novos = todos.filter(function (x) { return !pedVistos[x.id + (x.quando || '')]; });
@@ -973,7 +973,7 @@ function avisaPedidos() {
   var l = D.ped || [];
   if (EQ === null) { rpcAgora('api_equipa', []).then(function (r) { EQ = Array.isArray(r) ? r : []; if (APP === 'eq') render(); }, function () { EQ = []; }); }
   return '<div class="w1"><div class="pt"><div><p class="lb">Bastidores</p><h1 class="h1">Equipa e acessos</h1></div></div>' +
-    '<p class="lead2">Pessoas da equipa (por exemplo, uma secretária) entram com a sua conta Google. Podem preparar clientes, orçamentos e propostas, mas <b>não veem finanças</b>, e nada do que fazem fica ativo antes de o Gabriel ou a Ylana aprovarem.</p>' +
+    '<p class="lead2">Pessoas da equipa (por exemplo, uma secretária) entram com a sua conta Google. Podem preparar clientes e orçamentos (que só entram depois de o Gabriel ou a Ylana aprovarem) e criar e enviar propostas (que ficam por aprovar para revisão). <b>Não veem finanças.</b> Ao dar acesso, a pessoa recebe um e-mail com o link e as instruções para pôr a app no telemóvel.</p>' +
     '<hr class="st"><p class="lb gl">Pedidos para aprovar · ' + nPed() + '</p>' + (blocoPedidos() || '<p class="em">Sem pedidos pendentes.</p>') +
     '<hr class="st"><p class="lb gl">Equipa com acesso</p>' + (EQ === null ? '<p class="em">A carregar…</p>' : (EQ.map(function (x) { return '<div class="rw r2"><div><b>' + E(x.nome || x.email) + '</b><small>' + E(x.email) + '</small></div><div class="rt"><button class="bt" data-a="eqdel" data-v="' + E(x.email) + '">Retirar acesso</button></div></div>'; }).join('') || '<p class="em">Ainda ninguém. Adicione abaixo.</p>')) +
     '<div class="fm eqf"><label><span>E-mail Google da pessoa</span><input id="eqe" type="email" autocomplete="off" placeholder="nome@gmail.com"></label><label><span>Nome (opcional)</span><input id="eqn" type="text" autocomplete="off"></label></div><div class="btns" style="position:static;margin:16px 0 0;border:0;padding:0"><button class="b1" data-a="eqadd">Dar acesso</button></div>' +
