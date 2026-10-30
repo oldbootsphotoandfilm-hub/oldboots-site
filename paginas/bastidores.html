@@ -334,8 +334,11 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .xm{top:16px;right:20px}
 #ob #t{left:20px;bottom:20px}
 #ob .btns{justify-content:space-between}
-#ob .ctab{gap:22px}
-#ob .ctab button{font-size:20px}
+#ob .ctab{gap:22px;overflow-x:auto;scrollbar-width:none;white-space:nowrap}
+#ob .ctab::-webkit-scrollbar{display:none}
+#ob .ctab button{font-size:17px;flex:none}
+#ob .ctab{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+#ob .ctab.fim{-webkit-mask-image:none;mask-image:none}
 #ob .kpi{gap:12px}
 #ob .kpi .num{font-size:20px}
 #ob .fx{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
@@ -420,8 +423,9 @@ var VAZIO = function () { return { orc: [], cli: [], par: [], pag: [], ext: [], 
 var BK = '', ME = '', D = VAZIO(), view = 'hoje', cal = new Date(), sel = '', cur = null, fid = '', ftab = 'r', q = '', PROP = [], propEm = 0;
 var SITE = 'https://oldbootsphotoandfilm.com';
 var FX0 = function () { return { ano: '', mes: '', est: '', pg: '', serv: '', ori: '', pend: '', tp: '', ord: 'data', tempo: 'prox' }; };
+var CATEGORIAS_L = ['Casamento', 'Ensaio', 'Evento'];
 var cat = 'cas', FX = FX0(), fxAb = !(window.innerWidth && window.innerWidth <= 820);
-try { var _g = JSON.parse(localStorage.getItem('ob_v3_fx') || 'null'); if (_g && _g.FX) { FX = Object.assign(FX0(), _g.FX); cat = _g.cat === 'ee' ? 'ee' : 'cas'; } } catch (e) { }
+try { var _g = JSON.parse(localStorage.getItem('ob_v3_fx') || 'null'); if (_g && _g.FX) { FX = Object.assign(FX0(), _g.FX); cat = _g.cat === 'ee' || _g.cat === 'conc' ? _g.cat : 'cas'; } } catch (e) { }
 var guardaFx = function () { try { localStorage.setItem('ob_v3_fx', JSON.stringify({ FX: FX, cat: cat })); } catch (e) { } };
 var catDe = function (x) { return x && (x.categoria === 'Ensaio' || x.categoria === 'Evento') ? x.categoria : 'Casamento'; };
 // "Zé Bundinha e Maria Turbina" → "Zé & Maria" (só quando são duas pessoas; o resto fica igual)
@@ -762,12 +766,12 @@ function passa(c, semTempo) {
   return true;
 }
 function listaCli() {
-  var Q = q.trim().toLowerCase(), base = D.cli.filter(function (c) { return cat === 'cas' ? ehCas(c) : !ehCas(c); });
+  var Q = q.trim().toLowerCase(), base = D.cli.filter(function (c) { var cc = c.status === 'Concluído'; return cat === 'conc' ? cc : !cc && (cat === 'cas' ? ehCas(c) : !ehCas(c)); });
   var l = base.filter(function (c) {
     if (Q) return [c.nome_do_casal, c.email, c.telefone, c.nome_completo_contrato, c.local_da_cerimonia, c.local_da_rececao, c.nif].join(' ').toLowerCase().indexOf(Q) >= 0 && passa(c, true);
-    return passa(c, false);
+    return passa(c, cat === 'conc'); // concluídos: mostra todos, sem o filtro de próximos/realizados
   });
-  var desc = FX.ord === 'data_d' || (FX.ord === 'data' && FX.tempo === 'pass' && !Q);
+  var desc = FX.ord === 'data_d' || (FX.ord === 'data' && (FX.tempo === 'pass' || cat === 'conc') && !Q);
   l.sort(function (a, b) {
     if (FX.ord === 'nome') return String(a.nome_do_casal).localeCompare(String(b.nome_do_casal), 'pt');
     if (FX.ord === 'falta') return (+b.em_falta || 0) - (+a.em_falta || 0);
@@ -779,23 +783,23 @@ var fsel = function (k, lab, ops) { return '<label><span>' + lab + '</span><sele
 var TODOS = function (l) { return [['', 'Todos']].concat(l); };
 function vCli() {
   var r = listaCli(), base = r.base, l = r.l, Y = FX.ano || TODAY.slice(0, 4);
-  var nCas = D.cli.filter(ehCas).length, nEe = D.cli.length - nCas;
+  var conc = function (c) { return c.status === 'Concluído'; }, nConc = D.cli.filter(conc).length, nCas = D.cli.filter(function (c) { return ehCas(c) && !conc(c); }).length, nEe = D.cli.length - nConc - nCas;
   var ids = {}; base.forEach(function (c) { ids[c.id] = 1; });
   var kEv = base.filter(function (c) { return c.status !== 'Cancelado' && String(c.data_do_evento || '').slice(0, 4) === Y; }).length;
   var kRec = sum(D.pag.filter(function (p) { return ids[p.id_cliente] && String(p.data).slice(0, 4) === Y; }), function (p) { return p.valor; });
-  var kFal = sum(base.filter(function (c) { return c.status === 'Fechado'; }), function (c) { return c.em_falta; });
+  var kFal = sum(base.filter(function (c) { return c.status === 'Fechado' || c.status === 'Concluído'; }), function (c) { return c.em_falta; });
   var anos = base.map(function (c) { return String(c.data_do_evento || '').slice(0, 4); }).filter(function (x, i, a) { return x && a.indexOf(x) === i; }).sort();
   if (FX.ano && anos.indexOf(FX.ano) < 0) anos.push(FX.ano);
   var ativos = ['ano', 'mes', 'est', 'pg', 'serv', 'ori', 'pend', 'tp'].filter(function (k) { return FX[k]; }).length;
-  var esc = !r.Q && FX.tempo === 'prox' ? base.filter(function (c) { return passa(c, true) && c.data_do_evento && c.data_do_evento < TODAY; }).length : 0;
-  var ee = cat === 'ee';
-  return '<div class="w1"><div class="pt"><div><p class="lb">' + pl(D.cli.length, 'cliente', 'clientes') + '</p><h1 class="h1">Clientes</h1></div><button class="b1" data-a="nc">' + (ee ? 'Novo ensaio ou evento' : 'Novo casamento') + '</button></div>' +
-    '<div class="ctab" role="tablist">' + [['cas', 'Casamentos', nCas], ['ee', 'Ensaios e eventos', nEe]].map(function (t) { return '<button role="tab" data-a="ctab" data-v="' + t[0] + '" class="' + (cat === t[0] ? 'on' : '') + '" aria-selected="' + (cat === t[0]) + '">' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</div>' +
-    '<div class="kpi"><div><span class="lb">Eventos em ' + E(Y) + '</span><span class="num">' + kEv + '</span></div><div><span class="lb">Recebido em ' + E(Y) + '</span><span class="num">' + eur(kRec) + '</span></div><div><span class="lb">Em falta · fechados</span><span class="num' + (kFal > 0 ? '' : '') + '">' + eur(kFal) + '</span></div></div>' +
+  var esc = !r.Q && FX.tempo === 'prox' && cat !== 'conc' ? base.filter(function (c) { return passa(c, true) && c.data_do_evento && c.data_do_evento < TODAY; }).length : 0;
+  var ee = cat === 'ee', ehConc = cat === 'conc';
+  return '<div class="w1"><div class="pt"><div><p class="lb">' + pl(D.cli.length, 'cliente', 'clientes') + '</p><h1 class="h1">Clientes</h1></div>' + (ehConc ? '' : '<button class="b1" data-a="nc">' + (ee ? 'Novo ensaio ou evento' : 'Novo casamento') + '</button>') + '</div>' +
+    '<div class="ctab" role="tablist">' + [['cas', 'Casamentos', nCas], ['ee', 'Ensaios e eventos', nEe], ['conc', 'Concluídos', nConc]].map(function (t) { return '<button role="tab" data-a="ctab" data-v="' + t[0] + '" class="' + (cat === t[0] ? 'on' : '') + '" aria-selected="' + (cat === t[0]) + '">' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</div>' +
+    '<div class="kpi"><div><span class="lb">' + (ehConc ? 'Concluídos de ' : 'Eventos em ') + E(Y) + '</span><span class="num">' + kEv + '</span></div><div><span class="lb">Recebido em ' + E(Y) + '</span><span class="num">' + eur(kRec) + '</span></div><div><span class="lb">' + (ehConc ? 'Por receber' : 'Em falta · fechados') + '</span><span class="num' + (kFal > 0 ? '' : '') + '">' + eur(kFal) + '</span></div></div>' +
     (fxAb ? '<div class="fx">' : '<div class="fx" hidden>') +
       fsel('ano', 'Ano', TODOS(anos)) +
       fsel('mes', 'Mês', TODOS(MESES.map(function (m, i) { return [String(i + 1).padStart(2, '0'), m]; }))) +
-      (ee ? fsel('tp', 'Categoria', TODOS(['Ensaio', 'Evento'])) : '') +
+      (ee ? fsel('tp', 'Categoria', TODOS(['Ensaio', 'Evento'])) : ehConc ? fsel('tp', 'Categoria', TODOS(CATEGORIAS_L)) : '') +
       fsel('est', 'Estado', TODOS(SEL.cs)) +
       fsel('pg', 'Pagamento', TODOS([['p', 'A pagar'], ['a', 'Em atraso'], ['ok', 'Pago']])) +
       fsel('serv', 'Serviço', TODOS(SEL.serv)) +
@@ -803,17 +807,17 @@ function vCli() {
       fsel('pend', 'Pendente', TODOS([['ct', 'Contrato por assinar'], ['dp', 'Sem depósito'], ['gl', 'Galeria por entregar']])) +
       fsel('ord', 'Ordenar por', [['data', 'Data do evento'], ['data_d', 'Data (mais recentes)'], ['nome', 'Nome'], ['falta', 'Valor em falta']]) +
     '</div>' +
-    '<div class="fbar"><div class="seg" role="group" aria-label="Quando">' + [['prox', 'Próximos'], ['pass', 'Já realizados'], ['todos', 'Todos']].map(function (x) { return '<button data-a="tempo" data-v="' + x[0] + '" class="' + (FX.tempo === x[0] ? 'on' : '') + '" aria-pressed="' + (FX.tempo === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="fbar">' + (ehConc ? '<div class="seg"></div>' : '<div class="seg" role="group" aria-label="Quando">' + [['prox', 'Próximos'], ['pass', 'Já realizados'], ['todos', 'Todos']].map(function (x) { return '<button data-a="tempo" data-v="' + x[0] + '" class="' + (FX.tempo === x[0] ? 'on' : '') + '" aria-pressed="' + (FX.tempo === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>') +
       '<div class="seg"><button data-a="fxab" aria-expanded="' + fxAb + '">' + (fxAb ? 'Esconder filtros' : 'Filtros' + (ativos ? ' (' + ativos + ')' : '')) + '</button>' + (ativos ? '<button data-a="limpafx">Limpar' + (fxAb ? ' filtros (' + ativos + ')' : '') + '</button>' : '') + '<button data-a="expcli">Exportar</button></div></div>' +
     '<input id="q" class="qs" type="search" placeholder="Pesquisar nome, telefone, local…" value="' + E(q) + '" aria-label="Pesquisar clientes" autocomplete="off">' +
     '<p class="sm" style="margin:-8px 0 6px">' + pl(l.length, 'resultado', 'resultados') + (r.Q && FX.tempo !== 'todos' ? ' · a pesquisa inclui os já realizados' : '') + (esc ? ' · ' + pl(esc, 'já realizado escondido', 'já realizados escondidos') : '') + '</p>' +
     (l.map(function (c) {
       var pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, d = c.data_do_evento ? dias(c.data_do_evento) : null;
-      return '<div class="rw rc" data-a="f" data-id="' + E(c.id) + '"><div><span class="nm">' + E(nc(c.nome_do_casal)) + '</span>' + (c.status !== 'Fechado' ? tg(c.status) : '') + (ee ? tg(catDe(c) + (c.subtipo ? ' · ' + c.subtipo : ''), 'bl') : '') + (atraso(c.id) ? tg('Em atraso', 'rd') : '') +
+      return '<div class="rw rc" data-a="f" data-id="' + E(c.id) + '"><div><span class="nm">' + E(nc(c.nome_do_casal)) + '</span>' + (c.status !== 'Fechado' && !ehConc ? tg(c.status) : '') + (ee || (ehConc && !ehCas(c)) ? tg(catDe(c) + (c.subtipo ? ' · ' + c.subtipo : ''), 'bl') : '') + (atraso(c.id) ? tg('Em atraso', 'rd') : '') +
         '<small>' + fd(c.data_do_evento) + (d !== null && d >= 0 ? ' · faltam ' + d + ' dias' : '') + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small>' +
         '<small class="mks">' + (c.contrato_assinado === 'Sim' ? '<span class="mk on">Contrato</span>' : '<button class="mk" data-a="assinar" data-id="' + E(c.id) + '" title="Marcar o contrato como assinado">Contrato</button>') + '<span class="mk' + (c.deposito_feito === 'Sim' ? ' on' : '') + '">Depósito</span><span class="mk' + (c.link_da_galeria ? ' on' : '') + '">Galeria</span></small></div>' +
         '<div class="pgr"><div class="pgh">' + (tg(c.estado_do_pagamento) || '<span></span>') + '<span>' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><small>' + (+c.em_falta > 0 ? 'falta ' + eur(c.em_falta) : (+c.valor_final > 0 ? 'tudo pago' : 'valor por definir')) + '</small></div></div>';
-    }).join('') || '<p class="em">' + (base.length ? 'Nenhum cliente com estes filtros.' : (ee ? 'Ainda sem ensaios nem eventos.' : 'Ainda sem casamentos.')) + '</p>') + '</div>';
+    }).join('') || '<p class="em">' + (base.length ? 'Nenhum cliente com estes filtros.' : (ehConc ? 'Ainda não há clientes concluídos. Quando marcar um cliente como concluído, ele passa para aqui.' : ee ? 'Ainda sem ensaios nem eventos.' : 'Ainda sem casamentos.')) + '</p>') + '</div>';
 }
 
 function evs() { var m = {}; var add = function (d, x) { (m[d] = m[d] || []).push(x); }; D.cli.filter(function (c) { return c.status !== 'Cancelado' && c.data_do_evento; }).forEach(function (c) { add(c.data_do_evento, { t: 'c', e: !ehCas(c), id: c.id, n: nc(c.nome_do_casal), h: c.hora }); }); D.orc.filter(function (o) { return openO(o) && o.data_do_evento; }).forEach(function (o) { add(o.data_do_evento, { t: 'o', id: o.id, n: nc(o.nome_do_casal) }); }); return m; }
@@ -867,7 +871,7 @@ function orcF(id) {
     caixaProp(o) + '<div class="btns"><button class="b2" data-a="eo" data-id="' + E(id) + '">Editar</button>' + (o.status !== 'Convertido' ? '<button class="b1" data-a="conv" data-id="' + E(id) + '">Fechou: criar cliente</button>' : '') + '</div>');
 }
 
-function ficha(id, tab, topo) { if (!D.cli.some(function (x) { return x.id === id; })) return; cat = ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
+function ficha(id, tab, topo) { if (!D.cli.some(function (x) { return x.id === id; })) return; cat = cli(id).status === 'Concluído' ? 'conc' : ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
 function vFicha() {
   var c = D.cli.find(function (x) { return x.id === fid; }); if (!c) { view = 'cli'; return vCli(); }
   var id = fid, tab = ftab, d = c.data_do_evento ? dias(c.data_do_evento) : null, pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, doc = D.doc.find(function (x) { return x.id_cliente === id; }) || {};
@@ -1141,7 +1145,7 @@ var act = {
   x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); }, paga: function (d) { pagar(d.id, d.p); },
   no: function () { novoOrc(); }, nc: function () { novoCli(); }, np: function (d) { novoPag(d.id); },
   eo: function (d) { novoOrc(D.orc.find(function (o) { return o.id === d.id; })); }, ec: function (d) { novoCli(cli(d.id)); },
-  ctab: function (d) { cat = d.v === 'ee' ? 'ee' : 'cas'; if (cat === 'cas') FX.tp = ''; guardaFx(); render(); },
+  ctab: function (d) { cat = d.v === 'ee' || d.v === 'conc' ? d.v : 'cas'; FX.tp = ''; guardaFx(); render(); },
   tempo: function (d) { FX.tempo = d.v; guardaFx(); render(); },
   fxab: function () { fxAb = !fxAb; render(); },
   limpafx: function () { var t = FX.tempo, o = FX.ord; FX = FX0(); FX.tempo = t; FX.ord = o; guardaFx(); render(); },
@@ -1201,6 +1205,7 @@ function render() {
   $$('.mh [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, pag: vPag, ficha: vFicha })[view]();
   tbx();
+  var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }
   if (mesmo) R.scrollTop = y; // depois de gravar, fica no mesmo sítio
 }
