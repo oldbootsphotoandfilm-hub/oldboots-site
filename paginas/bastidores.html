@@ -52,6 +52,14 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .pl li{margin:2px 0;word-break:break-word}
 #ob .cm{margin-top:6px;font-size:13.5px;color:var(--oc);border-left:2px solid var(--gd);padding-left:8px}
 #ob .ped .rt{flex-wrap:wrap;justify-content:flex-end}
+#ob .xe{position:absolute;top:22px;right:112px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
+#ob .xe:hover{color:var(--bt)}
+#ob .btns.dec{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+#ob .btns.dec .b1:only-child{grid-column:1/-1}
+#ob .btns.dec .b1,#ob .btns.dec .bo{text-align:center;justify-content:center;padding:15px 10px}
+#ob .bo{border:1px solid var(--ink);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:none}
+#ob .bo:hover{background:rgba(74,68,41,.06)}
+@media (max-width:600px){#ob .xe{top:16px;right:96px}}
 #ob .mtv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 #ob .mtv label{display:flex;align-items:center;border:1px solid var(--sf);padding:11px 12px;cursor:pointer;font-size:14.5px;line-height:1.3;position:relative}
 #ob .mtv input{position:absolute;opacity:0;pointer-events:none}
@@ -1116,7 +1124,8 @@ function orcF(id) {
       '<div class="mq"><p class="lb">Próximo contacto · ' + (pc ? (dd < 0 ? '<span class="atr">' + fdc(pc) + ' (atrasado)</span>' : fdc(pc)) : 'sem data') + '</p><div class="stp">' +
       [[1, 'Amanhã'], [3, 'Daqui a 3 dias'], [7, 'Daqui a 1 semana'], [0, 'Sem data']].map(function (x) { return '<button data-a="opc" data-id="' + E(id) + '" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' : '<p class="tgs" style="margin-top:14px">' + tg('Convertido') + '</p>') +
     '<div class="g2" style="margin-top:18px">' + ln('Data do evento', fdc(o.data_do_evento)) + ln('Valor orçado', o.valor_orcado ? eur(o.valor_orcado) : '') + ln('Serviço', E(o.tipo_de_servico)) + ln('Origem', E(o.origem)) + (o.status === 'Perdido' ? ln('Porque não fechou', E(o.motivo_da_perda || 'sem motivo indicado'), 1) : '') + ln('Local', E(o.local), 1) + ln('Notas', E(o.observacoes), 1) + '</div>' +
-    caixaProp(o) + '<div class="btns bt3"><button class="b2" data-a="eo" data-id="' + E(id) + '">Editar</button>' + (o.status !== 'Convertido' && o.status !== 'Perdido' ? '<button class="b2" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + (o.status !== 'Convertido' ? '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou' : 'Fechou: criar cliente') + '</button>' : '') + '</div>');
+    caixaProp(o) + '<button class="xe" data-a="eo" data-id="' + E(id) + '">✎ Editar</button>' +
+    (o.status === 'Convertido' ? '' : '<div class="btns dec">' + (o.status !== 'Perdido' ? '<button class="bo" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou ✓' : 'Fechou ✓') + '</button></div>'));
 }
 
 function ficha(id, tab, topo) { if (!D.cli.some(function (x) { return x.id === id; })) return; cat = cli(id).status === 'Concluído' ? 'conc' : ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
