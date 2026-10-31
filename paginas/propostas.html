@@ -382,8 +382,16 @@ function render() {
 }
 if (ENDPOINT.indexOf('COLE_AQUI') === 0 || CLIENT_ID.indexOf('COLE_AQUI') === 0) { $('#lgMsg').textContent = 'Falta configurar: preencha ENDPOINT e CLIENT_ID no código desta página.'; return; }
 try { fetch(ENDPOINT, { mode: 'no-cors', credentials: 'omit' }).catch(function () { }); } catch (e) { }
+// vindo do app Bastidores (app.oldbootsphotoandfilm.com): traz um bilhete de uso único (60 s) no endereço, trocado aqui por uma sessão
+var mB = /(?:^|&)b=([a-f0-9]{64})(?=&|$)/.exec(String(location.hash || '').replace(/^#/, '')), esperaB = !!(mB && !SES);
+if (mB) { var resto = String(location.hash).replace(/^#/, '').split('&').filter(function (x) { return x.indexOf('b=') !== 0; }).join('&'); try { history.replaceState(null, '', location.pathname + location.search + (resto ? '#' + resto : '')); } catch (e) { } }
+if (esperaB) fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: 'entrarBilhete', b: mB[1] }), credentials: 'omit' }).then(function (r) { return r.json(); })
+  .then(function (j) { if (j && j.ok && j.r && /^[a-f0-9]{64}$/.test(j.r.s)) { guardaSes(j.r.s); entrar(true); } else carregaGis(); }, carregaGis);
 if (SES) entrar(true); // sessão guardada neste aparelho: entra direto
+function carregaGis() {
 if (window.google && google.accounts && google.accounts.id) initGis();
 else { var s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = initGis; s.onerror = function () { $('#lgMsg').textContent = 'Não foi possível carregar o login do Google.'; }; document.head.appendChild(s); }
+}
+if (!esperaB) carregaGis();
 })();
 </script>
