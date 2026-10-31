@@ -1332,7 +1332,7 @@ function avisosPos() {
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
 /* ---------- questionário do dia (página dos noivos): link e estado ---------- */
-var Q_URL = 'https://oldbootsphotoandfilm.com/questionario/#';
+var Q_URL = 'https://oldbootsphotoandfilm.com/casal/#';
 var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
 var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
 var temQ = function (c) { return ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído'); };
