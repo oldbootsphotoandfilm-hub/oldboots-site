@@ -168,6 +168,21 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .ft2{padding:34px 22px calc(34px + env(safe-area-inset-bottom));text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
 #obq .ft2 .tag{display:flex;gap:30px;justify-content:center}
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
+#obq .rv{opacity:0;transform:translateY(28px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1) var(--d,0s),transform 1.1s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+#obq .rv.in{opacity:1;transform:none}
+#obq .rv.cl{opacity:1;transform:none;clip-path:inset(0 0 100% 0);transition:clip-path 1.4s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
+#obq .rv.cl.in{clip-path:inset(0 0 -10% 0)}
+#obq .rv.ja{transition:none}
+#obq .em2.rv.in{opacity:.8}
+#obq .pbar.rv i{transform-origin:0 50%;transform:scaleX(0);transition:transform 1.4s cubic-bezier(.2,.7,.2,1) calc(var(--d,0s) + .25s)}
+#obq .pbar.rv.in i{transform:none}
+#obq .tb.rv .stp i.on{transform-origin:0 50%;transform:scaleX(0);transition:transform .5s ease}
+#obq .tb.rv.in .stp i.on{transform:none}
+#obq .tb.rv.in .stp i.on:nth-child(2){transition-delay:.12s}#obq .tb.rv.in .stp i.on:nth-child(3){transition-delay:.24s}#obq .tb.rv.in .stp i.on:nth-child(4){transition-delay:.36s}
+#obq .tb.rv.in .stp i.on:nth-child(5){transition-delay:.48s}#obq .tb.rv.in .stp i.on:nth-child(6){transition-delay:.6s}#obq .tb.rv.in .stp i.on:nth-child(7){transition-delay:.72s}
+#obq .pap.rv.in{animation:obqFl 7s ease-in-out 1.6s infinite}
+@keyframes obqFl{50%{translate:0 -4px}}
+@media (prefers-reduced-motion:reduce){#obq .rv,#obq .rv.cl{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important;animation:none!important}#obq .pbar.rv i,#obq .tb.rv .stp i.on{transform:none!important}}
 #obq .tb{background:#fbfaf7 var(--pap) center/cover;color:var(--dk);padding:22px 22px 20px;margin-top:16px}
 #obq .tb .sc{font-size:34px;margin:0 0 4px;text-align:left}
 #obq .tb .et{font:600 11px/1.4 Montserrat,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-top:12px;display:flex;justify-content:space-between;gap:10px}
@@ -480,7 +495,34 @@ function casa() {
   A.innerHTML = '<section class="cv ol"><p class="sc" style="margin:0 0 6px">' + X('pag') + '</p>' + nomesCapa(nome) + cd + '<p class="dtl">' + E(dt(S.data)) + '</p><p class="tag">@oldbootsphotoandfilm</p></section>' +
     '<nav class="snav" aria-label="Secções">' + ordem.map(function (x) { return [x.id, x.n]; }).map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
     ordem.map(function (x, i) { return x.h.replace('@C', i % 2 ? 'ol' : 'crm'); }).join('') +
-    '<footer class="ft2 ol"><a class="bc" href="' + WHATS + '" target="_blank" rel="noopener">' + X('falar') + '</a><p class="tag"><span>' + X('feito') + ' Gabriel e Ylana</span><span>Portugal</span></p></footer>';
+    '<footer class="ft2 ol"><a class="bc" href="' + WHATS + '" target="_blank" rel="noopener">' + X('falar') + '</a><p class="tag"><span>' + X('feito') + ' Gabriel e Ylana</span><span>Portugal</span></p></footer>';;
+  anima();
+}
+// animações como as do site da Old Boots: os blocos sobem e aparecem ao chegar ao ecrã, os títulos revelam-se de cima
+// para baixo, as barras enchem-se e os dias contam. Tudo CSS + um único IntersectionObserver (leve).
+var IO = null, jaAnimou = false;
+function anima() {
+  var calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var marca = function (sel, cls, passo, base) { $$(sel).forEach(function (el, i) { el.classList.add('rv'); if (cls) el.classList.add(cls); el.style.setProperty('--d', ((base || 0) + i * (passo || 0)).toFixed(2) + 's'); }); };
+  var sp = $('#obqSpl'), x0 = sp && !sp.classList.contains('out') ? .7 : 0; // se o ecrã de abertura ainda está a sair, a capa espera por ele
+  marca('.cv > .sc', '', 0, x0 + .1); marca('.cv .nms > span', '', .14, x0 + .25); marca('.cv .cdn', '', 0, x0 + .7); marca('.cv .dtl', '', 0, x0 + .9);
+  $$('.sec').forEach(function (sec) {
+    marca('#' + sec.id + ' .hd .tt', 'cl', 0, 0); marca('#' + sec.id + ' .hd .sc', '', 0, .25);
+    marca('#' + sec.id + ' .kv2 > div', '', .07, .1);
+    marca('#' + sec.id + ' .in > .em2, #' + sec.id + ' .mon, #' + sec.id + ' .pbar, #' + sec.id + ' .lbl, #' + sec.id + ' .pap, #' + sec.id + ' .tb, #' + sec.id + ' .bcs', '', .06, .05);
+    marca('#' + sec.id + ' .rw2, #' + sec.id + ' .xt', '', .04, .05);
+  });
+  var dias = $('.cdn b'), alvo = dias ? parseInt(dias.textContent, 10) : NaN;
+  if (calmo || jaAnimou || !('IntersectionObserver' in window)) { $$('.rv').forEach(function (el) { el.classList.add('in', 'ja'); }); return; }
+  jaAnimou = true; // ao atualizar os dados (ou mudar de língua) não volta a animar
+  if (IO) IO.disconnect();
+  IO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { var t = e.target; if (t.classList.contains('rv')) t.classList.add('in'); Array.prototype.forEach.call(t.querySelectorAll(':scope > .rv.cl'), function (x) { x.classList.add('in'); }); IO.unobserve(t); } }); }, { root: R, threshold: .12, rootMargin: '0px 0px -6% 0px' });
+  // os títulos que se revelam por «cortina» começam invisíveis (área zero): observa-se o bloco do título
+  $$('.rv').forEach(function (el) { IO.observe(el.classList.contains('cl') ? el.parentNode : el); });
+  // contagem dos dias (só na capa, uma vez)
+  if (dias && alvo > 0) { var t0 = 0, dur = Math.min(1400, 500 + alvo * 4); dias.textContent = '0';
+    var f = function (t) { if (!t0) t0 = t; var k = Math.min(1, (t - t0) / dur), e2 = 1 - Math.pow(1 - k, 3); dias.textContent = Math.round(alvo * e2); if (k < 1) requestAnimationFrame(f); };
+    setTimeout(function () { requestAnimationFrame(f); }, 750 + x0 * 1000); }
 }
 // questionário: abre o formulário (ou as respostas); se ainda não abriu, mostra o cartão dele na página do casal
 function abrirQ() {
