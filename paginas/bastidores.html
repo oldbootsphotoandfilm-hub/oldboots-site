@@ -80,11 +80,11 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .kgo{opacity:.35}
 #ob .kfant{position:fixed;left:0;top:0;z-index:50;pointer-events:none;margin:0;box-shadow:0 12px 30px rgba(74,68,41,.25);cursor:grabbing}
 #ob .kbk{font:600 10px/1 Lora,serif;letter-spacing:.1em;text-transform:uppercase;padding:5px 6px 4px;color:var(--rd);border:1px solid currentColor}
-#ob .kbk.ok{color:var(--gr)}
+#ob .kbk.ok{color:var(--gr)}.kbk.na{color:var(--mt)}
 #ob .fm.pj{grid-template-columns:1fr 1fr 1fr;margin-top:8px}
 #ob .fm.cnf{margin-top:10px;display:block}
 #ob .bkb{margin-top:14px;padding-top:10px;border-top:1px dashed var(--sf)}
-#ob .bkb .fm.pj{grid-template-columns:1fr 1.4fr}
+#ob .bkb .fm.pj{grid-template-columns:1fr 1.4fr}#ob .bkb .lb .bkn{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:8px;border:1px solid currentColor;border-radius:50%;font-size:10px;letter-spacing:0}#ob .bkap{opacity:.7}#ob .bkx{margin-top:10px}#ob .fmt{margin:10px 0 0;padding:10px 12px;font:600 13px/1.35 Lora,serif;border:1px solid currentColor}#ob .fmt.ok{color:var(--gr)}#ob .fmt.no{color:var(--rd)}
 @media (max-width:600px){#ob .kb{grid-auto-columns:78vw;margin:0 -20px;padding-left:20px;padding-right:20px;scroll-padding-left:20px}#ob .fm.pj,#ob .bkb .fm.pj{grid-template-columns:1fr}}
 #ob .mtv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 #ob .mtv label{display:flex;align-items:center;border:1px solid var(--sf);padding:11px 12px;cursor:pointer;font-size:14.5px;line-height:1.3;position:relative}
@@ -522,7 +522,7 @@ var lista = function (a) { return a.length < 2 ? a.join('') : a.slice(0, -1).joi
 var cap = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
 var VAZIO = function () { return { orc: [], cli: [], par: [], pag: [], ext: [], doc: [], srv: [] }; };
 
-var BK = '', ME = '', D = VAZIO(), view = 'hoje', cal = new Date(), sel = '', cur = null, fid = '', ftab = 'r', q = '', PROP = [], propEm = 0;
+var BK = '', BKH = -1, ME = '', D = VAZIO(), view = 'hoje', cal = new Date(), sel = '', cur = null, fid = '', ftab = 'r', q = '', PROP = [], propEm = 0;
 var SITE = 'https://oldbootsphotoandfilm.com';
 var FX0 = function () { return { ano: '', mes: '', est: '', pg: '', serv: '', ori: '', pend: '', tp: '', ord: 'data', tempo: 'prox' }; };
 var CATEGORIAS_L = ['Casamento', 'Ensaio', 'Evento'];
@@ -626,19 +626,20 @@ function onCred(r) {
 }
 /* cópia dos dados neste aparelho: o app abre logo com a última versão e atualiza por trás */
 var CH_COPIA = 'ob_bastidores_dados', ultimaCarga = 0;
-function guardaCopia() { if (!ME || !SES) return; try { localStorage.setItem(CH_COPIA, JSON.stringify({ me: ME, bk: BK, d: D, t: Date.now() })); } catch (e) { } }
-function leCopia() { try { var c = JSON.parse(localStorage.getItem(CH_COPIA) || 'null'); if (c && c.me && c.d && Date.now() - c.t < 7 * 864e5) return c; } catch (e) { } return null; }
+function guardaCopia() { if (!ME || !SES) return; if (!dono()) return apagaCopia(); try { localStorage.setItem(CH_COPIA, JSON.stringify({ me: ME, bk: BK, bkh: BKH, d: D, t: Date.now() })); } catch (e) { } }
+function leCopia() { try { var c = JSON.parse(localStorage.getItem(CH_COPIA) || 'null'); if (c && c.me && c.d && (c.d.papel || 'dono') === 'dono' && Date.now() - c.t < 864e5) return c; } catch (e) { } return null; }
 function apagaCopia() { try { localStorage.removeItem(CH_COPIA); } catch (e) { } }
 function carregaProp() { rpcAgora('api_prop', []).then(function (r) { PROP = r || []; propEm = Date.now(); }, function () { }); }
 function entrar(arranque) {
   $('#lgMsg').textContent = '';
   var copia = arranque ? leCopia() : null;
   if (copia) { // abre já com a cópia; os dados frescos chegam a seguir
-    ME = copia.me; D = copia.d; BK = copia.bk || ''; view = 'hoje';
+    ME = copia.me; D = copia.d; BK = copia.bk || ''; BKH = copia.bkh == null ? -1 : copia.bkh; view = 'hoje';
+    var idade = Math.max(1, Math.round((Date.now() - copia.t) / 6e4)), idTxt = idade < 60 ? idade + ' min' : Math.round(idade / 60) + ' h';
     $('#obLogin').hidden = true; $('#obApp').hidden = false; $('#who').textContent = ME; render();
-    sv1('A atualizar…');
-    post('entrar').then(function (r) { if (r.s) guardaSes(r.s); ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; ultimaCarga = Date.now(); guardaCopia(); if (!$('#ov').classList.contains('on')) render(); carregaProp(); avisaPedidos(); })
-      .catch(function (e) { if (e.auth) { apagaCopia(); if (e.auth === 'sessao') { toLogin(''); if (gis) try { google.accounts.id.prompt(); } catch (x) { } return; } toLogin(e.message, e.auth === 'negado'); } else toast('Sem ligação: está a ver os dados guardados neste aparelho.', 1); })
+    sv1('A atualizar (dados de há ' + idTxt + ')…');
+    post('entrar').then(function (r) { if (r.s) guardaSes(r.s); ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; BKH = r.bkh == null ? -1 : r.bkh; ultimaCarga = Date.now(); guardaCopia(); if (!$('#ov').classList.contains('on')) render(); carregaProp(); avisaPedidos(); })
+      .catch(function (e) { if (e.auth) { apagaCopia(); if (e.auth === 'sessao') { toLogin(''); if (gis) try { google.accounts.id.prompt(); } catch (x) { } return; } toLogin(e.message, e.auth === 'negado'); } else toast('Sem ligação: está a ver os dados guardados neste aparelho (de há ' + idTxt + ').', 1); })
       .finally(function () { sv1(''); });
     return;
   }
@@ -647,7 +648,7 @@ function entrar(arranque) {
   busy(1); sv1('A atualizar…');
   post('entrar').then(function (r) {
     if (r.s) guardaSes(r.s);
-    ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; ultimaCarga = Date.now(); view = 'hoje';
+    ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; BKH = r.bkh == null ? -1 : r.bkh; ultimaCarga = Date.now(); view = 'hoje';
     $('#who').textContent = ME; render(); guardaCopia(); carregaProp(); avisaPedidos();
   }).catch(function (e) {
     // sessão do aparelho vencida: volta ao login normal do Google, sem mensagem de erro
@@ -716,7 +717,7 @@ function run(p, msg, after) {
   nGrav++; sv();
   return Promise.resolve(p).then(function (r) {
     if (r && r.existe) return r;
-    return (r && r.all ? Promise.resolve(r.all) : rpc('api_all')).then(function (all) {
+    return (r && r.all ? Promise.resolve(r.all) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
       if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
@@ -1129,7 +1130,7 @@ var ETF = ['Por começar', 'Escolha das fotos', 'Edição', 'Entregue'];
 var ETV = ['Por começar', 'Decupagem', 'Separação das músicas', 'Cortes iniciais', 'Edição', 'Color grading', 'Ajustes finais', 'Entregue'];
 var PECAS = [['teaser', 'Teaser'], ['highlights', 'Highlights'], ['trailer', 'Trailer']];
 var ETAPAS = { fotos: ETF, teaser: ETV, highlights: ETV, trailer: ETV };
-var CAT_EQ = ['Armazenamento', 'Câmara', 'Lente', 'Drone', 'Áudio', 'Iluminação', 'Estabilizador', 'Outro'];
+var CAT_EQ = ['Armazenamento', 'Nuvem', 'Câmara', 'Lente', 'Drone', 'Áudio', 'Iluminação', 'Estabilizador', 'Outro'];
 var CAT_DESP = ['Software', 'Telefone e internet', 'Seguros', 'Contabilidade', 'Marketing', 'Equipamento', 'Outro'];
 var KB = { t: 'fotos', r: '', pc: '' }, kbArrastou = 0;
 var temFotos = function (c) { return String(c.tipo_de_servico || '') !== 'Vídeo'; }, temVideo = function (c) { return String(c.tipo_de_servico || '') !== 'Foto'; };
@@ -1146,10 +1147,19 @@ function projetos() {
     return { c: c, p: p }; });
 }
 var etapaDe = function (p, k) { if (p._auto) return 'Entregue'; var e = p[k + '_etapa']; return ETAPAS[k].indexOf(e) >= 0 ? e : 'Por começar'; };
-var backupOk = function (p) { return !!p._auto || p.cartoes_descarregados === 'Sim' && !!p.backup_1_confirmado_por && !!p.backup_2_confirmado_por; };
+// backups: 1 e 2 em discos diferentes; o 3.º (nuvem ou fora de casa) é opcional. Um backup apagado depois da entrega continua a contar como feito.
+var BKN = ['1', '2', '3'];
+var nConf = function (p) { return BKN.filter(function (n) { return !!p['backup_' + n + '_confirmado_por']; }).length; };
+var nAtivos = function (p) { return BKN.filter(function (n) { return !!p['backup_' + n + '_confirmado_por'] && !p['backup_' + n + '_apagado']; }).length; };
+var backupOk = function (p) { return !!p._auto || p.cartoes_descarregados === 'Sim' && nConf(p) >= 2; };
+var podeFormatar = function (p) { return p.cartoes_descarregados === 'Sim' && nAtivos(p) >= 2; };
+var entregue = function (c, p) { return (!temFotos(c) || etapaDe(p, 'fotos') === 'Entregue') && (!temVideo(c) || pecasDe(p).every(function (k) { return etapaDe(p, k) === 'Entregue'; })); };
+// dias desde que os cartões foram descarregados (para o alarme de cartões sem os 2 backups)
+var diasCartoes = function (p) { var m = /^(\d{4})-(\d\d)-(\d\d)/.exec(String(p.cartoes_em || '')); return m ? Math.floor((Date.now() - new Date(+m[1], m[2] - 1, +m[3])) / 864e5) : -1; };
 var prazoTxt = function (p, k) { var d = p[k + '_prazo']; if (!d || etapaDe(p, k) === 'Entregue') return ''; var n = dias(d); return n < 0 ? '<span class="atr">atrasado ' + pl(-n, 'dia', 'dias') + '</span>' : n === 0 ? '<span class="atr">entrega hoje</span>' : 'entrega ' + fdc(d) + ' · faltam ' + n; };
 var respTag = function (r) { return r ? '<span class="qm ' + (r === 'Gabriel' ? 'pg' : 'py') + '">' + E(r) + '</span>' : '<span class="qm nd">sem responsável</span>'; };
-var unidades = function () { return (D.eq || []).filter(function (x) { return x.categoria === 'Armazenamento'; }); };
+var nomeUn = function (id) { var u = (D.eq || []).find(function (x) { return String(x.id) === String(id); }); return u ? u.nome : 'unidade ' + id; };
+var unidades = function () { return (D.eq || []).filter(function (x) { return x.categoria === 'Armazenamento' || x.categoria === 'Nuvem'; }); };
 // todos os cartões: [{ c, p, k }] — k = 'fotos' ou a peça de vídeo
 function tarefasPos() {
   var l = []; projetos().forEach(function (x) { if (temFotos(x.c)) l.push({ c: x.c, p: x.p, k: 'fotos' }); if (temVideo(x.c)) pecasDe(x.p).forEach(function (k) { l.push({ c: x.c, p: x.p, k: k }); }); }); return l;
@@ -1167,21 +1177,22 @@ function vPos() {
     (t === 'video' ? '<div class="seg" role="group" aria-label="Peça">' + [['', 'Todas as peças']].concat(PECAS).map(function (x) { return '<button data-a="kbp" data-v="' + x[0] + '" class="' + (KB.pc === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('') + '</div>' : '') + '</div>' +
     (semBk ? '<p class="sm" style="margin:10px 0 0;color:var(--rd)">⚠ ' + pl(semBk, 'projeto', 'projetos') + ' com cartões ou backups por confirmar</p>' : '') +
     '<p class="sm kdica">Arraste pelo ⠿ para mudar de etapa · toque no cartão para responsáveis, prazos e backups</p>' +
-    '<div class="kb">' + et.map(function (e) { var l = L.filter(function (x) { return etapaDe(x.p, x.k) === e; });
+    '<div class="kb">' + et.map(function (e) { var l = L.filter(function (x) { return etapaDe(x.p, x.k) === e; }).sort(function (a, b) { // prazo mais perto primeiro; sem prazo no fim
+        var pa = a.p[a.k + '_prazo'] || '9999', pb = b.p[b.k + '_prazo'] || '9999'; return pa < pb ? -1 : pa > pb ? 1 : (a.c.data_do_evento < b.c.data_do_evento ? -1 : 1); });
       return '<div class="kcol" data-e="' + E(e) + '"><p class="lb kct">' + E(e) + ' · ' + l.length + '</p>' + (l.map(cartaoK).join('') || '<p class="kvz">—</p>') + '</div>'; }).join('') + '</div></div>';
 }
 function cartaoK(x) {
   var c = x.c, p = x.p, k = x.k, pz = prazoTxt(p, k);
   return '<div class="kc" data-a="proj" data-id="' + E(c.id) + '" data-pid="' + E(c.id) + '" data-k="' + E(k) + '"><span class="kd" aria-hidden="true">⠿</span><b>' + E(nc(c.nome_do_casal)) + '</b>' +
     '<small>' + [k !== 'fotos' ? '<b class="kpc">' + nomePeca(k) + '</b>' : '', fdc(c.data_do_evento), ehCas(c) ? '' : E(catDe(c))].filter(Boolean).join(' · ') + '</small>' + (pz ? '<small>' + pz + '</small>' : '') +
-    '<div class="kt">' + respTag(p[k + '_responsavel']) + (backupOk(p) ? '<span class="kbk ok" title="Cartões e backups confirmados">✓ backup</span>' : '<span class="kbk" title="Cartões ou backups por confirmar">⚠ backup</span>') + '</div></div>';
+    '<div class="kt">' + respTag(p[k + '_responsavel']) + (p._auto ? '<span class="kbk na" title="Trabalho antigo, anterior ao app">sem registo de backup</span>' : backupOk(p) ? '<span class="kbk ok" title="Cartões e backups confirmados">✓ backup</span>' : '<span class="kbk" title="Cartões ou backups por confirmar">⚠ backup</span>') + '</div></div>';
 }
 function moverEtapa(id, k, e) {
   if (!ETAPAS[k]) return; var p = posDe(id); if (etapaDe(p, k) === e) return;
   if (!p.id_cliente) { p = { id_cliente: id }; D.pos = (D.pos || []).concat([p]); }
-  p[k + '_etapa'] = e; render(); // já mostra no sítio novo; o servidor confirma a seguir
+  var antes = p[k + '_etapa']; p[k + '_etapa'] = e; render(); // já mostra no sítio novo; o servidor confirma a seguir
   var o = {}; o[k + '_etapa'] = e;
-  run(rpc('api_pos_upd', id, o), nomePeca(k) + ': ' + e);
+  run(rpc('api_pos_upd', id, o).catch(function (x) { posDe(id)[k + '_etapa'] = antes; render(); throw x; }), nomePeca(k) + ': ' + e); // se falhar, o cartão volta para trás
 }
 // arrastar: rato (o cartão todo) ou dedo (pela pega ⠿, para não estragar o deslizar do quadro)
 (function () {
@@ -1222,14 +1233,27 @@ function abrirProjeto(id) {
     return '<div class="pjb" data-bk="' + k + '"><p class="lb">' + nomePeca(k) + '</p><div class="fm pj"><label><span>Responsável</span><select data-p="' + k + '_responsavel">' + [['', '—'], ['Gabriel', 'Gabriel'], ['Ylana', 'Ylana']].map(function (o) { return '<option value="' + o[0] + '"' + ((p[k + '_responsavel'] || '') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
       '<label><span>Etapa</span><select data-p="' + k + '_etapa">' + ETAPAS[k].map(function (e) { return '<option' + (etapaDe(p, k) === e ? ' selected' : '') + '>' + E(e) + '</option>'; }).join('') + '</select></label>' +
       '<label><span>Prazo de entrega</span><input type="date" data-p="' + k + '_prazo" value="' + E(p[k + '_prazo'] || '') + '"></label></div></div>'; };
-  var conf = function (k, rot, quem) { return '<div class="fm cnf"><label class="chk"><input type="checkbox" data-c="' + k + '"' + (quem ? ' checked' : '') + '><span>' + rot + (quem ? ' <small class="sm" style="display:inline">· ' + E(quem) + '</small>' : '') + '</span></label></div>'; };
-  var bk = function (n) { return '<div class="bkb"><p class="lb">Backup ' + n + '</p><div class="fm pj"><label><span>Unidade de armazenamento</span><select data-p="backup_' + n + '_unidade">' + opU(p['backup_' + n + '_unidade']) + '</select></label>' +
-    '<label><span>Caminho da pasta</span><input type="text" data-p="backup_' + n + '_caminho" placeholder="Ex.: /Casamentos/2026/Ana e Rui" value="' + E(p['backup_' + n + '_caminho'] || '') + '"></label></div>' + conf('backup_' + n + '_ok', 'Backup ' + n + ' feito e confirmado', p['backup_' + n + '_confirmado_por']) + '</div>'; };
+  var conf = function (k, rot, quem, dis) { return '<div class="fm cnf"><label class="chk"><input type="checkbox" data-c="' + k + '"' + (quem ? ' checked' : '') + (dis ? ' disabled' : '') + '><span>' + rot + (quem ? ' <small class="sm" style="display:inline">· ' + E(quem) + '</small>' : '') + '</span></label></div>'; };
+  var num = function (k, rot, dis) { return '<label><span>' + rot + '</span><input type="text" inputmode="decimal" data-p="' + k + '" value="' + E(p[k] == null ? '' : String(p[k])) + '"' + (dis ? ' disabled' : '') + '></label>'; };
+  var ent = entregue(c, p);
+  var bk = function (n) { var b = 'backup_' + n + '_', ap = p[b + 'apagado'], cf = p[b + 'confirmado_por'];
+    return '<div class="bkb' + (ap ? ' bkap' : '') + '"><p class="lb"><span class="bkn">' + (+n + 1) + '</span>Backup ' + n + (n === '3' ? ' · nuvem ou fora de casa (opcional)' : '') + (ap ? ' ' + tg('Apagado', 'gy') : cf ? ' ' + tg('Confirmado', 'gr') : '') + '</p>' +
+      (ap ? '<p class="sm">Apagado por ' + E(ap) + '. Estava em ' + E(nomeUn(p[b + 'unidade'])) + ' · ' + E(p[b + 'caminho'] || '') + '</p>' :
+      '<div class="fm pj"><label><span>' + (n === '3' ? 'Unidade ou nuvem' : 'Unidade de armazenamento') + '</span><select data-p="' + b + 'unidade">' + opU(p[b + 'unidade']) + '</select></label>' +
+      '<label><span>Caminho da pasta</span><input type="text" data-p="' + b + 'caminho" placeholder="Ex.: /Casamentos/2026/Ana e Rui" value="' + E(p[b + 'caminho'] || '') + '"></label>' +
+      num(b + 'ficheiros', 'Nº de ficheiros na cópia') + num(b + 'gb', 'Tamanho da cópia (GB)') + '</div>' +
+      conf(b + 'ok', 'Backup ' + n + ' feito e conferido (mesmos ficheiros e GB dos cartões)', cf) +
+      (cf && ent ? '<button class="bt sm bkx" data-a="bkx" data-id="' + E(id) + '" data-n="' + n + '"' + (nAtivos(p) < 2 ? ' disabled title="Tem de ficar pelo menos um backup"' : '') + '>Apagar este backup</button>' : '')) + '</div>'; };
+  var fmt = BKN.some(function (n) { return p['backup_' + n + '_apagado']; }) ? '' : podeFormatar(p) ? '<p class="fmt ok">✓ Pode formatar os cartões: há ' + nAtivos(p) + ' backups conferidos em discos diferentes.</p>' :
+    '<p class="fmt no">✕ NÃO formatar os cartões' + (p.cartoes_descarregados === 'Sim' ? ': falta' + (nAtivos(p) === 1 ? ' 1 backup conferido' : 'm 2 backups conferidos') : ' ainda') + '.</p>';
   openM('<p class="lb">Pós-produção · ' + E(fdc(c.data_do_evento)) + '</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm">' + [E(c.tipo_de_servico), E(c.local_da_cerimonia)].filter(Boolean).join(' · ') + ' · <button class="lnk" data-a="pfic" data-id="' + E(id) + '">abrir ficha</button></p>' +
     (temFotos(c) ? '<div class="mq">' + bloco('fotos') + '</div>' : '') +
     (temVideo(c) ? '<div class="mq"><p class="lb">Vídeo · peças deste casal</p><div class="fm cnf pcs">' + PECAS.map(function (x) { return '<label class="chk"><input type="checkbox" data-pc="' + x[0] + '"' + (pcs.indexOf(x[0]) >= 0 ? ' checked' : '') + '><span>' + x[1] + '</span></label>'; }).join('') + '</div>' + PECAS.map(function (x) { return bloco(x[0]); }).join('') + '</div>' : '') +
-    '<div class="mq"><p class="lb">Cartões e backups</p>' + conf('cartoes_descarregados', 'Cartões descarregados', p.cartoes_descarregados === 'Sim' ? (p.cartoes_confirmado_por || 'sim') : '') +
-    (un.length ? bk(1) + bk(2) : '<p class="em" style="margin-top:10px">Ainda não há unidades de armazenamento. <button class="lnk" data-a="go" data-v="equip">Registe os SSD e HD em Equipamento</button> para os poder escolher aqui.</p>') + '</div>' +
+    '<div class="mq"><p class="lb">Cartões e backups</p>' + fmt +
+    '<p class="sm" style="margin:8px 0 0">Veja o nº de ficheiros e os GB da pasta dos cartões (no Mac: botão direito › Obter informações; no Windows: Propriedades) e confira cada cópia com os mesmos números.</p>' +
+    '<div class="bkb"><p class="lb"><span class="bkn">1</span>Cartões</p><div class="fm pj">' + num('cartoes_ficheiros', 'Nº de ficheiros nos cartões') + num('cartoes_gb', 'Tamanho total (GB)') + '</div>' +
+    conf('cartoes_descarregados', 'Cartões descarregados e contados', p.cartoes_descarregados === 'Sim' ? (p.cartoes_confirmado_por || 'sim') : '') + '</div>' +
+    (un.length ? bk('1') + bk('2') + bk('3') : '<p class="em" style="margin-top:10px">Ainda não há unidades de armazenamento. <button class="lnk" data-a="go" data-v="equip">Registe os SSD, HD e a nuvem em Equipamento</button> para os poder escolher aqui.</p>') + '</div>' +
     '<div class="fm" style="margin-top:16px"><label><span>Notas</span><textarea data-p="notas" rows="3">' + E(p.notas || '') + '</textarea></label></div>' +
     '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="pok">Guardar</button></div>');
   // mostra só os blocos das peças escolhidas
@@ -1239,9 +1263,11 @@ function abrirProjeto(id) {
     var o = {}, esc = $$('#m [data-pc]').filter(function (i) { return i.checked; }).map(function (i) { return i.dataset.pc; });
     if (temVideo(c) && !esc.length) return toast('Escolha pelo menos uma peça de vídeo.', 1);
     if (temVideo(c) && esc.join(',') !== pcs.join(',')) o.video_pecas = esc.join(',');
-    $$('#m [data-p]').forEach(function (i) { var k = i.dataset.p, pc = k.split('_')[0]; if (ETAPAS[pc] && pc !== 'fotos' && esc.indexOf(pc) < 0) return; var v = i.value.trim(), a = p[k] == null ? '' : String(p[k]); if (k.slice(-6) === '_etapa') a = etapaDe(p, pc); if (v !== a) o[k] = v; });
-    $$('#m [data-c]').forEach(function (i) { var k = i.dataset.c, antes = k === 'cartoes_descarregados' ? p.cartoes_descarregados === 'Sim' : !!p['backup_' + k.charAt(7) + '_confirmado_por']; if (i.checked !== antes) o[k] = i.checked ? 'Sim' : ''; });
-    var erro = ''; ['1', '2'].forEach(function (n) { if (o['backup_' + n + '_ok'] === 'Sim') { var u = $('#m [data-p=backup_' + n + '_unidade]'), ca = $('#m [data-p=backup_' + n + '_caminho]'); if (!u.value || !ca.value.trim()) erro = 'Para confirmar o backup ' + n + ', escolha a unidade e escreva o caminho.'; } });
+    $$('#m [data-p]').forEach(function (i) { if (i.disabled) return; var k = i.dataset.p, pc = k.split('_')[0]; if (ETAPAS[pc] && pc !== 'fotos' && esc.indexOf(pc) < 0) return; var v = i.value.trim(), a = p[k] == null ? '' : String(p[k]); if (k.slice(-6) === '_etapa') a = etapaDe(p, pc); if (v !== a) o[k] = v; });
+    $$('#m [data-c]').forEach(function (i) { if (i.disabled) return; var k = i.dataset.c, antes = k === 'cartoes_descarregados' ? p.cartoes_descarregados === 'Sim' : !!p['backup_' + k.charAt(7) + '_confirmado_por']; if (i.checked !== antes) o[k] = i.checked ? 'Sim' : ''; });
+    var val = function (k) { var i = $('#m [data-p=' + k + ']'); return i ? i.value.trim() : ''; }, erro = '';
+    if (o.cartoes_descarregados === 'Sim' && !(parseFloat(val('cartoes_ficheiros').replace(',', '.')) > 0 && parseFloat(val('cartoes_gb').replace(',', '.')) > 0)) erro = 'Indique o nº de ficheiros e os GB dos cartões.';
+    BKN.forEach(function (n) { var b = 'backup_' + n + '_'; if (!erro && o[b + 'ok'] === 'Sim') { if (!val(b + 'unidade') || !val(b + 'caminho')) erro = 'Para confirmar o backup ' + n + ', escolha a unidade e escreva o caminho.'; else if (!val(b + 'ficheiros') || !val(b + 'gb')) erro = 'Backup ' + n + ': indique o nº de ficheiros e os GB da cópia, para conferir com os cartões.'; } });
     if (erro) return toast(erro, 1);
     if (!Object.keys(o).length) return closeM();
     run(rpc('api_pos_upd', id, o), 'Pós-produção guardada');
@@ -1250,13 +1276,13 @@ function abrirProjeto(id) {
 
 function vEquip() {
   var l = (D.eq || []).slice().sort(function (a, b) { return CAT_EQ.indexOf(a.categoria) - CAT_EQ.indexOf(b.categoria) || String(a.nome).localeCompare(String(b.nome), 'pt'); });
-  var usos = function (id) { return (D.pos || []).filter(function (p) { return String(p.backup_1_unidade) === String(id) || String(p.backup_2_unidade) === String(id); }).length; };
+  var usos = function (id) { return (D.pos || []).filter(function (p) { return BKN.some(function (n) { return String(p['backup_' + n + '_unidade']) === String(id) && !p['backup_' + n + '_apagado']; }); }).length; };
   return '<div class="w1"><div class="pt"><div><p class="lb">Produção</p><h1 class="h1">Equipamento</h1></div><button class="b1" data-a="eqn">Novo equipamento</button></div>' +
-    '<p class="lead2">' + (l.length ? pl(l.length, 'item', 'itens') + ' · ' + pl(unidades().length, 'unidade de armazenamento', 'unidades de armazenamento') + ' para os backups.' : 'Registe aqui o equipamento. Comece pelos SSD e HD: são eles que aparecem nos backups da pós-produção.') + '</p>' +
-    CAT_EQ.map(function (cat) { var g = l.filter(function (x) { return (x.categoria || 'Outro') === cat; }); return g.length ? '<hr class="st"><p class="lb gl">' + E(cat) + ' · ' + g.length + '</p>' + g.map(function (x) { var u = cat === 'Armazenamento' ? usos(x.id) : 0;
+    '<p class="lead2">' + (l.length ? pl(l.length, 'item', 'itens') + ' · ' + pl(unidades().length, 'unidade de armazenamento', 'unidades de armazenamento') + ' (discos e nuvem) para os backups.' : 'Registe aqui o equipamento. Comece pelos SSD, HD e a nuvem (Google Drive, Dropbox…): são eles que aparecem nos backups da pós-produção.') + '</p>' +
+    CAT_EQ.map(function (cat) { var g = l.filter(function (x) { return (x.categoria || 'Outro') === cat; }); return g.length ? '<hr class="st"><p class="lb gl">' + E(cat) + ' · ' + g.length + '</p>' + g.map(function (x) { var u = cat === 'Armazenamento' || cat === 'Nuvem' ? usos(x.id) : 0;
       return '<div class="rw r2" data-a="eqe" data-id="' + E(x.id) + '"><div><b>' + E(x.nome) + '</b>' + (x.ativo === 'Não' ? tg('Inativo', 'gy') : '') + '<small>' + [E(x.marca), E(x.modelo), E(x.capacidade), x.numero_de_serie ? 'nº ' + E(x.numero_de_serie) : ''].filter(Boolean).join(' · ') + '</small>' + (u ? '<small>usado em ' + pl(u, 'backup', 'backups') + '</small>' : '') + '</div><div class="rt"><button class="bt" data-a="eqx" data-id="' + E(x.id) + '">Apagar</button></div></div>'; }).join('') : ''; }).join('') + '</div>';
 }
-var CAMPOS_EQ = [['Equipamento', [['nome', 'Nome', 'text'], ['categoria', 'Categoria', 'sel', CAT_EQ], ['marca', 'Marca', 'text'], ['modelo', 'Modelo', 'text'], ['capacidade', 'Capacidade (ex.: 2 TB)', 'text', null, function (v) { return v.categoria === 'Armazenamento'; }], ['numero_de_serie', 'Número de série', 'text'], ['notas', 'Notas', 'area'], ['ativo', 'Em uso (ativo)', 'chk']]]];
+var CAMPOS_EQ = [['Equipamento', [['nome', 'Nome', 'text'], ['categoria', 'Categoria', 'sel', CAT_EQ], ['marca', 'Marca', 'text'], ['modelo', 'Modelo', 'text'], ['capacidade', 'Capacidade (ex.: 2 TB)', 'text', null, function (v) { return v.categoria === 'Armazenamento' || v.categoria === 'Nuvem'; }], ['numero_de_serie', 'Número de série', 'text'], ['notas', 'Notas', 'area'], ['ativo', 'Em uso (ativo)', 'chk']]]];
 function editarEq(x) { form(x ? 'Editar equipamento' : 'Novo equipamento', CAMPOS_EQ, x ? Object.assign({}, x) : { categoria: 'Armazenamento', ativo: 'Sim' }, function (v) { if (!String(v.nome || '').trim()) return toast('Indique o nome.', 1); run(rpc('api_eq_guardar', x ? x.id : '', v), 'Equipamento guardado'); }); }
 
 /* ---------- Finanças: despesas mensais ---------- */
@@ -1283,12 +1309,15 @@ function editarDesp(d) { form(d ? 'Editar despesa' : 'Nova despesa', CAMPOS_DESP
 function avisosPos() {
   if (!dono()) return '';
   var eu = EU(), meu = function (x) { return !eu || x.p[x.k + '_responsavel'] === eu; };
-  var bk = projetos().filter(function (x) { return !backupOk(x.p); });
+  var bk = projetos().filter(function (x) { return !backupOk(x.p); }).map(function (x) { x.d = diasCartoes(x.p); x.urg = x.p.cartoes_descarregados === 'Sim' && x.d >= 2 && nAtivos(x.p) < 2; return x; })
+    .sort(function (a, b) { return (b.urg - a.urg) || (b.d - a.d); });
   var at = tarefasPos().filter(function (x) { return meu(x) && x.p[x.k + '_prazo'] && x.p[x.k + '_prazo'] <= TODAY && etapaDe(x.p, x.k) !== 'Entregue'; });
-  if (!bk.length && !at.length) return '';
-  return '<hr class="st"><p class="lb gl" style="color:var(--rd)">Pós-produção' + (eu ? ' · ' + eu : '') + '</p>' +
+  var cop = BKH > 36 ? '<div class="rw"><span class="n">!</span><div><b>Cópia automática das planilhas atrasada</b>' + tg('Há ' + BKH + ' horas', 'rd') + '<small>A cópia diária devia correr todas as noites. Abra a planilha › Extensões › Apps Script › Acionadores e veja o «backupDiario».</small></div><span></span></div>' : '';
+  if (!bk.length && !at.length && !cop) return '';
+  var falta = function (p) { var f = []; if (p.cartoes_descarregados !== 'Sim') f.push('cartões'); var n = 2 - nConf(p); if (n > 0) f.push(n === 1 ? '1 backup' : '2 backups'); return f.join(' e ') + ' por confirmar'; };
+  return '<hr class="st"><p class="lb gl" style="color:var(--rd)">Pós-produção' + (eu ? ' · ' + eu : '') + '</p>' + cop +
     at.slice(0, 8).map(function (x) { var n = dias(x.p[x.k + '_prazo']); return '<div class="rw" data-a="pproj" data-id="' + E(x.c.id) + '"><span class="n">!</span><div><b>' + E(nc(x.c.nome_do_casal)) + '</b>' + tg(nomePeca(x.k) + (n < 0 ? ' atrasado' : ' entrega hoje'), 'rd') + (eu ? '' : respTag(x.p[x.k + '_responsavel'])) + '<small>' + etapaDe(x.p, x.k) + ' · prazo ' + fdc(x.p[x.k + '_prazo']) + '</small></div><span></span></div>'; }).join('') +
-    bk.slice(0, 6).map(function (x) { return '<div class="rw" data-a="pproj" data-id="' + E(x.c.id) + '"><span class="n">⚠</span><div><b>' + E(nc(x.c.nome_do_casal)) + '</b>' + tg('Backup por confirmar', 'rd') + '<small>Evento ' + fdc(x.c.data_do_evento) + ' · ' + [x.p.cartoes_descarregados === 'Sim' ? '' : 'cartões', x.p.backup_1_confirmado_por ? '' : 'backup 1', x.p.backup_2_confirmado_por ? '' : 'backup 2'].filter(Boolean).join(', ') + ' por confirmar</small></div><span></span></div>'; }).join('');
+    bk.slice(0, 6).map(function (x) { return '<div class="rw" data-a="pproj" data-id="' + E(x.c.id) + '"><span class="n">⚠</span><div><b>' + E(nc(x.c.nome_do_casal)) + '</b>' + tg(x.urg ? 'Cartões há ' + x.d + ' dias sem 2 backups' : 'Backup por confirmar', 'rd') + '<small>Evento ' + fdc(x.c.data_do_evento) + ' · ' + falta(x.p) + (x.urg ? ' · não formate os cartões' : '') + '</small></div><span></span></div>'; }).join('');
 }
 
 /* ---------- fichas ---------- */
@@ -1606,10 +1635,13 @@ var act = {
   pfic: function (d) { trocarApp('bast'); ficha(d.id, 'r', true); },
   eqn: function () { editarEq(null); },
   eqe: function (d) { editarEq((D.eq || []).find(function (x) { return String(x.id) === d.id; })); },
-  eqx: function (d) { var x = (D.eq || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar «' + E(x.nome) + '»?', function () { run(rpc('api_eq_apagar', d.id), 'Equipamento apagado'); }, 'Apagar'); },
+  eqx: function (d) { var x = (D.eq || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar «' + E(x.nome) + '»?', function () { run(rpc('api_eq_apagar', d.id), 'Equipamento apagado (há uma cópia na aba «Apagados» da planilha)'); }, 'Apagar', '<p class="sm">Fica uma cópia na aba «Apagados» da planilha, para recuperar se for engano.</p>'); },
   dspn: function () { editarDesp(null); },
   dspe: function (d) { var x = (D.desp || []).find(function (y) { return String(y.id) === d.id; }); if (!x) return; editarDesp(x); },
-  dspx: function (d) { var x = (D.desp || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar a despesa «' + E(x.descricao) + '»? Se só foi cancelada, pode antes desmarcar «Ativa».', function () { run(rpc('api_desp_apagar', d.id), 'Despesa apagada'); }, 'Apagar'); },
+  dspx: function (d) { var x = (D.desp || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar a despesa «' + E(x.descricao) + '»?', function () { run(rpc('api_desp_apagar', d.id), 'Despesa apagada (há uma cópia na aba «Apagados» da planilha)'); }, 'Apagar', '<p class="sm">Se só foi cancelada, pode antes desmarcar «Ativa». Fica uma cópia na aba «Apagados» da planilha.</p>'); },
+  bkx: function (d) { var c = cli(d.id), p = posDe(d.id), b = 'backup_' + d.n + '_'; if (!c || !p[b + 'confirmado_por']) return; var ficam = nAtivos(p) - 1;
+    ask('Apagar o backup ' + E(d.n) + ' de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_pos_upd', d.id, (function () { var o = {}; o[b + 'apagar'] = 'Sim'; return o; })()), 'Backup ' + d.n + ' marcado como apagado', function () { abrirProjeto(d.id); }); }, 'Marcar como apagado',
+      '<p class="sm">Apague a pasta <b>' + E(p[b + 'caminho'] || '') + '</b> em <b>' + E(nomeUn(p[b + 'unidade'])) + '</b> e marque aqui. Fica registado quem apagou e quando. ' + (ficam === 1 ? 'Fica só 1 backup ativo deste casal.' : 'Ficam ' + ficam + ' backups ativos.') + '</p>'); },
   dec: function (d) {
     var x = (D.ped || []).find(function (p) { return p.id === d.id; }); if (!x) return;
     var depois = function () { if (nPed() && view !== 'equipa') verPedidos(); };
