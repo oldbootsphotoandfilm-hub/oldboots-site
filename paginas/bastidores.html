@@ -60,6 +60,29 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .bo{border:1px solid var(--ink);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:none}
 #ob .bo:hover{background:rgba(74,68,41,.06)}
 @media (max-width:600px){#ob .xe{top:16px;right:96px}}
+#ob .wkb{max-width:none}
+#ob .kdica{margin:10px 0 0}
+#ob .kb{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;padding:14px 0 24px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+#ob .kcol{background:rgba(74,68,41,.045);border-top:3px solid var(--sf);padding:10px 10px 14px;min-height:260px;scroll-snap-align:start;transition:background .15s,outline-color .15s;outline:2px dashed transparent;outline-offset:-2px}
+#ob .kcol:last-child{border-top-color:var(--gr)}
+#ob .kcol.alvo{background:rgba(192,138,43,.12);outline-color:var(--gd)}
+#ob .kct{margin:2px 2px 10px}
+#ob .kvz{color:var(--sf);text-align:center;padding:16px 0}
+#ob .kc{position:relative;background:#fffdf7;border:1px solid var(--sf);padding:12px 36px 12px 12px;margin-bottom:8px;cursor:grab;user-select:none;-webkit-user-select:none;box-shadow:0 1px 2px rgba(74,68,41,.06)}
+#ob .kc b{display:block;font:italic 400 19px/1.25 Lora,serif}
+#ob .kc small{display:block;font-size:12.5px;color:var(--mt);margin-top:3px}
+#ob .kc .kt{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+#ob .kc .kt .qm{margin:0}
+#ob .kd{position:absolute;top:6px;right:4px;width:30px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--mt);cursor:grab;touch-action:none}
+#ob .kgo{opacity:.35}
+#ob .kfant{position:fixed;left:0;top:0;z-index:50;pointer-events:none;margin:0;box-shadow:0 12px 30px rgba(74,68,41,.25);cursor:grabbing}
+#ob .kbk{font:600 10px/1 Lora,serif;letter-spacing:.1em;text-transform:uppercase;padding:5px 6px 4px;color:var(--rd);border:1px solid currentColor}
+#ob .kbk.ok{color:var(--gr)}
+#ob .fm.pj{grid-template-columns:1fr 1fr 1fr;margin-top:8px}
+#ob .fm.cnf{margin-top:10px;display:block}
+#ob .bkb{margin-top:14px;padding-top:10px;border-top:1px dashed var(--sf)}
+#ob .bkb .fm.pj{grid-template-columns:1fr 1.4fr}
+@media (max-width:600px){#ob .kb{grid-auto-columns:78vw;margin:0 -20px;padding-left:20px;padding-right:20px;scroll-padding-left:20px}#ob .fm.pj,#ob .bkb .fm.pj{grid-template-columns:1fr}}
 #ob .mtv{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
 #ob .mtv label{display:flex;align-items:center;border:1px solid var(--sf);padding:11px 12px;cursor:pointer;font-size:14.5px;line-height:1.3;position:relative}
 #ob .mtv input{position:absolute;opacity:0;pointer-events:none}
@@ -691,7 +714,7 @@ function run(p, msg, after) {
   return Promise.resolve(p).then(function (r) {
     if (r && r.existe) return r;
     return (r && r.all ? Promise.resolve(r.all) : rpc('api_all')).then(function (all) {
-      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; }
+      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -795,7 +818,7 @@ function vHoje() {
     '<p class="big" aria-hidden="true">' + hoje.getDate() + '</p>' +
     '<p class="h2 lead">' + (dono() && nPed() ? 'Há ' + pl(nPed(), 'pedido', 'pedidos') + ' da equipa para aprovar' + (partes.length ? ', ' + lista(partes) : '') + '.' : partes.length ? 'Há ' + lista(partes) + '.' : 'Tudo em dia por hoje.') + '</p>' +
     (dono() && nPed() ? '<hr class="st"><p class="lb gl" style="color:var(--rd)">Pedidos da equipa para aprovar · ' + nPed() + '</p>' + blocoPedidos() : '') +
-    (tarefas ? '<hr class="st"><p class="lb gl">Por fazer</p>' + tarefas : '') + (dono() ? '' : meusPedidos()) +
+    avisosPos() + (tarefas ? '<hr class="st"><p class="lb gl">Por fazer</p>' + tarefas : '') + (dono() ? '' : meusPedidos()) +
     '<hr class="st"><p class="lb gl">Próximos eventos · 30 dias</p>' + (ev.slice(0, 4).map(evRow).join('') || '<p class="em">Sem eventos nos próximos 30 dias.</p>') +
     '<p class="ft" style="margin-top:40px">' + E(BK) + '</p></div>';
 }
@@ -936,9 +959,9 @@ function vPag() {
 // IVA de cada um: o Gabriel está isento; a Ylana cobra IVA a 23 %. Se mudar, é só alterar aqui.
 var PESSOAS = { g: { nome: 'Gabriel', iva: 0 }, y: { nome: 'Ylana', iva: 23 } };
 var APP = 'bast', PES = 'emp', FANO = TODAY.slice(0, 4), FND = false, IFR = null;
-var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas']] };
-var APPS = [['bast', 'Bastidores', 'Clientes, orçamentos e agenda'], ['fin', 'Finanças', 'Recebimentos, faturas e contabilista'], ['prop', 'Propostas', 'Gerador de propostas']];
-var VIEW0 = { bast: 'hoje', fin: 'fres', prop: 'prop', eq: 'equipa' };
+var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda']], prod: [['pos', 'Pós-produção'], ['equip', 'Equipamento']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas'], ['fdesp', 'Despesas']] };
+var APPS = [['bast', 'Bastidores', 'Clientes, orçamentos e agenda'], ['prod', 'Produção', 'Pós-produção e equipamento'], ['fin', 'Finanças', 'Recebimentos, faturas e contabilista'], ['prop', 'Propostas', 'Gerador de propostas']];
+var VIEW0 = { bast: 'hoje', prod: 'pos', fin: 'fres', prop: 'prop', eq: 'equipa' };
 var parteG = function (p) { var r = p.recebido_por; if (r === 'Gabriel') return 1; if (r === 'Ylana') return 0; if (r === 'Ambos') { var x = p.parte_do_gabriel; return x === '' || x == null || !isFinite(+x) ? .5 : Math.max(0, Math.min(100, +x)) / 100; } return null; };
 var parteDe = function (p, pes) { var v = +p.valor || 0; if (pes === 'emp') return v; var g = parteG(p); if (g === null) return 0; return Math.round(v * (pes === 'g' ? g : 1 - g) * 100) / 100; };
 var semDono = function (p) { return parteG(p) === null; };
@@ -1039,7 +1062,7 @@ function abrirPropostas(url) {
 }
 function abrirApps() {
   var m = $('#apm'); if (!m.hidden) return fecharApps();
-  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin'; })).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
+  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin' && x[0] !== 'prod'; })).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
   m.hidden = false; $('.brand').setAttribute('aria-expanded', 'true');
 }
 function fecharApps() { var m = $('#apm'); if (m && !m.hidden) { m.hidden = true; $('.brand').setAttribute('aria-expanded', 'false'); } }
@@ -1096,6 +1119,154 @@ function vFfat() {
     grupos.map(function (g) { var l = fx.filter(g[2]); return l.length ? '<hr class="st"><p class="lb gl' + (g[0] === 'n' ? ' nd' : '') + '">' + g[1] + ' · ' + l.length + ' · ' + eur(tot(l, g[0])) + '</p>' + l.map(function (p) { return fatRow(p); }).join('') : ''; }).join('') + '</div>';
 }
 function vProp() { return ''; }
+
+/* ---------- Produção: pós-produção (quadro kanban) e equipamento ---------- */
+var ETAPAS = { fotos: ['Por começar', 'Seleção', 'Edição', 'Entregue'], video: ['Por começar', 'Teaser', 'Highlights', 'Filme', 'Entregue'] };
+var CAT_EQ = ['Armazenamento', 'Câmara', 'Lente', 'Drone', 'Áudio', 'Iluminação', 'Estabilizador', 'Outro'];
+var CAT_DESP = ['Software', 'Telefone e internet', 'Seguros', 'Contabilidade', 'Marketing', 'Equipamento', 'Outro'];
+var KB = { t: 'fotos', r: '' }, kbArrastou = 0;
+var temTrilho = function (c, t) { var s = String(c.tipo_de_servico || ''); return t === 'fotos' ? s !== 'Vídeo' : s !== 'Foto'; };
+var posDe = function (id) { return (D.pos || []).find(function (x) { return x.id_cliente === id; }) || {}; };
+// entram na pós-produção no dia do evento (clientes fechados ou concluídos)
+function projetos() {
+  return D.cli.filter(function (c) { return c.data_do_evento && c.data_do_evento <= TODAY && (c.status === 'Fechado' || c.status === 'Concluído'); })
+    .sort(function (a, b) { return a.data_do_evento < b.data_do_evento ? 1 : -1; }).map(function (c) { var p = posDe(c.id);
+    // clientes já concluídos sem registo de pós-produção (trabalhos antigos): contam como entregues e sem alertas
+    if (!p.id_cliente && c.status === 'Concluído') p = { fotos_etapa: 'Entregue', video_etapa: 'Entregue', _auto: true };
+    return { c: c, p: p }; });
+}
+var etapaDe = function (p, t) { var e = p[t + '_etapa']; return ETAPAS[t].indexOf(e) >= 0 ? e : 'Por começar'; };
+var backupOk = function (p) { return !!p._auto || p.cartoes_descarregados === 'Sim' && !!p.backup_1_confirmado_por && !!p.backup_2_confirmado_por; };
+var prazoTxt = function (p, t) { var d = p[t + '_prazo']; if (!d || etapaDe(p, t) === 'Entregue') return ''; var n = dias(d); return n < 0 ? '<span class="atr">atrasado ' + pl(-n, 'dia', 'dias') + '</span>' : n === 0 ? '<span class="atr">entrega hoje</span>' : 'entrega ' + fdc(d) + ' · faltam ' + n; };
+var respTag = function (r) { return r ? '<span class="qm ' + (r === 'Gabriel' ? 'pg' : 'py') + '">' + E(r) + '</span>' : '<span class="qm nd">sem responsável</span>'; };
+var unidades = function () { return (D.eq || []).filter(function (x) { return x.categoria === 'Armazenamento'; }); };
+var nomeUn = function (id) { var u = (D.eq || []).find(function (x) { return String(x.id) === String(id); }); return u ? [u.nome, u.capacidade].filter(Boolean).join(' · ') : ''; };
+
+function vPos() {
+  var t = KB.t, L = projetos().filter(function (x) { return temTrilho(x.c, t) && (!KB.r || (KB.r === '-' ? !x.p[t + '_responsavel'] : x.p[t + '_responsavel'] === KB.r)); });
+  var nF = projetos().filter(function (x) { return temTrilho(x.c, 'fotos') && etapaDe(x.p, 'fotos') !== 'Entregue'; }).length, nV = projetos().filter(function (x) { return temTrilho(x.c, 'video') && etapaDe(x.p, 'video') !== 'Entregue'; }).length;
+  var semBk = projetos().filter(function (x) { return !backupOk(x.p); }).length;
+  return '<div class="w1 wkb"><div class="pt"><div><p class="lb">Produção</p><h1 class="h1">Pós-produção</h1></div></div>' +
+    '<div class="ctab" role="tablist">' + [['fotos', 'Fotos', nF], ['video', 'Vídeos', nV]].map(function (x) { return '<button role="tab" data-a="kbt" data-v="' + x[0] + '" class="' + (t === x[0] ? 'on' : '') + '" aria-selected="' + (t === x[0]) + '">' + x[1] + '<small>' + x[2] + '</small></button>'; }).join('') + '</div>' +
+    '<div class="fbar"><div class="seg" role="group" aria-label="Responsável">' + [['', 'Todos'], ['Gabriel', 'Gabriel'], ['Ylana', 'Ylana'], ['-', 'Sem responsável']].map(function (x) { return '<button data-a="kbr" data-v="' + x[0] + '" class="' + (KB.r === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+    (semBk ? '<p class="sm" style="margin:0;color:var(--rd)">⚠ ' + pl(semBk, 'projeto', 'projetos') + ' com cartões ou backups por confirmar</p>' : '') + '</div>' +
+    '<p class="sm kdica">Arraste pelo ⠿ para mudar de etapa · toque no cartão para os detalhes, prazos e backups</p>' +
+    '<div class="kb">' + ETAPAS[t].map(function (e) { var l = L.filter(function (x) { return etapaDe(x.p, t) === e; });
+      return '<div class="kcol" data-e="' + E(e) + '"><p class="lb kct">' + E(e) + ' · ' + l.length + '</p>' + (l.map(function (x) { return cartaoK(x, t); }).join('') || '<p class="kvz">—</p>') + '</div>'; }).join('') + '</div></div>';
+}
+function cartaoK(x, t) {
+  var c = x.c, p = x.p, pz = prazoTxt(p, t);
+  return '<div class="kc" data-a="proj" data-id="' + E(c.id) + '" data-pid="' + E(c.id) + '"><span class="kd" aria-hidden="true">⠿</span><b>' + E(nc(c.nome_do_casal)) + '</b>' +
+    '<small>' + [fdc(c.data_do_evento), ehCas(c) ? '' : E(catDe(c))].filter(Boolean).join(' · ') + '</small>' + (pz ? '<small>' + pz + '</small>' : '') +
+    '<div class="kt">' + respTag(p[t + '_responsavel']) + (backupOk(p) ? '<span class="kbk ok" title="Cartões e backups confirmados">✓ backup</span>' : '<span class="kbk" title="Cartões ou backups por confirmar">⚠ backup</span>') + '</div></div>';
+}
+function moverEtapa(id, t, e) {
+  var p = posDe(id); if (etapaDe(p, t) === e) return;
+  if (!p.id_cliente) { p = { id_cliente: id }; D.pos = (D.pos || []).concat([p]); }
+  p[t + '_etapa'] = e; render(); // já mostra no sítio novo; o servidor confirma a seguir
+  var o = {}; o[t + '_etapa'] = e;
+  run(rpc('api_pos_upd', id, o), (t === 'fotos' ? 'Fotos' : 'Vídeo') + ': ' + e);
+}
+// arrastar: rato (o cartão todo) ou dedo (pela pega ⠿, para não estragar o deslizar do quadro)
+(function () {
+  var dr = null, fant = null;
+  var limpa = function () { if (fant && fant.parentNode) fant.parentNode.removeChild(fant); fant = null; if (dr && dr.el) dr.el.classList.remove('kgo'); $$('.kcol.alvo').forEach(function (x) { x.classList.remove('alvo'); }); dr = null; };
+  R.addEventListener('pointerdown', function (e) {
+    var k = e.target.closest && e.target.closest('.kc'); if (!k || e.button > 0) return;
+    if (e.pointerType !== 'mouse' && !e.target.closest('.kd')) return;
+    dr = { el: k, id: k.dataset.pid, x0: e.clientX, y0: e.clientY, on: false, pid: e.pointerId };
+  });
+  R.addEventListener('pointermove', function (e) {
+    if (!dr || e.pointerId !== dr.pid) return;
+    if (!dr.on) {
+      if (Math.abs(e.clientX - dr.x0) + Math.abs(e.clientY - dr.y0) < 6) return;
+      dr.on = true; var r = dr.el.getBoundingClientRect(); dr.dx = dr.x0 - r.left; dr.dy = dr.y0 - r.top;
+      fant = dr.el.cloneNode(true); fant.className = 'kc kfant'; fant.style.width = r.width + 'px'; R.appendChild(fant); dr.el.classList.add('kgo');
+      try { dr.el.setPointerCapture(e.pointerId); } catch (x) { }
+    }
+    e.preventDefault();
+    fant.style.transform = 'translate(' + (e.clientX - dr.dx) + 'px,' + (e.clientY - dr.dy) + 'px) rotate(1.5deg)';
+    fant.style.display = 'none'; var sob = document.elementFromPoint(e.clientX, e.clientY); fant.style.display = '';
+    var col = sob && sob.closest ? sob.closest('.kcol') : null;
+    $$('.kcol.alvo').forEach(function (x) { if (x !== col) x.classList.remove('alvo'); }); if (col) col.classList.add('alvo');
+    var kb = $('.kb'); if (kb) { if (e.clientX < 48) kb.scrollLeft -= 14; else if (e.clientX > innerWidth - 48) kb.scrollLeft += 14; }
+  }, { passive: false });
+  R.addEventListener('pointerup', function (e) {
+    if (!dr || e.pointerId !== dr.pid) return;
+    if (dr.on) { var col = $('.kcol.alvo'), id = dr.id; kbArrastou = Date.now(); limpa(); if (col) moverEtapa(id, KB.t, col.dataset.e); return; }
+    dr = null;
+  });
+  R.addEventListener('pointercancel', limpa);
+})();
+
+function abrirProjeto(id) {
+  var c = cli(id); if (!c || !c.id) return; var p = posDe(id), un = unidades();
+  var opU = function (v) { return '<option value="">—</option>' + un.map(function (u) { return '<option value="' + E(u.id) + '"' + (String(u.id) === String(v) ? ' selected' : '') + '>' + E([u.nome, u.capacidade].filter(Boolean).join(' · ')) + (u.ativo === 'Não' ? ' (inativo)' : '') + '</option>'; }).join(''); };
+  var trilho = function (t, nome) { if (!temTrilho(c, t)) return '';
+    return '<div class="mq"><p class="lb">' + nome + '</p><div class="fm pj"><label><span>Responsável</span><select data-p="' + t + '_responsavel">' + [['', '—'], ['Gabriel', 'Gabriel'], ['Ylana', 'Ylana']].map(function (o) { return '<option value="' + o[0] + '"' + ((p[t + '_responsavel'] || '') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></label>' +
+      '<label><span>Etapa</span><select data-p="' + t + '_etapa">' + ETAPAS[t].map(function (e) { return '<option' + (etapaDe(p, t) === e ? ' selected' : '') + '>' + E(e) + '</option>'; }).join('') + '</select></label>' +
+      '<label><span>Prazo de entrega</span><input type="date" data-p="' + t + '_prazo" value="' + E(p[t + '_prazo'] || '') + '"></label></div></div>'; };
+  var conf = function (k, rot, quem) { return '<div class="fm cnf"><label class="chk"><input type="checkbox" data-c="' + k + '"' + (quem ? ' checked' : '') + '><span>' + rot + (quem ? ' <small class="sm" style="display:inline">· ' + E(quem) + '</small>' : '') + '</span></label></div>'; };
+  var bk = function (n) { return '<div class="bkb"><p class="lb">Backup ' + n + '</p><div class="fm pj"><label><span>Unidade de armazenamento</span><select data-p="backup_' + n + '_unidade">' + opU(p['backup_' + n + '_unidade']) + '</select></label>' +
+    '<label><span>Caminho da pasta</span><input type="text" data-p="backup_' + n + '_caminho" placeholder="Ex.: /Casamentos/2026/Ana e Rui" value="' + E(p['backup_' + n + '_caminho'] || '') + '"></label></div>' + conf('backup_' + n + '_ok', 'Backup ' + n + ' feito e confirmado', p['backup_' + n + '_confirmado_por']) + '</div>'; };
+  openM('<p class="lb">Pós-produção · ' + E(fdc(c.data_do_evento)) + '</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm">' + [E(c.tipo_de_servico), E(c.local_da_cerimonia)].filter(Boolean).join(' · ') + ' · <button class="lnk" data-a="pfic" data-id="' + E(id) + '">abrir ficha</button></p>' +
+    trilho('fotos', 'Fotos') + trilho('video', 'Vídeo') +
+    '<div class="mq"><p class="lb">Cartões e backups</p>' + conf('cartoes_descarregados', 'Cartões descarregados', p.cartoes_descarregados === 'Sim' ? (p.cartoes_confirmado_por || 'sim') : '') +
+    (un.length ? bk(1) + bk(2) : '<p class="em" style="margin-top:10px">Ainda não há unidades de armazenamento. <button class="lnk" data-a="go" data-v="equip">Registe os SSD e HD em Equipamento</button> para os poder escolher aqui.</p>') + '</div>' +
+    '<div class="fm" style="margin-top:16px"><label><span>Notas</span><textarea data-p="notas" rows="3">' + E(p.notas || '') + '</textarea></label></div>' +
+    '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="pok">Guardar</button></div>');
+  $('#pok').onclick = function () {
+    var o = {};
+    $$('#m [data-p]').forEach(function (i) { var k = i.dataset.p, v = i.value.trim(), a = p[k] == null ? '' : String(p[k]); if (k.slice(-6) === '_etapa') a = etapaDe(p, k.split('_')[0]); if (v !== a) o[k] = v; });
+    $$('#m [data-c]').forEach(function (i) { var k = i.dataset.c, antes = k === 'cartoes_descarregados' ? p.cartoes_descarregados === 'Sim' : !!p['backup_' + k.charAt(7) + '_confirmado_por']; if (i.checked !== antes) o[k] = i.checked ? 'Sim' : ''; });
+    ['1', '2'].forEach(function (n) { if (o['backup_' + n + '_ok'] === 'Sim') { var u = $('#m [data-p=backup_' + n + '_unidade]'), ca = $('#m [data-p=backup_' + n + '_caminho]'); if (!u.value || !ca.value.trim()) { o.erro = 'Para confirmar o backup ' + n + ', escolha a unidade e escreva o caminho.'; } } });
+    if (o.erro) return toast(o.erro, 1);
+    if (!Object.keys(o).length) return closeM();
+    run(rpc('api_pos_upd', id, o), 'Pós-produção guardada');
+  };
+}
+
+function vEquip() {
+  var l = (D.eq || []).slice().sort(function (a, b) { return CAT_EQ.indexOf(a.categoria) - CAT_EQ.indexOf(b.categoria) || String(a.nome).localeCompare(String(b.nome), 'pt'); });
+  var usos = function (id) { return (D.pos || []).filter(function (p) { return String(p.backup_1_unidade) === String(id) || String(p.backup_2_unidade) === String(id); }).length; };
+  return '<div class="w1"><div class="pt"><div><p class="lb">Produção</p><h1 class="h1">Equipamento</h1></div><button class="b1" data-a="eqn">Novo equipamento</button></div>' +
+    '<p class="lead2">' + (l.length ? pl(l.length, 'item', 'itens') + ' · ' + pl(unidades().length, 'unidade de armazenamento', 'unidades de armazenamento') + ' para os backups.' : 'Registe aqui o equipamento. Comece pelos SSD e HD: são eles que aparecem nos backups da pós-produção.') + '</p>' +
+    CAT_EQ.map(function (cat) { var g = l.filter(function (x) { return (x.categoria || 'Outro') === cat; }); return g.length ? '<hr class="st"><p class="lb gl">' + E(cat) + ' · ' + g.length + '</p>' + g.map(function (x) { var u = cat === 'Armazenamento' ? usos(x.id) : 0;
+      return '<div class="rw r2" data-a="eqe" data-id="' + E(x.id) + '"><div><b>' + E(x.nome) + '</b>' + (x.ativo === 'Não' ? tg('Inativo', 'gy') : '') + '<small>' + [E(x.marca), E(x.modelo), E(x.capacidade), x.numero_de_serie ? 'nº ' + E(x.numero_de_serie) : ''].filter(Boolean).join(' · ') + '</small>' + (u ? '<small>usado em ' + pl(u, 'backup', 'backups') + '</small>' : '') + '</div><div class="rt"><button class="bt" data-a="eqx" data-id="' + E(x.id) + '">Apagar</button></div></div>'; }).join('') : ''; }).join('') + '</div>';
+}
+var CAMPOS_EQ = [['Equipamento', [['nome', 'Nome', 'text'], ['categoria', 'Categoria', 'sel', CAT_EQ], ['marca', 'Marca', 'text'], ['modelo', 'Modelo', 'text'], ['capacidade', 'Capacidade (ex.: 2 TB)', 'text', null, function (v) { return v.categoria === 'Armazenamento'; }], ['numero_de_serie', 'Número de série', 'text'], ['notas', 'Notas', 'area'], ['ativo', 'Em uso (ativo)', 'chk']]]];
+function editarEq(x) { form(x ? 'Editar equipamento' : 'Novo equipamento', CAMPOS_EQ, x ? Object.assign({}, x) : { categoria: 'Armazenamento', ativo: 'Sim' }, function (v) { if (!String(v.nome || '').trim()) return toast('Indique o nome.', 1); run(rpc('api_eq_guardar', x ? x.id : '', v), 'Equipamento guardado'); }); }
+
+/* ---------- Finanças: despesas mensais ---------- */
+var porMes = function (d) { var v = +d.valor || 0; return d.frequencia === 'Anual' ? v / 12 : v; };
+function vDesp() {
+  var l = (D.desp || []).slice().sort(function (a, b) { return (+a.dia_de_cobranca || 99) - (+b.dia_de_cobranca || 99); }), at = l.filter(function (d) { return d.ativa !== 'Não'; }), can = l.filter(function (d) { return d.ativa === 'Não'; });
+  var fil = PES === 'emp' ? at : at.filter(function (d) { return d.quem_paga === (PES === 'g' ? 'Gabriel' : 'Ylana'); });
+  var mes = sum(fil, porMes), quem = function (q) { return sum(at.filter(function (d) { return d.quem_paga === q; }), porMes); };
+  var hoje = +TODAY.slice(8, 10), prox = fil.filter(function (d) { var dd = +d.dia_de_cobranca; return dd && dd >= hoje && dd <= hoje + 7 && d.frequencia !== 'Anual'; });
+  var linha = function (d) { return '<div class="rw r2" data-a="dspe" data-id="' + E(d.id) + '"><div><b>' + E(d.descricao) + '</b>' + respTag2(d.quem_paga) + '<small>' + [E(d.categoria), d.dia_de_cobranca ? 'cobra ao dia ' + E(d.dia_de_cobranca) : '', E(d.notas)].filter(Boolean).join(' · ') + '</small></div><div class="rt"><span class="num s">' + eur(d.valor) + '</span><small>' + (d.frequencia === 'Anual' ? 'por ano · ' + eur(porMes(d)) + '/mês' : 'por mês') + '</small><button class="bt sm" data-a="dspx" data-id="' + E(d.id) + '">Apagar</button></div></div>'; };
+  return '<div class="w1"><div class="pt"><div><p class="lb">Finanças · ' + (PES === 'emp' ? 'todas' : 'pagas ' + (PES === 'g' ? 'pelo Gabriel' : 'pela Ylana')) + '</p><h1 class="h1">Despesas</h1></div><button class="b1" data-a="dspn">Nova despesa</button></div>' +
+    '<div class="ctab" role="tablist">' + [['emp', 'Todas'], ['g', 'Gabriel'], ['y', 'Ylana']].map(function (t) { return '<button role="tab" data-a="pes" data-v="' + t[0] + '" class="' + (PES === t[0] ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="kpi"><div><span class="lb">Por mês</span><span class="num">' + eur(mes) + '</span></div><div><span class="lb">Por ano</span><span class="num">' + eur(mes * 12) + '</span></div><div><span class="lb">Despesas ativas</span><span class="num">' + fil.length + '</span></div></div>' +
+    (PES === 'emp' ? '<div class="lgd" style="margin-top:14px"><span><i class="pg"></i>Gabriel paga <b>' + eur(quem('Gabriel')) + '/mês</b></span><span><i class="py"></i>Ylana paga <b>' + eur(quem('Ylana')) + '/mês</b></span><span><i class="nd"></i>Empresa <b>' + eur(quem('Empresa')) + '/mês</b></span></div>' : '') +
+    (prox.length ? '<hr class="st"><p class="lb gl">Cobranças nos próximos 7 dias</p>' + prox.map(linha).join('') : '') +
+    '<hr class="st"><p class="lb gl">Ativas · ' + fil.length + '</p>' + (fil.map(linha).join('') || '<p class="em">Ainda sem despesas. Comece pelas fixas: software, telefone, seguros…</p>') +
+    (can.length && PES === 'emp' ? '<hr class="st"><p class="lb gl">Canceladas · ' + can.length + '</p>' + can.map(linha).join('') : '') + '</div>';
+}
+var respTag2 = function (q) { return '<span class="qm ' + (q === 'Gabriel' ? 'pg' : q === 'Ylana' ? 'py' : 'pa') + '">' + E(q || 'Empresa') + '</span>'; };
+var CAMPOS_DESP = [['Despesa', [['descricao', 'Descrição (ex.: Adobe Creative Cloud)', 'text'], ['categoria', 'Categoria', 'sel', CAT_DESP], ['valor', 'Valor (€)', 'number'], ['frequencia', 'Frequência', 'sel', ['Mensal', 'Anual']], ['dia_de_cobranca', 'Dia de cobrança (1 a 31)', 'number'], ['quem_paga', 'Quem paga', 'sel', ['Empresa', 'Gabriel', 'Ylana']], ['notas', 'Notas', 'area'], ['ativa', 'Ativa (desmarque se cancelou)', 'chk']]]];
+function editarDesp(d) { form(d ? 'Editar despesa' : 'Nova despesa', CAMPOS_DESP, d ? Object.assign({}, d) : { categoria: 'Software', frequencia: 'Mensal', quem_paga: 'Empresa', ativa: 'Sim' }, function (v) { if (!String(v.descricao || '').trim()) return toast('Indique a descrição.', 1); if (!(+v.valor >= 0) || v.valor === '') return toast('Indique o valor.', 1); run(rpc('api_desp_guardar', d ? d.id : '', v), 'Despesa guardada'); }); }
+
+/* ---------- Hoje: avisos da pós-produção (só donos) ---------- */
+function avisosPos() {
+  if (!dono()) return '';
+  var P = projetos(), bk = P.filter(function (x) { return !backupOk(x.p); }), at = [];
+  P.forEach(function (x) { ['fotos', 'video'].forEach(function (t) { if (temTrilho(x.c, t) && x.p[t + '_prazo'] && x.p[t + '_prazo'] < TODAY && etapaDe(x.p, t) !== 'Entregue') at.push({ x: x, t: t }); }); });
+  if (!bk.length && !at.length) return '';
+  return '<hr class="st"><p class="lb gl" style="color:var(--rd)">Pós-produção</p>' +
+    bk.slice(0, 6).map(function (x) { return '<div class="rw" data-a="pproj" data-id="' + E(x.c.id) + '"><span class="n">⚠</span><div><b>' + E(nc(x.c.nome_do_casal)) + '</b>' + tg('Backup por confirmar', 'rd') + '<small>Evento ' + fdc(x.c.data_do_evento) + ' · ' + [x.p.cartoes_descarregados === 'Sim' ? '' : 'cartões', x.p.backup_1_confirmado_por ? '' : 'backup 1', x.p.backup_2_confirmado_por ? '' : 'backup 2'].filter(Boolean).join(', ') + ' por confirmar</small></div><span></span></div>'; }).join('') +
+    at.slice(0, 6).map(function (a) { return '<div class="rw" data-a="pproj" data-id="' + E(a.x.c.id) + '"><span class="n">!</span><div><b>' + E(nc(a.x.c.nome_do_casal)) + '</b>' + tg((a.t === 'fotos' ? 'Fotos' : 'Vídeo') + ' atrasado', 'rd') + respTag(a.x.p[a.t + '_responsavel']) + '<small>' + etapaDe(a.x.p, a.t) + ' · prazo ' + fdc(a.x.p[a.t + '_prazo']) + '</small></div><span></span></div>'; }).join('');
+}
 
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
@@ -1404,6 +1575,17 @@ var act = {
   ost: function (d) { if (d.v === 'Perdido') return naoFechou(d.id); run(rpc('api_upd', 'Orçamentos', d.id, { status: d.v }), 'Estado: ' + d.v, function () { orcF(d.id); }); },
   opc: function (d) { var n = +d.v, v = ''; if (n) { var t = new Date(); t.setDate(t.getDate() + n); v = iso(t); } run(rpc('api_upd', 'Orçamentos', d.id, { proximo_contacto: v }), v ? 'Próximo contacto: ' + fdc(v) : 'Próximo contacto sem data', function () { orcF(d.id); }); },
   apps: function () { abrirApps(); },
+  kbt: function (d) { KB.t = d.v === 'video' ? 'video' : 'fotos'; render(); },
+  kbr: function (d) { KB.r = d.v; render(); },
+  proj: function (d) { if (Date.now() - kbArrastou < 400) return; abrirProjeto(d.id); },
+  pproj: function (d) { trocarApp('prod', 'pos'); abrirProjeto(d.id); },
+  pfic: function (d) { trocarApp('bast'); ficha(d.id, 'r', true); },
+  eqn: function () { editarEq(null); },
+  eqe: function (d) { editarEq((D.eq || []).find(function (x) { return String(x.id) === d.id; })); },
+  eqx: function (d) { var x = (D.eq || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar «' + E(x.nome) + '»?', function () { run(rpc('api_eq_apagar', d.id), 'Equipamento apagado'); }, 'Apagar'); },
+  dspn: function () { editarDesp(null); },
+  dspe: function (d) { var x = (D.desp || []).find(function (y) { return String(y.id) === d.id; }); if (!x) return; editarDesp(x); },
+  dspx: function (d) { var x = (D.desp || []).find(function (y) { return String(y.id) === d.id; }); if (x) ask('Apagar a despesa «' + E(x.descricao) + '»? Se só foi cancelada, pode antes desmarcar «Ativa».', function () { run(rpc('api_desp_apagar', d.id), 'Despesa apagada'); }, 'Apagar'); },
   dec: function (d) {
     var x = (D.ped || []).find(function (p) { return p.id === d.id; }); if (!x) return;
     var depois = function () { if (nPed() && view !== 'equipa') verPedidos(); };
@@ -1498,7 +1680,7 @@ function render() {
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
   $$('.mh [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa })[view]();
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }
