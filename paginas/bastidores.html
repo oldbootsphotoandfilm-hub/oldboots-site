@@ -718,7 +718,7 @@ function run(p, msg, after) {
   return Promise.resolve(p).then(function (r) {
     if (r && r.existe) return r;
     return (r && r.all ? Promise.resolve(r.all) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
-      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; }
+      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -1322,6 +1322,16 @@ function avisosPos() {
 
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
+/* ---------- questionário do dia (página dos noivos): link e estado ---------- */
+var Q_URL = 'https://oldbootsphotoandfilm.com/questionario/#';
+var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
+var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+function qBloco(c) {
+  var q = qDe(c.id); if (!q) return '<button class="tgb" data-a="qlink" data-id="' + E(c.id) + '">' + tg('Sem link', 'ne') + '<small>criar link</small></button>';
+  var ab = qAbre(c), est = q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
+  var msg = 'Olá! Aqui está o questionário do vosso casamento: ' + Q_URL + q.codigo + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editar até 7 dias antes do dia.' : '');
+  return est + '<span style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px"><button class="lnk" data-a="qcop" data-id="' + E(c.id) + '">copiar link</button>' + (c.telefone ? '<a href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">enviar por WhatsApp</a>' : '') + (q.pdf ? '<a href="' + E(su(q.pdf)) + '" target="_blank" rel="noopener">PDF' + (q.enviado_em ? ' · ' + E(q.enviado_em) : '') + '</a>' : '') + '</span>';
+}
 var kv = function (k, v) { return v ? '<div class="kv"><span class="lb">' + k + '</span><span class="v">' + v + '</span></div>' : ''; };
 function naoFechou(id) {
   var o = D.orc.find(function (x) { return x.id === id; }); if (!o) return;
@@ -1380,7 +1390,7 @@ function vFicha() {
     '<p class="meta">' + [ehCas(c) ? '' : E(catDe(c) + (c.subtipo ? ' · ' + c.subtipo : '')), fd(c.data_do_evento) + (d !== null && d >= 0 ? ' · faltam ' + d + ' dias' : ''), E(c.local_da_cerimonia), E(c.tipo_de_servico)].filter(Boolean).join(' · ') + '</p>' +
     contactos(c, icB('cont', 'Contacto', 'vcf', id) + (c.pasta_no_drive ? icA('pasta', 'Drive', su(c.pasta_no_drive), 1) : '') + (c.link_da_galeria ? icA('gal', 'Galeria', su(c.link_da_galeria), 1) : '')) +
     '<div class="tabs" role="tablist">' + tb.map(function (t) { return '<button role="tab" aria-selected="' + (t[0] === tab) + '" data-a="tab" data-id="' + E(id) + '" data-v="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div><div class="tc" role="tabpanel">' + h + '</div></div>' +
-    '<aside class="sd" aria-label="Dados do cliente"><p class="lb">Dados</p>' + kv('Telefone', c.telefone ? '<a href="tel:' + E(c.telefone) + '">' + E(c.telefone) + '</a>' : '') + kv('E-mail', c.email ? '<a href="mailto:' + E(c.email) + '">' + E(c.email) + '</a>' : '') + kv('Nome no contrato', E(c.nome_completo_contrato)) + kv('NIF', E(c.nif)) + kv('Valor final', c.valor_final !== '' ? eur(c.valor_final) : '') + kv('Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') + (c.resumo_do_contrato ? ' <a class="sm" style="display:inline" href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">resumo PDF</a>' : '') : '<button class="tgb" data-a="assinar" data-id="' + E(id) + '">' + tg('Por assinar', 'oc') + '<small>marcar assinado</small></button>') + '</aside></div>';
+    '<aside class="sd" aria-label="Dados do cliente"><p class="lb">Dados</p>' + (ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído') ? kv('Questionário do dia', qBloco(c)) : '') + kv('Telefone', c.telefone ? '<a href="tel:' + E(c.telefone) + '">' + E(c.telefone) + '</a>' : '') + kv('E-mail', c.email ? '<a href="mailto:' + E(c.email) + '">' + E(c.email) + '</a>' : '') + kv('Nome no contrato', E(c.nome_completo_contrato)) + kv('NIF', E(c.nif)) + kv('Valor final', c.valor_final !== '' ? eur(c.valor_final) : '') + kv('Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') + (c.resumo_do_contrato ? ' <a class="sm" style="display:inline" href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">resumo PDF</a>' : '') : '<button class="tgb" data-a="assinar" data-id="' + E(id) + '">' + tg('Por assinar', 'oc') + '<small>marcar assinado</small></button>') + '</aside></div>';
 }
 function pagar(id, p) {
   var was = view === 'ficha' && fid === id; var pr = D.par.find(function (x) { return x.id_cliente === id && +x.parcela === +p; }); if (!pr) return;
@@ -1689,6 +1699,8 @@ var act = {
     ask('Marcar o contrato de ' + E(c.nome_do_casal) + ' como assinado?', function () { run(rpc('api_upd', 'Clientes', d.id, { contrato_assinado: 'Sim' }), 'Contrato marcado como assinado').then(depoisDeGravar); }, 'Marcar como assinado',
       ehCas(c) ? '<p class="sm" style="margin:-6px 0 6px">Vou criar o resumo do contrato em PDF com os dados, o pacote, os extras, os valores e o plano de pagamento.' + (c.pacote ? '' : ' <b>Ainda não escolheu o pacote</b>: pode fazê-lo em "Editar dados" e gerar o resumo de novo depois.') + '</p>' : ''); },
   resumo: function (d) { gerarResumo(d.id); },
+  qlink: function (d) { run(rpc('api_q_link', d.id), 'Link do questionário criado'); },
+  qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo; try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
   fat: function (d) { var was = view === 'ficha' && fid === d.id; run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }); },
