@@ -168,6 +168,13 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .ft2{padding:34px 22px calc(34px + env(safe-area-inset-bottom));text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
 #obq .ft2 .tag{display:flex;gap:30px;justify-content:center}
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
+#obq .tb{background:#fbfaf7 var(--pap) center/cover;color:var(--dk);padding:22px 22px 20px;margin-top:16px}
+#obq .tb .sc{font-size:34px;margin:0 0 4px;text-align:left}
+#obq .tb .et{font:600 11px/1.4 Montserrat,Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-top:12px;display:flex;justify-content:space-between;gap:10px}
+#obq .tb .et b{font-weight:600}#obq .tb .et span{opacity:.65;white-space:nowrap}
+#obq .stp{display:flex;gap:4px;margin-top:10px}#obq .stp i{flex:1;height:5px;background:rgba(43,42,7,.15)}#obq .stp i.on{background:#454205}
+#obq .tb .pz{font-size:15px;margin-top:10px;opacity:.85}
+#obq .tb.ok .stp i{background:#3f6236}#obq .tb.ok .et b{color:#3f6236}
 #obq #obqSpl{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#454205 var(--olt) center/cover;color:var(--cr);transition:opacity .5s ease,visibility .5s}
 #obq #obqSpl.out{opacity:0;visibility:hidden}
 #obq #obqSpl img{width:min(46vw,200px);height:auto;opacity:0;transform:translateY(8px);animation:obqUp .9s cubic-bezier(.2,.7,.2,1) .1s forwards}
@@ -236,6 +243,12 @@ Object.assign(TX, {
   doDia: ['do dia', 'of the day'], qAbre: ['Abre a', 'Opens on'], qAbreTx: ['Dois meses antes do casamento, para nos contarem os horários, as pessoas e os detalhes do dia.', 'Two months before the wedding, so you can tell us about the timeline, the people and the details.'],
   qAberto: ['Já podem preencher', 'You can fill it in now'], qAte: ['Podem editar até', 'You can edit until'], preencher: ['Preencher questionário', 'Fill in questionnaire'], continuarQ: ['Continuar questionário', 'Continue questionnaire'],
   qEnviado: ['Questionário enviado', 'Questionnaire sent'], verResp: ['Ver respostas', 'View answers'], qFechou: ['O questionário fechou', 'The questionnaire is closed'], voltar: ['← Página do casal', '← Couple page'],
+  nTrab: ['O trabalho', 'Your work'], trabTit: ['Em produção', 'In progress'], trabSc: ['as vossas memórias', 'your memories'], trabTx: ['Depois do grande dia, é aqui que acompanham as fotos e os filmes até à entrega.', 'After the big day, follow your photos and films here until delivery.'],
+  entregue: ['Entregue', 'Delivered'], prevista: ['Entrega prevista a', 'Expected delivery'], fase: ['Fase', 'Stage'],
+  p_fotos: ['Fotografias', 'Photos'], p_teaser: ['Teaser', 'Teaser'], p_highlights: ['Highlights', 'Highlights'], p_trailer: ['Filme (trailer)', 'Film (trailer)'],
+  'e_Por começar': ['Na fila de edição', 'In the editing queue'], 'e_Escolha das fotos': ['Seleção das fotografias', 'Selecting your photos'], e_Edição: ['Edição', 'Editing'], e_Entregue: ['Entregue', 'Delivered'],
+  e_Decupagem: ['A rever todo o material', 'Reviewing all footage'], 'e_Separação das músicas': ['Escolha da música', 'Choosing the music'], 'e_Cortes iniciais': ['Primeira montagem', 'First cut'],
+  'e_Color grading': ['Tratamento de cor', 'Colour grading'], 'e_Ajustes finais': ['Ajustes finais', 'Final touches'],
   feito: ['Feito por', 'Made by'], falar: ['Falar connosco no WhatsApp', 'Message us on WhatsApp'],
   Paga: ['Paga', 'Paid'], Pendente: ['Pendente', 'Pending'], 'Em atraso': ['Em atraso', 'Overdue'], Parcial: ['Parcial', 'Partly paid'],
   'Depósito': ['Entrada', 'Deposit'], 'Pagamento total': ['Pagamento total', 'Full payment'], 'Parcela_t': ['Parcela', 'Instalment']
@@ -424,6 +437,9 @@ function casa() {
   var pc = I.valor ? Math.min(100, Math.round(I.pago / I.valor * 100)) : 0;
   var chip = function (e) { return '<span class="chip' + (e === 'Paga' ? ' ok' : e === 'Em atraso' ? ' at' : '') + '">' + E(X(e)) + '</span>'; };
   var dts = function (x) { return dt(x, { day: 'numeric', month: 'short', year: 'numeric' }); };
+  var tr = (I.trabalho || []).length ? '<section class="sec crm" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' +
+    I.trabalho.map(function (t) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
+      return '<div class="tb' + (ok ? ' ok' : '') + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="stp" aria-hidden="true">' + st + '</div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
   var dia = '<section class="sec crm" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
     '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', I.servico, 1) + '</div>' +
     (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote || X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ul>' + (I.descricao ? '<p style="margin-top:12px;font-size:15px">' + E(I.descricao) + '</p>' : '') + '</div>' : '') +
@@ -444,8 +460,8 @@ function casa() {
   else qc = '<p class="lbl">' + X('qFechou') + '</p><p class="em2">' + X('fechado') + '</p>';
   var q = '<section class="sec ol" id="s-q"><div class="in"><div class="hd"><h2 class="tt">' + X('nQ') + '</h2><p class="sc">' + X('doDia') + '</p></div><div class="pap qc">' + qc + '</div></div></section>';
   A.innerHTML = '<section class="cv ol"><p class="sc" style="margin:0 0 6px">' + X('pag') + '</p>' + nomesCapa(nome) + cd + '<p class="dtl">' + E(dt(S.data)) + '</p><p class="tag">@oldbootsphotoandfilm</p></section>' +
-    '<nav class="snav" aria-label="Secções">' + [['s-dia', 'nDia'], ['s-pag', 'nPag'], ['s-doc', 'nDoc'], ['s-q', 'nQ']].map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
-    dia + pag + docs + q +
+    '<nav class="snav" aria-label="Secções">' + (tr ? [['s-trab', 'nTrab']] : []).concat([['s-dia', 'nDia'], ['s-pag', 'nPag'], ['s-doc', 'nDoc'], ['s-q', 'nQ']]).map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
+    tr + dia + pag + docs + q +
     '<footer class="ft2 ol"><a class="bc" href="' + WHATS + '" target="_blank" rel="noopener">' + X('falar') + '</a><p class="tag"><span>' + X('feito') + ' Gabriel e Ylana</span><span>Portugal</span></p></footer>';
 }
 // questionário: abre o formulário (ou as respostas); se ainda não abriu, mostra o cartão dele na página do casal
