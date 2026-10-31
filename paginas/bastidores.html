@@ -446,7 +446,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob #m .btns{position:sticky;bottom:-48px;margin:24px -20px -48px;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--pp);border-top:1px solid var(--sf);z-index:2}
 #ob .ic{width:calc((100% - 50px)/6);min-width:52px}
 #ob .ic span{font-size:8.5px;letter-spacing:.03em}
-#ob .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:22px}
+#ob .tabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;gap:22px}#ob .tabs button{margin-bottom:0}
 #ob .tabs::-webkit-scrollbar{display:none}
 #ob .tabs button{white-space:nowrap}
 #ob .mh .pqh{display:none}
@@ -539,7 +539,8 @@ var ICO = {
   tel: '<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
   mail: '<svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>',
   cont: '<svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M19 8v6M22 11h-6"/></svg>',
-  pasta: '<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+  link: '<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
+pasta: '<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
   gal: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
 };
 var icA = function (k, rot, href, ext) { return '<a class="ic ' + k + '" href="' + E(href) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '">' + ICO[k] + '<span>' + rot + '</span></a>'; };
@@ -1326,11 +1327,19 @@ var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(fu
 var Q_URL = 'https://oldbootsphotoandfilm.com/questionario/#';
 var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
 var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
-function qBloco(c) {
-  var q = qDe(c.id); if (!q) return '<button class="tgb" data-a="qlink" data-id="' + E(c.id) + '">' + tg('Sem link', 'ne') + '<small>criar link</small></button>';
-  var ab = qAbre(c), est = q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
-  var msg = 'Olá! Aqui está o questionário do vosso casamento: ' + Q_URL + q.codigo + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editar até 7 dias antes do dia.' : '');
-  return est + '<span style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px"><button class="lnk" data-a="qcop" data-id="' + E(c.id) + '">copiar link</button>' + (c.telefone ? '<a href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">enviar por WhatsApp</a>' : '') + (q.pdf ? '<a href="' + E(su(q.pdf)) + '" target="_blank" rel="noopener">PDF' + (q.enviado_em ? ' · ' + E(q.enviado_em) : '') + '</a>' : '') + '</span>';
+var temQ = function (c) { return ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído'); };
+var qMsg = function (c, q) { var ab = qAbre(c); return 'Olá! Aqui está a vossa página do casal na Old Boots: ' + Q_URL + q.codigo + (ab ? '\nO questionário do dia abre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : ''); };
+function qEstado(c, q) {
+  if (!q) return tg('Sem link', 'ne'); var ab = qAbre(c);
+  return q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
+}
+function qAcoes(c, q) { return '<div class="acts2"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(Q_URL + q.codigo) + '" target="_blank" rel="noopener">Abrir página</a></div>'; }
+// separador «Questionário» da ficha
+function qAba(c) {
+  var q = qDe(c.id), ab = qAbre(c), m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')), fe = m ? (function () { var d = new Date(+m[1], m[2] - 1, +m[3] - 7); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() : '';
+  if (!q) return '<p class="em" style="margin-top:20px">Ainda não há página do casal. Crie o link para o enviar aos noivos.</p><div class="btns"><button class="b1" data-a="qlink" data-id="' + E(c.id) + '">Criar link da página do casal</button></div>';
+  return lines([['Estado', qEstado(c, q)], ['Abre', ab ? fdc(ab) : 'sem data do evento'], ['Edições até', fe ? fdc(fe) : ''], ['Enviado em', E(q.enviado_em) + (q.envios > 1 ? ' · ' + (q.envios - 1) + (q.envios > 2 ? ' correções' : ' correção') : '')],
+    ['PDF', q.pdf ? '<a href="' + E(su(q.pdf)) + '" target="_blank" rel="noopener">abrir o último PDF</a>' : '']]) + qAcoes(c, q);
 }
 var kv = function (k, v) { return v ? '<div class="kv"><span class="lb">' + k + '</span><span class="v">' + v + '</span></div>' : ''; };
 function naoFechou(id) {
@@ -1365,7 +1374,7 @@ function ficha(id, tab, topo) { if (!D.cli.some(function (x) { return x.id === i
 function vFicha() {
   var c = D.cli.find(function (x) { return x.id === fid; }); if (!c) { view = 'cli'; return vCli(); }
   var id = fid, tab = ftab, d = c.data_do_evento ? dias(c.data_do_evento) : null, pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, doc = D.doc.find(function (x) { return x.id_cliente === id; }) || {};
-  var tb = [['r', 'Resumo'], ['p', 'Pagamentos'], ['e', 'Extras'], ['d', 'Documentos'], ['n', 'Notas']].filter(function (t) { return dono() || t[0] !== 'p'; }), h = ''; if (!dono() && tab === 'p') tab = 'r';
+  var tb = [['r', 'Resumo'], ['p', 'Pagamentos'], ['e', 'Extras'], ['d', 'Documentos'], ['q', 'Questionário'], ['n', 'Notas']].filter(function (t) { return (dono() || t[0] !== 'p') && (t[0] !== 'q' || temQ(c)); }), h = ''; if (tab === 'q' && !temQ(c)) tab = 'r'; if (!dono() && tab === 'p') tab = 'r';
   if (tab === 'r') h = lines([['Cerimónia', E(c.local_da_cerimonia)], ['Receção', E(c.local_da_rececao)], ['Hora', E(c.hora)], ['Serviço', E(c.tipo_de_servico)], ['Pacote', E(c.pacote)], ['Origem', E(c.origem)], ['Pagamento', E(c.forma_de_pagamento) + (c.entrada ? ' · entrada ' + E(c.entrada) + ' % (' + eur(c.valor_da_entrada) + ')' : '')], ['Contrato', E(c.contrato_previo) + ' · ' + (c.contrato_assinado === 'Sim' ? 'assinado' : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>')], ['Aviso', av(c.aviso_de_data) ? tg(av(c.aviso_de_data), 'rd') : ''], ['Ligado a', c.ligado_a && cli(c.ligado_a).id ? '<button class="lnk" data-a="f" data-id="' + E(c.ligado_a) + '">' + E(cli(c.ligado_a).nome_do_casal) + '</button> · casamento' : ''], ['Ensaios ligados', D.cli.filter(function (x) { return x.ligado_a === c.id; }).map(function (x) { return '<button class="lnk" data-a="f" data-id="' + E(x.id) + '">' + E(x.nome_do_casal) + '</button>' + (x.subtipo ? ' · ' + E(x.subtipo) : '') + ' · ' + fd(x.data_do_evento); }).join('<br>')]]) +
     '<div class="btns">' + (c.sugestao ? '<button class="b2" data-a="ec" data-id="' + E(id) + '">Editar dados</button><button class="b1" data-a="concl" data-id="' + E(id) + '">' + E(c.sugestao) + '</button>' : '<button class="b1" data-a="ec" data-id="' + E(id) + '">Editar dados</button>') + '</div>';
   if (tab === 'p') {
@@ -1384,13 +1393,14 @@ function vFicha() {
   if (tab === 'e') { var X = D.ext.filter(function (x) { return x.id_cliente === id; }); h = (X.map(function (x) { return '<div class="ln"><span>' + E(x.servico) + ' × ' + E(x.quantidade) + '</span><span>' + (x.total !== '' ? eur(x.total) : 'sem preço') + '</span></div>'; }).join('') || '<p class="em">Sem extras.</p>') + '<div class="ln"><span>Total extras</span><span><b>' + eur(sum(X, function (x) { return x.total; })) + '</b></span></div><p class="sm" style="margin-top:14px">Os preços definem-se na folha Serviços.</p><div class="btns"><button class="b1" data-a="ne" data-id="' + E(id) + '">Adicionar extra</button></div>'; }
   if (tab === 'd') h = lines([['Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>'],
       ['Resumo do contrato', c.resumo_do_contrato ? '<a href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">abrir PDF</a>' : (ehCas(c) && c.contrato_assinado === 'Sim' ? 'ainda não criado' : '')], ['Contrato (PDF)', doc.link_do_pdf_do_contrato ? '<a href="' + E(su(doc.link_do_pdf_do_contrato)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Google Docs', doc.link_do_google_docs ? '<a href="' + E(su(doc.link_do_google_docs)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Notas', E(doc.notas)]]) + '<div class="btns">' + (ehCas(c) && c.contrato_assinado === 'Sim' && dono() ? '<button class="b2" data-a="resumo" data-id="' + E(id) + '">' + (c.resumo_do_contrato ? 'Gerar resumo de novo' : 'Gerar resumo do contrato') + '</button>' : '') + '<button class="b1" data-a="ed" data-id="' + E(id) + '">Editar links</button></div>';
+  if (tab === 'q') h = qAba(c);
   if (tab === 'n') h = '<div class="fm" style="margin-top:20px"><label><span>Notas do casal</span><textarea id="nt" rows="7">' + E(c.observacoes) + '</textarea></label></div><div class="btns"><button class="b1" data-a="sn" data-id="' + E(id) + '">Guardar notas</button></div>';
   return '<div class="w"><div><button class="bk" data-a="go" data-v="cli">← Clientes</button>' +
     '<h1 class="h1 fh">' + E(c.nome_do_casal) + '</h1><p class="tgs">' + tg(c.status) + tg(c.estado_do_pagamento) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '</p>' +
     '<p class="meta">' + [ehCas(c) ? '' : E(catDe(c) + (c.subtipo ? ' · ' + c.subtipo : '')), fd(c.data_do_evento) + (d !== null && d >= 0 ? ' · faltam ' + d + ' dias' : ''), E(c.local_da_cerimonia), E(c.tipo_de_servico)].filter(Boolean).join(' · ') + '</p>' +
-    contactos(c, icB('cont', 'Contacto', 'vcf', id) + (c.pasta_no_drive ? icA('pasta', 'Drive', su(c.pasta_no_drive), 1) : '') + (c.link_da_galeria ? icA('gal', 'Galeria', su(c.link_da_galeria), 1) : '')) +
+    contactos(c, icB('cont', 'Contacto', 'vcf', id) + (temQ(c) ? icB('link', 'Página do casal', 'pcasal', id) : '') + (c.pasta_no_drive ? icA('pasta', 'Drive', su(c.pasta_no_drive), 1) : '') + (c.link_da_galeria ? icA('gal', 'Galeria', su(c.link_da_galeria), 1) : '')) +
     '<div class="tabs" role="tablist">' + tb.map(function (t) { return '<button role="tab" aria-selected="' + (t[0] === tab) + '" data-a="tab" data-id="' + E(id) + '" data-v="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div><div class="tc" role="tabpanel">' + h + '</div></div>' +
-    '<aside class="sd" aria-label="Dados do cliente"><p class="lb">Dados</p>' + (ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído') ? kv('Questionário do dia', qBloco(c)) : '') + kv('Telefone', c.telefone ? '<a href="tel:' + E(c.telefone) + '">' + E(c.telefone) + '</a>' : '') + kv('E-mail', c.email ? '<a href="mailto:' + E(c.email) + '">' + E(c.email) + '</a>' : '') + kv('Nome no contrato', E(c.nome_completo_contrato)) + kv('NIF', E(c.nif)) + kv('Valor final', c.valor_final !== '' ? eur(c.valor_final) : '') + kv('Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') + (c.resumo_do_contrato ? ' <a class="sm" style="display:inline" href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">resumo PDF</a>' : '') : '<button class="tgb" data-a="assinar" data-id="' + E(id) + '">' + tg('Por assinar', 'oc') + '<small>marcar assinado</small></button>') + '</aside></div>';
+    '<aside class="sd" aria-label="Dados do cliente"><p class="lb">Dados</p>' + kv('Telefone', c.telefone ? '<a href="tel:' + E(c.telefone) + '">' + E(c.telefone) + '</a>' : '') + kv('E-mail', c.email ? '<a href="mailto:' + E(c.email) + '">' + E(c.email) + '</a>' : '') + kv('Nome no contrato', E(c.nome_completo_contrato)) + kv('NIF', E(c.nif)) + kv('Valor final', c.valor_final !== '' ? eur(c.valor_final) : '') + kv('Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') + (c.resumo_do_contrato ? ' <a class="sm" style="display:inline" href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">resumo PDF</a>' : '') : '<button class="tgb" data-a="assinar" data-id="' + E(id) + '">' + tg('Por assinar', 'oc') + '<small>marcar assinado</small></button>') + '</aside></div>';
 }
 function pagar(id, p) {
   var was = view === 'ficha' && fid === id; var pr = D.par.find(function (x) { return x.id_cliente === id && +x.parcela === +p; }); if (!pr) return;
@@ -1677,7 +1687,7 @@ var act = {
   verNd: function () { PES = 'emp'; FND = true; trocarApp('fin', 'frec'); },
   quem: function (d) { mudarQuem(d.r); },
   abrirProp: function (d) { trocarApp('prop', 'prop', d.u); },
-  x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); }, paga: function (d) { pagar(d.id, d.p); },
+  x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); var t = $('.tabs .on'); if (t) t.parentNode.scrollLeft = Math.max(0, t.offsetLeft - t.parentNode.offsetLeft - 20); }, paga: function (d) { pagar(d.id, d.p); },
   no: function () { novoOrc(); }, nc: function () { novoCli(); }, np: function (d) { novoPag(d.id); },
   eo: function (d) { novoOrc(D.orc.find(function (o) { return o.id === d.id; })); }, ec: function (d) { novoCli(cli(d.id)); },
   ctab: function (d) { cat = d.v === 'ee' || d.v === 'conc' ? d.v : 'cas'; FX.tp = ''; guardaFx(); render(); },
@@ -1699,7 +1709,10 @@ var act = {
     ask('Marcar o contrato de ' + E(c.nome_do_casal) + ' como assinado?', function () { run(rpc('api_upd', 'Clientes', d.id, { contrato_assinado: 'Sim' }), 'Contrato marcado como assinado').then(depoisDeGravar); }, 'Marcar como assinado',
       ehCas(c) ? '<p class="sm" style="margin:-6px 0 6px">Vou criar o resumo do contrato em PDF com os dados, o pacote, os extras, os valores e o plano de pagamento.' + (c.pacote ? '' : ' <b>Ainda não escolheu o pacote</b>: pode fazê-lo em "Editar dados" e gerar o resumo de novo depois.') + '</p>' : ''); },
   resumo: function (d) { gerarResumo(d.id); },
-  qlink: function (d) { run(rpc('api_q_link', d.id), 'Link do questionário criado'); },
+  qlink: function (d) { run(rpc('api_q_link', d.id), 'Link da página do casal criado'); },
+  pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
+    if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
+    openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm" style="word-break:break-all;margin-top:10px">' + E(Q_URL + q.codigo) + '</p><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
   qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo; try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
