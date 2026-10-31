@@ -135,7 +135,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .sec{padding:56px 22px 60px}
 #obq .sec .in{max-width:620px;margin:0 auto}
 #obq .hd{text-align:center;margin-bottom:30px}
-#obq .hd .tt{font-size:clamp(34px,10vw,56px)}
+#obq .hd .tt{font-size:clamp(24px,7.8vw,56px);overflow-wrap:normal;word-break:normal;hyphens:none} /* «QUESTIONNAIRE» cabe numa linha sem partir a palavra */
 #obq .kv2{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
 #obq .kv2 div{border-top:1px solid currentColor;padding-top:9px}
 #obq .kv2 .w2{grid-column:1/-1}
@@ -168,19 +168,20 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .ft2{padding:34px 22px calc(34px + env(safe-area-inset-bottom));text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
 #obq .ft2 .tag{display:flex;gap:30px;justify-content:center}
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
+#obq .ol .pap .sc,#obq .crm .pap .sc,#obq .ol .tb .sc,#obq .crm .tb .sc{color:#454205} /* cartões de papel: título sempre oliva, em qualquer fundo */
 #obq .rv{opacity:0;transform:translateY(28px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1) var(--d,0s),transform 1.1s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
-#obq .rv.in{opacity:1;transform:none}
+#obq .rv.vis{opacity:1;transform:none}
 #obq .rv.cl{opacity:1;transform:none;clip-path:inset(0 0 100% 0);transition:clip-path 1.4s cubic-bezier(.2,.7,.2,1) var(--d,0s)}
-#obq .rv.cl.in{clip-path:inset(0 0 -10% 0)}
+#obq .rv.cl.vis{clip-path:inset(0 0 -10% 0)}
 #obq .rv.ja{transition:none}
-#obq .em2.rv.in{opacity:.8}
+#obq .em2.rv.vis{opacity:.8}
 #obq .pbar.rv i{transform-origin:0 50%;transform:scaleX(0);transition:transform 1.4s cubic-bezier(.2,.7,.2,1) calc(var(--d,0s) + .25s)}
-#obq .pbar.rv.in i{transform:none}
+#obq .pbar.rv.vis i{transform:none}
 #obq .tb.rv .stp i.on{transform-origin:0 50%;transform:scaleX(0);transition:transform .5s ease}
-#obq .tb.rv.in .stp i.on{transform:none}
-#obq .tb.rv.in .stp i.on:nth-child(2){transition-delay:.12s}#obq .tb.rv.in .stp i.on:nth-child(3){transition-delay:.24s}#obq .tb.rv.in .stp i.on:nth-child(4){transition-delay:.36s}
-#obq .tb.rv.in .stp i.on:nth-child(5){transition-delay:.48s}#obq .tb.rv.in .stp i.on:nth-child(6){transition-delay:.6s}#obq .tb.rv.in .stp i.on:nth-child(7){transition-delay:.72s}
-#obq .pap.rv.in{animation:obqFl 7s ease-in-out 1.6s infinite}
+#obq .tb.rv.vis .stp i.on{transform:none}
+#obq .tb.rv.vis .stp i.on:nth-child(2){transition-delay:.12s}#obq .tb.rv.vis .stp i.on:nth-child(3){transition-delay:.24s}#obq .tb.rv.vis .stp i.on:nth-child(4){transition-delay:.36s}
+#obq .tb.rv.vis .stp i.on:nth-child(5){transition-delay:.48s}#obq .tb.rv.vis .stp i.on:nth-child(6){transition-delay:.6s}#obq .tb.rv.vis .stp i.on:nth-child(7){transition-delay:.72s}
+#obq .pap.rv.vis{animation:obqFl 7s ease-in-out 1.6s infinite}
 @keyframes obqFl{50%{translate:0 -4px}}
 @media (prefers-reduced-motion:reduce){#obq .rv,#obq .rv.cl{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important;animation:none!important}#obq .pbar.rv i,#obq .tb.rv .stp i.on{transform:none!important}}
 #obq .tb{background:#fbfaf7 var(--pap) center/cover;color:var(--dk);padding:22px 22px 20px;margin-top:16px}
@@ -282,6 +283,13 @@ var EN_TXT = { 'Foto': 'Photo', 'Vídeo': 'Video', 'Foto + Vídeo': 'Photo + Vid
   'Vídeo highlights de 2-3 minutos': '2–3 minute highlights video', 'Vídeo highlights de 1-2 minutos': '1–2 minute highlights video',
   'Vídeo trailer completo de 8-10 minutos': 'Full 8–10 minute trailer film', 'Sessão pré-wedding (solteiros)': 'Pre-wedding session',
   'Segundo fotógrafo': 'Second photographer', 'Segundo videógrafo': 'Second videographer', 'Vídeo cerimónia completa': 'Full ceremony video', 'Hora extra': 'Extra hour', 'Drone': 'Drone' };
+var descExtra = function (I) {
+  var d = String(I.descricao || '');
+  (I.inclui || []).forEach(function (x) { x = String(x).trim(); if (x) d = d.split(x).join('\n'); }); // tira o que já está na lista do pacote
+  var l = d.split(/\n+/).map(function (x) { return x.replace(/^[\s•·\-–]+|[\s•·\-–]+$/g, ''); }).filter(Boolean);
+  return l.length ? '<p style="margin-top:12px;font-size:15px;white-space:pre-line">' + E(l.map(TR).join('\n')) + '</p>' : '';
+};
+var servDe = function (I) { var p = String(I.pacote || ''); return /fotos/i.test(p) && /filme/i.test(p) ? 'Foto + Vídeo' : /filme/i.test(p) ? 'Vídeo' : /fotos/i.test(p) ? 'Foto' : I.servico; };
 var TR = function (x) { x = String(x == null ? '' : x); return L === 'en' && EN_TXT[x.trim()] ? EN_TXT[x.trim()] : x; };
 var SIM3 = [['sim', 'Sim', 'Yes'], ['nao', 'Não', 'No'], ['nsei', 'Ainda não sabemos', 'Not sure yet']];
 var REL = [['mae', 'Mãe', 'Mother'], ['pai', 'Pai', 'Father'], ['avo_f', 'Avó', 'Grandmother'], ['avo_m', 'Avô', 'Grandfather'], ['madrinha', 'Madrinha', 'Godmother / bridesmaid'], ['padrinho', 'Padrinho', 'Godfather / best man'], ['irma', 'Irmã', 'Sister'], ['irmao', 'Irmão', 'Brother'], ['filha', 'Filha', 'Daughter'], ['filho', 'Filho', 'Son'], ['amigo', 'Amigo/a', 'Friend'], ['outro', 'Outro', 'Other']];
@@ -471,8 +479,8 @@ function casa() {
       if (t.antes) return '<div class="tb"><p class="sc">' + X('p_' + t.parte) + '</p><p class="et"><b>' + X('comeca') + '</b><span></span></p></div>';
       return '<div class="tb' + (ok ? ' ok' : '') + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="stp" aria-hidden="true">' + st + '</div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
   var dia = '<section class="sec @C" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
-    '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(I.servico), 1) + '</div>' +
-    (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + (I.descricao ? '<p style="margin-top:12px;font-size:15px">' + E(I.descricao) + '</p>' : '') + '</div>' : '') +
+    '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(servDe(I)), 1) + '</div>' +
+    (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + descExtra(I) + '</div>' : '') +
     ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></section>';
   var ent = I.forma === 'Entrada + parcelas' && I.entrada ? '<div class="rw2"><div>' + X('entrada') + '<small>' + I.entrada_pc + ' %</small></div><div class="v">' + eur(I.entrada) + '<br>' + chip(I.pago >= I.entrada - .005 ? 'Paga' : I.pago > 0 ? 'Parcial' : 'Pendente') + '</div></div>' : '';
   var pag = '<section class="sec @C" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
@@ -513,10 +521,10 @@ function anima() {
     marca('#' + sec.id + ' .rw2, #' + sec.id + ' .xt', '', .04, .05);
   });
   var dias = $('.cdn b'), alvo = dias ? parseInt(dias.textContent, 10) : NaN;
-  if (calmo || jaAnimou || !('IntersectionObserver' in window)) { $$('.rv').forEach(function (el) { el.classList.add('in', 'ja'); }); return; }
+  if (calmo || jaAnimou || !('IntersectionObserver' in window)) { $$('.rv').forEach(function (el) { el.classList.add('vis', 'ja'); }); return; }
   jaAnimou = true; // ao atualizar os dados (ou mudar de língua) não volta a animar
   if (IO) IO.disconnect();
-  IO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { var t = e.target; if (t.classList.contains('rv')) t.classList.add('in'); Array.prototype.forEach.call(t.querySelectorAll(':scope > .rv.cl'), function (x) { x.classList.add('in'); }); IO.unobserve(t); } }); }, { root: R, threshold: .12, rootMargin: '0px 0px -6% 0px' });
+  IO = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { var t = e.target; if (t.classList.contains('rv')) t.classList.add('vis'); Array.prototype.forEach.call(t.querySelectorAll(':scope > .rv.cl'), function (x) { x.classList.add('vis'); }); IO.unobserve(t); } }); }, { root: R, threshold: .12, rootMargin: '0px 0px -6% 0px' });
   // os títulos que se revelam por «cortina» começam invisíveis (área zero): observa-se o bloco do título
   $$('.rv').forEach(function (el) { IO.observe(el.classList.contains('cl') ? el.parentNode : el); });
   // contagem dos dias (só na capa, uma vez)
