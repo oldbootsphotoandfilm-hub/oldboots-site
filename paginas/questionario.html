@@ -251,6 +251,7 @@ Object.assign(TX, {
   'e_Por começar': ['Na fila de edição', 'In the editing queue'], 'e_Escolha das fotos': ['Seleção das fotografias', 'Selecting your photos'], e_Edição: ['Edição', 'Editing'], e_Entregue: ['Entregue', 'Delivered'],
   e_Decupagem: ['A rever todo o material', 'Reviewing all footage'], 'e_Separação das músicas': ['Escolha da música', 'Choosing the music'], 'e_Cortes iniciais': ['Primeira montagem', 'First cut'],
   'e_Color grading': ['Tratamento de cor', 'Colour grading'], 'e_Ajustes finais': ['Ajustes finais', 'Final touches'],
+  comeca: ['Começa depois do casamento', 'Starts after the wedding'],
   feito: ['Feito por', 'Made by'], falar: ['Falar connosco no WhatsApp', 'Message us on WhatsApp'],
   Paga: ['Paga', 'Paid'], Pendente: ['Pendente', 'Pending'], 'Em atraso': ['Em atraso', 'Overdue'], Parcial: ['Parcial', 'Partly paid'],
   'Depósito': ['Entrada', 'Deposit'], 'Pagamento total': ['Pagamento total', 'Full payment'], 'Parcela_t': ['Parcela', 'Instalment']
@@ -450,20 +451,21 @@ function casa() {
   var pc = I.valor ? Math.min(100, Math.round(I.pago / I.valor * 100)) : 0;
   var chip = function (e) { return '<span class="chip' + (e === 'Paga' ? ' ok' : e === 'Em atraso' ? ' at' : '') + '">' + E(X(e)) + '</span>'; };
   var dts = function (x) { return dt(x, { day: 'numeric', month: 'short', year: 'numeric' }); };
-  var tr = (I.trabalho || []).length ? '<section class="sec crm" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' +
+  var tr = (I.trabalho || []).length ? '<section class="sec @C" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' +
     I.trabalho.map(function (t) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
+      if (t.antes) return '<div class="tb"><p class="sc">' + X('p_' + t.parte) + '</p><p class="et"><b>' + X('comeca') + '</b><span></span></p></div>';
       return '<div class="tb' + (ok ? ' ok' : '') + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="stp" aria-hidden="true">' + st + '</div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
-  var dia = '<section class="sec crm" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
+  var dia = '<section class="sec @C" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
     '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(I.servico), 1) + '</div>' +
     (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + (I.descricao ? '<p style="margin-top:12px;font-size:15px">' + E(I.descricao) + '</p>' : '') + '</div>' : '') +
     ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></section>';
   var ent = I.forma === 'Entrada + parcelas' && I.entrada ? '<div class="rw2"><div>' + X('entrada') + '<small>' + I.entrada_pc + ' %</small></div><div class="v">' + eur(I.entrada) + '<br>' + chip(I.pago >= I.entrada - .005 ? 'Paga' : I.pago > 0 ? 'Parcial' : 'Pendente') + '</div></div>' : '';
-  var pag = '<section class="sec ol" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
+  var pag = '<section class="sec @C" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
     '<div class="mon"><b>' + eur(I.pago) + '</b><small>' + X('pago') + ' ' + X('de2') + ' ' + eur(I.valor) + '</small></div><div class="pbar"><i style="width:' + pc + '%"></i></div>' +
     '<p class="em2">' + (I.falta > 0.005 ? X('emFalta') + ': <b>' + eur(I.falta) + '</b>' : X('tudoPago')) + '</p>' +
     (ent || (I.parcelas || []).length ? '<p class="lbl" style="margin-top:34px">' + X('plano') + '</p>' + ent + (I.parcelas || []).map(function (x) { return '<div class="rw2"><div>' + X('parcela') + ' ' + x.n + '<small>' + X('vence') + ' ' + E(dts(x.vence)) + '</small></div><div class="v">' + eur(x.valor) + '<br>' + chip(x.estado) + '</div></div>'; }).join('') : '') +
     '<p class="lbl" style="margin-top:34px">' + X('recebidos') + '</p>' + ((I.pagamentos || []).map(function (x) { return '<div class="rw2"><div>' + E(X(x.tipo === 'Parcela' ? 'Parcela_t' : x.tipo)) + (x.parcela ? ' ' + E(x.parcela) : '') + '<small>' + E(dts(x.data)) + '</small></div><div class="v">' + eur(x.valor) + '</div></div>'; }).join('') || '<p class="em2" style="text-align:left">' + X('nada') + '</p>') + '</div></section>';
-  var docs = '<section class="sec crm" id="s-doc"><div class="in"><div class="hd"><h2 class="tt">' + X('nDoc') + '</h2></div>' +
+  var docs = '<section class="sec @C" id="s-doc"><div class="in"><div class="hd"><h2 class="tt">' + X('nDoc') + '</h2></div>' +
     '<div class="rw2"><div>' + X('contrato') + '</div><div class="v"><span class="chip' + (I.contrato === 'assinado' ? ' ok" style="background:#454205;color:#fff4cf;border-color:#454205' : '') + '">' + X(I.contrato === 'assinado' ? 'assinado' : 'porAssinar') + '</span></div></div>' +
     (I.resumo || I.contrato_pdf ? '<div class="bcs">' + (I.resumo ? '<button class="bc fill" data-a="doc" data-v="resumo">' + X('descarregar') + ' · ' + X('resumoC') + '</button>' : '') + (I.contrato_pdf ? '<button class="bc" data-a="doc" data-v="contrato">' + X('descarregar') + ' · ' + X('contratoPdf') + '</button>' : '') + '</div>' : '<p class="em2" style="margin-top:18px">' + X('semDocs') + '</p>') + '</div></section>';
   var qc, est = S.estado;
@@ -471,10 +473,13 @@ function casa() {
   else if (S.envios) qc = '<p class="lbl">' + X('qEnviado') + '</p><p class="big2">' + E(S.enviado_em.split(' ')[0]) + (S.envios > 1 ? ' · ' + X('correcao') + ' ' + (S.envios - 1) : '') + '</p>' + (est === 'aberto' ? '<p class="em2">' + X('qAte') + ' ' + E(dt(S.fecha)) + '</p>' : '') + (S.alterado && est === 'aberto' ? '<p class="em2"><b>' + X('porEnviar') + '</b></p>' : '') + '<div class="bcs"><button class="bc fill" data-a="quest">' + X(S.alterado && est === 'aberto' ? 'continuar' : 'verResp') + '</button></div>';
   else if (est === 'aberto') qc = '<p class="lbl">' + X('qAberto') + '</p><p class="big2">' + X('qAte') + ' ' + E(dt(S.fecha, { day: 'numeric', month: 'long' })) + '</p><div class="bcs"><button class="bc fill" data-a="quest">' + X(Object.keys(S.v || {}).some(function (k) { return ['casal', 'loc_cerimonia', 'loc_rececao'].indexOf(k) < 0; }) ? 'continuarQ' : 'preencher') + '</button></div>';
   else qc = '<p class="lbl">' + X('qFechou') + '</p><p class="em2">' + X('fechado') + '</p>';
-  var q = '<section class="sec ol" id="s-q"><div class="in"><div class="hd"><h2 class="tt">' + X('nQ') + '</h2><p class="sc">' + X('doDia') + '</p></div><div class="pap qc">' + qc + '</div></div></section>';
+  var q = '<section class="sec @C" id="s-q"><div class="in"><div class="hd"><h2 class="tt">' + X('nQ') + '</h2><p class="sc">' + X('doDia') + '</p></div><div class="pap qc">' + qc + '</div></div></section>';
+  var hj = new Date(), hoje = hj.getFullYear() + '-' + ('0' + (hj.getMonth() + 1)).slice(-2) + '-' + ('0' + hj.getDate()).slice(-2), apos = S.data && hoje >= S.data;
+  var SEC = { tr: { id: 's-trab', n: 'nTrab', h: tr }, docs: { id: 's-doc', n: 'nDoc', h: docs }, pag: { id: 's-pag', n: 'nPag', h: pag }, dia: { id: 's-dia', n: 'nDia', h: dia }, q: { id: 's-q', n: 'nQ', h: q } };
+  var ordem = (apos ? ['tr', 'docs', 'pag', 'dia', 'q'] : S.estado !== 'bloqueado' ? ['q', 'docs', 'pag', 'dia', 'tr'] : ['docs', 'pag', 'dia', 'q', 'tr']).map(function (k) { return SEC[k]; }).filter(function (x) { return x.h; });
   A.innerHTML = '<section class="cv ol"><p class="sc" style="margin:0 0 6px">' + X('pag') + '</p>' + nomesCapa(nome) + cd + '<p class="dtl">' + E(dt(S.data)) + '</p><p class="tag">@oldbootsphotoandfilm</p></section>' +
-    '<nav class="snav" aria-label="Secções">' + (tr ? [['s-trab', 'nTrab']] : []).concat([['s-dia', 'nDia'], ['s-pag', 'nPag'], ['s-doc', 'nDoc'], ['s-q', 'nQ']]).map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
-    tr + dia + pag + docs + q +
+    '<nav class="snav" aria-label="Secções">' + ordem.map(function (x) { return [x.id, x.n]; }).map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
+    ordem.map(function (x, i) { return x.h.replace('@C', i % 2 ? 'ol' : 'crm'); }).join('') +
     '<footer class="ft2 ol"><a class="bc" href="' + WHATS + '" target="_blank" rel="noopener">' + X('falar') + '</a><p class="tag"><span>' + X('feito') + ' Gabriel e Ylana</span><span>Portugal</span></p></footer>';
 }
 // questionário: abre o formulário (ou as respostas); se ainda não abriu, mostra o cartão dele na página do casal
@@ -647,6 +652,8 @@ function abrir() {
   }, function (e) {
     splash(false);
     if (S && S._cache && !e.srv) { if (querQ) { querQ = false; render(); } return toast(X('semRede'), 1); } // sem rede: fica a versão guardada
+    if (e.srv) { try { localStorage.removeItem(CHC); } catch (x) { } S = null; R.classList.remove('casa'); }
+    if (e.srv && /manuten/i.test(e.message)) { A.innerHTML = '<div class="lock w"><h2>' + (L === 'en' ? 'Back soon' : 'Voltamos já') + '</h2><p class="sub" style="margin-top:10px">' + (L === 'en' ? 'Your page is under maintenance. Please try again shortly; if you need anything, message us on WhatsApp.' : 'A vossa página está em manutenção. Voltem a tentar daqui a pouco; se precisarem de algo, falem connosco pelo WhatsApp.') + '</p><p style="margin-top:22px"><a class="b2" href="' + WHATS + '" target="_blank" rel="noopener">WhatsApp</a></p></div>'; return; }
     A.innerHTML = '<div class="ld w"><p>' + E(e.srv ? e.message : X('erroLer')) + '</p>' + (e.srv ? '' : '<p style="margin-top:16px"><button class="b2" id="obqRe">' + X('tentar') + '</button></p>') + '</div>';
     var re = $('#obqRe'); if (re) re.onclick = abrir;
   });

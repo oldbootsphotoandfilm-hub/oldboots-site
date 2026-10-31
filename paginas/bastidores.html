@@ -722,7 +722,7 @@ function run(p, msg, after) {
   return Promise.resolve(p).then(function (r) {
     if (r && r.existe) return r;
     return (r && r.all ? Promise.resolve(r.all) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
-      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; }
+      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -1027,7 +1027,8 @@ function avisaPedidos() {
     '<hr class="st"><p class="lb gl">Pedidos para aprovar · ' + nPed() + '</p>' + (blocoPedidos() || '<p class="em">Sem pedidos pendentes.</p>') +
     '<hr class="st"><p class="lb gl">Equipa com acesso</p>' + (!EQ ? '<p class="em">A carregar…</p>' : (EQ.map(function (x) { return '<div class="rw r2"><div><b>' + E(x.nome || x.email) + '</b><small>' + E(x.email) + '</small></div><div class="rt"><button class="bt" data-a="eqdel" data-v="' + E(x.email) + '">Retirar acesso</button></div></div>'; }).join('') || '<p class="em">Ainda ninguém. Adicione abaixo.</p>')) +
     '<div class="fm eqf"><label><span>E-mail Google da pessoa</span><input id="eqe" type="email" autocomplete="off" placeholder="nome@gmail.com"></label><label><span>Nome (opcional)</span><input id="eqn" type="text" autocomplete="off"></label></div><div class="btns" style="position:static;margin:16px 0 0;border:0;padding:0"><button class="b1" data-a="eqadd">Dar acesso</button></div>' +
-    '<p class="sm" style="margin-top:14px">O acesso total (Gabriel, Ylana e a conta Old Boots) continua a ser gerido na aba «Acessos» da planilha.</p></div>';
+    '<p class="sm" style="margin-top:14px">O acesso total (Gabriel, Ylana e a conta Old Boots) continua a ser gerido na aba «Acessos» da planilha.</p>' +
+    '<hr class="st"><p class="lb gl">Páginas dos casais</p><div class="rw r2"><div><b>' + (D.casalFora ? 'Fora do ar (manutenção)' : 'No ar') + '</b>' + (D.casalFora ? tg('Fora do ar', 'rd') : tg('No ar', 'gr')) + '<small>Se houver uma falha grave, tire do ar as páginas de todos os casais de uma vez. Para um só casal, use «Página do casal» na ficha dele.</small></div><div class="rt"><button class="bt" data-a="qforaT" data-v="' + (D.casalFora ? '' : '1') + '">' + (D.casalFora ? 'Pôr no ar' : 'Tirar do ar') + '</button></div></div></div>';
 }
 function meusPedidos() {
   var l = D.ped || []; if (!l.length) return '';
@@ -1211,14 +1212,32 @@ function moverEtapa(id, k, e) {
   var o = {}; o[k + '_etapa'] = e;
   run(rpc('api_pos_upd', id, o).catch(function (x) { posDe(id)[k + '_etapa'] = antes; render(); throw x; }), nomePeca(k) + ': ' + e); // se falhar, o cartão volta para trás
 }
-// arrastar: rato (o cartão todo) ou dedo (pela pega ⠿, para não estragar o deslizar do quadro)
+// arrastar: rato (o cartão todo) ou dedo (pela pega ⠿, para não estragar o deslizar do quadro).
+// Perto das margens (um quarto do ecrã de cada lado) o quadro desliza sozinho e cada vez mais depressa; a coluna de destino
+// é a que está debaixo do dedo ou, entre colunas, a mais próxima — não é preciso levar o dedo até à borda.
 (function () {
-  var dr = null, fant = null;
-  var limpa = function () { if (fant && fant.parentNode) fant.parentNode.removeChild(fant); fant = null; if (dr && dr.el) dr.el.classList.remove('kgo'); $$('.kcol.alvo').forEach(function (x) { x.classList.remove('alvo'); }); dr = null; };
+  var dr = null, fant = null, raf = 0;
+  var limpa = function () { cancelAnimationFrame(raf); raf = 0; var kb0 = $('.kb'); if (kb0) kb0.style.scrollSnapType = ''; if (fant && fant.parentNode) fant.parentNode.removeChild(fant); fant = null; if (dr && dr.el) dr.el.classList.remove('kgo'); $$('.kcol.alvo').forEach(function (x) { x.classList.remove('alvo'); }); dr = null; };
+  var alvo = function () {
+    if (!dr) return; var x = dr.x, y = dr.y, col = null;
+    if (fant) fant.style.display = 'none'; var sob = document.elementFromPoint(x, y); if (fant) fant.style.display = '';
+    col = sob && sob.closest ? sob.closest('.kcol') : null;
+    if (!col) { var m = 1e9; $$('.kcol').forEach(function (c) { var r = c.getBoundingClientRect(), d = x < r.left ? r.left - x : x > r.right ? x - r.right : 0; if (r.right > 0 && r.left < innerWidth && d < m) { m = d; col = c; } }); }
+    $$('.kcol.alvo').forEach(function (c) { if (c !== col) c.classList.remove('alvo'); }); if (col) col.classList.add('alvo');
+  };
+  // deslizar automático enquanto o dedo está perto de uma margem (mesmo parado)
+  var anda = function () {
+    raf = 0; if (!dr || !dr.on) return; var kb = $('.kb'); if (!kb) return;
+    var r = kb.getBoundingClientRect(), zona = Math.max(70, r.width * .25), v = 0;
+    if (dr.x < r.left + zona) v = -Math.ceil(14 * Math.min(1, (r.left + zona - dr.x) / zona));
+    else if (dr.x > r.right - zona) v = Math.ceil(14 * Math.min(1, (dr.x - (r.right - zona)) / zona));
+    if (v) { var a = kb.scrollLeft; kb.scrollLeft += v; if (kb.scrollLeft !== a) alvo(); }
+    raf = requestAnimationFrame(anda);
+  };
   R.addEventListener('pointerdown', function (e) {
     var k = e.target.closest && e.target.closest('.kc'); if (!k || e.button > 0) return;
     if (e.pointerType !== 'mouse' && !e.target.closest('.kd')) return;
-    dr = { el: k, id: k.dataset.pid, k: k.dataset.k, x0: e.clientX, y0: e.clientY, on: false, pid: e.pointerId };
+    dr = { el: k, id: k.dataset.pid, k: k.dataset.k, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, on: false, pid: e.pointerId };
   });
   R.addEventListener('pointermove', function (e) {
     if (!dr || e.pointerId !== dr.pid) return;
@@ -1227,13 +1246,12 @@ function moverEtapa(id, k, e) {
       dr.on = true; var r = dr.el.getBoundingClientRect(); dr.dx = dr.x0 - r.left; dr.dy = dr.y0 - r.top;
       fant = dr.el.cloneNode(true); fant.className = 'kc kfant'; fant.style.width = r.width + 'px'; R.appendChild(fant); dr.el.classList.add('kgo');
       try { dr.el.setPointerCapture(e.pointerId); } catch (x) { }
+      try { if (navigator.vibrate) navigator.vibrate(8); } catch (x) { }
+      var kb1 = $('.kb'); if (kb1) kb1.style.scrollSnapType = 'none'; // senão o «encaixe» das colunas desfaz o deslizar automático
     }
-    e.preventDefault();
+    e.preventDefault(); dr.x = e.clientX; dr.y = e.clientY;
     fant.style.transform = 'translate(' + (e.clientX - dr.dx) + 'px,' + (e.clientY - dr.dy) + 'px) rotate(1.5deg)';
-    fant.style.display = 'none'; var sob = document.elementFromPoint(e.clientX, e.clientY); fant.style.display = '';
-    var col = sob && sob.closest ? sob.closest('.kcol') : null;
-    $$('.kcol.alvo').forEach(function (x) { if (x !== col) x.classList.remove('alvo'); }); if (col) col.classList.add('alvo');
-    var kb = $('.kb'); if (kb) { if (e.clientX < 48) kb.scrollLeft -= 14; else if (e.clientX > innerWidth - 48) kb.scrollLeft += 14; }
+    alvo(); if (!raf) raf = requestAnimationFrame(anda);
   }, { passive: false });
   R.addEventListener('pointerup', function (e) {
     if (!dr || e.pointerId !== dr.pid) return;
@@ -1351,7 +1369,8 @@ function qEstado(c, q) {
 }
 function qAcoes(c, q) {
   var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : ''); return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '" data-v="' + (soQ ? 'q' : '') + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(u) + '" target="_blank" rel="noopener">Abrir</a></div>'; };
-  return linha('Link da página do casal', false) + linha('Link do questionário', true);
+  return linha('Link da página do casal', false) + linha('Link do questionário', true) +
+    (dono() ? '<p class="lb" style="margin-top:22px">Estado da página</p><div class="acts2" style="margin-top:10px">' + (q.desativada ? tg('Fora do ar', 'rd') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="">Voltar a pôr no ar</button>' : tg('No ar', 'gr') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="1">Tirar do ar</button>') + '</div>' : '');
 }
 // separador «Questionário» da ficha
 function qAba(c) {
@@ -1728,6 +1747,12 @@ var act = {
     ask('Marcar o contrato de ' + E(c.nome_do_casal) + ' como assinado?', function () { run(rpc('api_upd', 'Clientes', d.id, { contrato_assinado: 'Sim' }), 'Contrato marcado como assinado').then(depoisDeGravar); }, 'Marcar como assinado',
       ehCas(c) ? '<p class="sm" style="margin:-6px 0 6px">Vou criar o resumo do contrato em PDF com os dados, o pacote, os extras, os valores e o plano de pagamento.' + (c.pacote ? '' : ' <b>Ainda não escolheu o pacote</b>: pode fazê-lo em "Editar dados" e gerar o resumo de novo depois.') + '</p>' : ''); },
   resumo: function (d) { gerarResumo(d.id); },
+  qforaC: function (d) { var c = cli(d.id), sim = d.v === '1';
+    ask((sim ? 'Tirar do ar' : 'Voltar a pôr no ar') + ' a página de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_desativar', d.id, sim), sim ? 'Página do casal fora do ar' : 'Página do casal de novo no ar'); }, sim ? 'Tirar do ar' : 'Pôr no ar',
+      '<p class="sm">' + (sim ? 'O casal passa a ver «A vossa página está em manutenção» até a voltar a pôr no ar. Nada se apaga.' : 'O casal volta a ver a sua página normalmente.') + '</p>'); },
+  qforaT: function (d) { var sim = d.v === '1';
+    ask(sim ? 'Tirar do ar as páginas de TODOS os casais?' : 'Voltar a pôr no ar as páginas dos casais?', function () { run(rpc('api_casal_fora', sim), sim ? 'Páginas dos casais fora do ar' : 'Páginas dos casais de novo no ar'); }, sim ? 'Tirar tudo do ar' : 'Pôr no ar',
+      '<p class="sm">' + (sim ? 'Use se houver uma falha grave. Todos os casais passam a ver «em manutenção» (página do casal e questionário). Nada se apaga; volta tudo ao normal quando as puser no ar.' : 'Os casais voltam a ver as suas páginas normalmente.') + '</p>'); },
   qlink: function (d) { run(rpc('api_q_link', d.id), 'Link da página do casal criado'); },
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
