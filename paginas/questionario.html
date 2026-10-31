@@ -121,6 +121,9 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .cv .tag{position:absolute;left:0;right:0;bottom:22px}
 #obq .tt{font:400 clamp(40px,12vw,76px)/.95 Chonburi,Georgia,serif;text-transform:uppercase;color:inherit;margin:0;letter-spacing:.01em;overflow-wrap:anywhere}
 #obq .sc{font:400 clamp(30px,9vw,54px)/1 'Luxurious Script',cursive;margin-top:-.32em;position:relative}
+#obq .nms{display:flex;flex-direction:column;align-items:center;gap:.06em;line-height:.98}
+#obq .nms span{display:block;text-wrap:balance;max-width:100%}
+#obq .nms .amp{font:400 1.05em/.8 'Luxurious Script',cursive;text-transform:none;margin:.02em 0 .06em;opacity:.95}
 #obq .ol .sc{color:var(--cr)}#obq .crm .sc{color:#454205}
 #obq .cdn{margin:34px auto 0;display:inline-flex;flex-direction:column;align-items:center;gap:6px}
 #obq .cdn b{font:400 64px/1 Chonburi,Georgia,serif}
@@ -165,10 +168,20 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .ft2{padding:34px 22px calc(34px + env(safe-area-inset-bottom));text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
 #obq .ft2 .tag{display:flex;gap:30px;justify-content:center}
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
+#obq #obqSpl{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#454205 var(--olt) center/cover;color:var(--cr);transition:opacity .5s ease,visibility .5s}
+#obq #obqSpl.out{opacity:0;visibility:hidden}
+#obq #obqSpl img{width:min(46vw,200px);height:auto;opacity:0;transform:translateY(8px);animation:obqUp .9s cubic-bezier(.2,.7,.2,1) .1s forwards}
+#obq #obqSpl .sc{font-size:clamp(28px,8vw,40px);margin:0;opacity:0;animation:obqUp .9s cubic-bezier(.2,.7,.2,1) .45s forwards}
+#obq #obqSpl i{display:block;width:120px;height:1px;background:rgba(255,244,207,.25);position:relative;overflow:hidden;margin-top:6px}
+#obq #obqSpl i::after{content:'';position:absolute;inset:0;width:40%;background:var(--cr);animation:obqRun 1.4s ease-in-out infinite}
+@keyframes obqUp{to{opacity:1;transform:none}}
+@keyframes obqRun{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+@media (prefers-reduced-motion:reduce){#obq #obqSpl *{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 <div id="obq" lang="pt-PT">
   <header class="w"><img id="obqLogo" src="https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/ob-logo-final.png" alt="Old Boots"><div class="lg" role="group" aria-label="Idioma / Language"><button data-lang="pt">PT</button><button data-lang="en">EN</button></div></header>
-  <main id="obqApp"><div class="ld"><div class="sp"></div></div></main>
+  <main id="obqApp"></main>
+  <div id="obqSpl" aria-hidden="true"><img src="https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/ob-logo-creme.png" alt=""><p class="sc" id="obqSplT">a vossa página</p><i></i></div>
   <div class="ov" id="obqOv"><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="obqDt"><h2 id="obqDt"></h2><p id="obqDp"></p><div class="row"><button class="b2" id="obqNao"></button><button class="b1" id="obqSim"></button></div></div></div>
   <div class="toast" id="obqT" role="status" aria-live="polite"></div>
 </div>
@@ -385,6 +398,7 @@ function render() {
   if (!S) return;
   topo();
   if (MODO === 'casa') return casa();
+  if (S._cache) { A.innerHTML = '<div class="ld"><div class="sp"></div></div>'; return; } // à espera dos dados frescos
   if (S.estado === 'bloqueado') return bloq();
   if (MODO === 'ler') return lido();
   var p = PASSOS[P], n = PASSOS.length, d = Math.round((new Date(S.data + 'T12:00') - new Date()) / 864e5), corr = S.envios > 0;
@@ -394,6 +408,15 @@ function render() {
     '<div class="nav"><div class="w">' + (P ? '<button class="b2" data-a="ant">' + X('ant') + '</button>' : corr ? '<button class="b2" data-a="ler">' + X('rever') + '</button>' : '') + '<button class="b1" data-a="' + (P === n - 1 ? 'env' : 'seg') + '">' + (P === n - 1 ? (corr ? X('enviarCor') : X('enviar')) : X('seg')) + '</button></div></div>';
 }
 var eur = function (v) { try { return new Intl.NumberFormat(L === 'en' ? 'en-IE' : 'pt-PT', { style: 'currency', currency: 'EUR' }).format(+v || 0); } catch (e) { return (+v || 0).toFixed(2) + ' €'; } };
+// capa: um nome por linha com o «&» manuscrito no meio; o tamanho ajusta-se ao nome mais comprido (nomes compostos não partem a meio)
+function nomesCapa(nome) {
+  var l = String(nome || '').split(/\s+(?:e|&|and|y)\s+/i).filter(Boolean); if (l.length !== 2) l = [String(nome || '')];
+  var w = Math.min(R.clientWidth || innerWidth, 680) - 44, maior = Math.max.apply(null, l.map(function (x) { return x.split(/\s+/).reduce(function (m, p) { return Math.max(m, p.length); }, 0); })),
+    tot = Math.max.apply(null, l.map(function (x) { return x.length; }));
+  // cada palavra tem de caber numa linha; nomes curtos ficam numa só linha
+  var fs = Math.max(26, Math.min(70, w / (Math.max(maior, Math.min(tot, 10)) * .74)));
+  return '<h1 class="tt nms" style="font-size:' + Math.round(fs) + 'px">' + l.map(function (x) { return '<span>' + E(x) + '</span>'; }).join('<span class="amp">&amp;</span>') + '</h1>';
+}
 function casa() {
   var I = S.info || {}, d = S.data ? Math.round((new Date(S.data + 'T12:00') - new Date()) / 864e5) : null, nome = S.v && S.v.casal || S.casal;
   var cd = d === null ? '' : d > 0 ? '<div class="cdn"><b>' + d + '</b><span>' + (d === 1 ? X('dia1') : X('diasPara')) + '</span></div>' : d === 0 ? '<div class="cdn"><b>♥</b><span>' + X('hoje') + '</span></div>' : '<div class="cdn"><span>' + X('depois') + '</span></div>';
@@ -420,13 +443,14 @@ function casa() {
   else if (est === 'aberto') qc = '<p class="lbl">' + X('qAberto') + '</p><p class="big2">' + X('qAte') + ' ' + E(dt(S.fecha, { day: 'numeric', month: 'long' })) + '</p><div class="bcs"><button class="bc fill" data-a="quest">' + X(Object.keys(S.v || {}).some(function (k) { return ['casal', 'loc_cerimonia', 'loc_rececao'].indexOf(k) < 0; }) ? 'continuarQ' : 'preencher') + '</button></div>';
   else qc = '<p class="lbl">' + X('qFechou') + '</p><p class="em2">' + X('fechado') + '</p>';
   var q = '<section class="sec ol" id="s-q"><div class="in"><div class="hd"><h2 class="tt">' + X('nQ') + '</h2><p class="sc">' + X('doDia') + '</p></div><div class="pap qc">' + qc + '</div></div></section>';
-  A.innerHTML = '<section class="cv ol"><p class="sc" style="margin:0 0 6px">' + X('pag') + '</p><h1 class="tt">' + E(nome) + '</h1>' + cd + '<p class="dtl">' + E(dt(S.data)) + '</p><p class="tag">@oldbootsphotoandfilm</p></section>' +
+  A.innerHTML = '<section class="cv ol"><p class="sc" style="margin:0 0 6px">' + X('pag') + '</p>' + nomesCapa(nome) + cd + '<p class="dtl">' + E(dt(S.data)) + '</p><p class="tag">@oldbootsphotoandfilm</p></section>' +
     '<nav class="snav" aria-label="Secções">' + [['s-dia', 'nDia'], ['s-pag', 'nPag'], ['s-doc', 'nDoc'], ['s-q', 'nQ']].map(function (x) { return '<button data-a="ir" data-v="' + x[0] + '">' + X(x[1]) + '</button>'; }).join('') + '</nav>' +
     dia + pag + docs + q +
     '<footer class="ft2 ol"><a class="bc" href="' + WHATS + '" target="_blank" rel="noopener">' + X('falar') + '</a><p class="tag"><span>' + X('feito') + ' Gabriel e Ylana</span><span>Portugal</span></p></footer>';
 }
 // questionário: abre o formulário (ou as respostas); se ainda não abriu, mostra o cartão dele na página do casal
 function abrirQ() {
+  if (S && S._cache) { querQ = true; MODO = 'q'; topo(); A.innerHTML = '<div class="ld"><div class="sp"></div></div>'; return; }
   if (S.estado === 'bloqueado') { MODO = 'casa'; render(); var el = document.getElementById('s-q'); if (el) setTimeout(function () { R.scrollTo({ top: el.offsetTop - ($('.snav') ? $('.snav').offsetHeight : 0) + 1 }); }, 50); return; }
   MODO = S.estado === 'aberto' && (!S.envios || S.alterado) ? 'editar' : 'ler'; render();
 }
@@ -555,20 +579,45 @@ function baixar(b, fn, args) {
 }
 function toast(t, e) { var x = $('#obqT'); x.textContent = t; x.className = 'toast on' + (e ? ' e' : ''); clearTimeout(toast.h); toast.h = setTimeout(function () { x.className = 'toast' + (e ? ' e' : ''); }, 3800); }
 
-/* ---------- arranque ---------- */
+/* ---------- arranque ----------
+   1.ª visita: ecrã de abertura enquanto o servidor responde.
+   Visitas seguintes: mostra logo a última versão guardada neste aparelho (sem as respostas do questionário)
+   e atualiza por trás quando o servidor responde. */
+var CHC = 'ob_q_c_' + COD, splT0 = 0, querQ = false;
+function splash(on) {
+  var sp = $('#obqSpl'); if (!sp) return;
+  if (on) { splT0 = Date.now(); $('#obqSplT').textContent = L === 'en' ? 'your page' : 'a vossa página'; sp.classList.remove('out'); return; }
+  setTimeout(function () { sp.classList.add('out'); }, Math.max(0, 900 - (Date.now() - splT0))); // pelo menos ~1 s: sem piscar
+}
+function guardaCache(r) { var c = {}; Object.keys(r).forEach(function (k) { if (k !== 'v') c[k] = r[k]; }); c.casal_v = r.v && r.v.casal || ''; c._t = Date.now(); ls.set(CHC, JSON.stringify(c)); }
+function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 30 * 864e5 ? c : null; } catch (e) { return null; } }
+function aplicar(r) {
+  var emForm = S && MODO !== 'casa' && !S._cache;
+  if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
+  S = r; S.v = r.v || {}; S.info = r.info || {}; MODO = 'casa';
+  // alterações que ficaram neste aparelho sem chegar ao servidor (ex.: sem rede): repõe e volta a gravar
+  var loc = null; try { loc = JSON.parse(ls.get(CH) || 'null'); } catch (e) { }
+  if (loc && loc.pend && S.estado === 'aberto') { PEND = loc.pend; Object.keys(PEND).forEach(function (k) { S.v[k] = PEND[k]; }); if (typeof loc.p === 'number') P = Math.min(Math.max(loc.p, 0), PASSOS.length - 1); }
+  if (!S.v.pessoas || !S.v.pessoas.length) S.v.pessoas = [{ n: '', r: 'mae', f: '', e: 0 }, { n: '', r: 'pai', f: '', e: 0 }];
+}
 function abrir() {
-  if (!/^q[a-f0-9]{40}$/.test(COD)) { A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
-  A.innerHTML = '<div class="ld"><div class="sp"></div></div>';
+  if (!/^q[a-f0-9]{40}$/.test(COD)) { splash(false); A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
+  CHC = 'ob_q_c_' + COD;
+  var c = leCache(), sc = 0;
+  if (c) { sc = R.scrollTop; S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
+  else splash(true);
+  if (IR_Q) { IR_Q = false; querQ = true; }
   api('q_ler', [COD]).then(function (r) {
-    S = r; S.v = r.v || {}; S.info = r.info || {};
-    // alterações que ficaram neste aparelho sem chegar ao servidor (ex.: sem rede): repõe e volta a gravar
-    var loc = null; try { loc = JSON.parse(ls.get(CH) || 'null'); } catch (e) { }
-    if (loc && loc.pend && S.estado === 'aberto') { PEND = loc.pend; Object.keys(PEND).forEach(function (k) { S.v[k] = PEND[k]; }); if (typeof loc.p === 'number') P = Math.min(Math.max(loc.p, 0), PASSOS.length - 1); }
-    if (!S.v.pessoas || !S.v.pessoas.length) S.v.pessoas = [{ n: '', r: 'mae', f: '', e: 0 }, { n: '', r: 'pai', f: '', e: 0 }];
-    MODO = 'casa';
-    if (IR_Q) { IR_Q = false; abrirQ(); } else render();
+    guardaCache(r);
+    var eraCache = S && S._cache, top = R.scrollTop;
+    aplicar(r);
+    if (querQ) { querQ = false; MODO = 'casa'; abrirQ(); }
+    else if (MODO === 'casa') { render(); if (eraCache) R.scrollTop = top; } // mantém o sítio onde a pessoa estava
+    splash(false);
     if (Object.keys(PEND).length) flush().catch(function () { });
   }, function (e) {
+    splash(false);
+    if (S && S._cache && !e.srv) { if (querQ) { querQ = false; render(); } return toast(X('semRede'), 1); } // sem rede: fica a versão guardada
     A.innerHTML = '<div class="ld w"><p>' + E(e.srv ? e.message : X('erroLer')) + '</p>' + (e.srv ? '' : '<p style="margin-top:16px"><button class="b2" id="obqRe">' + X('tentar') + '</button></p>') + '</div>';
     var re = $('#obqRe'); if (re) re.onclick = abrir;
   });
