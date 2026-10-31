@@ -444,8 +444,9 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .kpi .num{font-size:20px}
 #ob .fx{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
 #ob #m .btns{position:sticky;bottom:-48px;margin:24px -20px -48px;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));background:var(--pp);border-top:1px solid var(--sf);z-index:2}
-#ob .ic{width:calc((100% - 50px)/6);min-width:52px}
-#ob .ic span{font-size:8.5px;letter-spacing:.03em}
+#ob .ico{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+#ob .ic{width:auto;min-width:0;padding:9px 1px 7px}
+#ob .ic span{font-size:8px;letter-spacing:0}
 #ob .tabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;gap:22px}#ob .tabs button{margin-bottom:0}
 #ob .tabs::-webkit-scrollbar{display:none}
 #ob .tabs button{white-space:nowrap}
@@ -639,7 +640,7 @@ function entrar(arranque) {
     var idade = Math.max(1, Math.round((Date.now() - copia.t) / 6e4)), idTxt = idade < 60 ? idade + ' min' : Math.round(idade / 60) + ' h';
     $('#obLogin').hidden = true; $('#obApp').hidden = false; $('#who').textContent = ME; render();
     sv1('A atualizar (dados de há ' + idTxt + ')…');
-    post('entrar').then(function (r) { if (r.s) guardaSes(r.s); ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; BKH = r.bkh == null ? -1 : r.bkh; ultimaCarga = Date.now(); guardaCopia(); if (!$('#ov').classList.contains('on')) render(); carregaProp(); avisaPedidos(); })
+    post('entrar').then(function (r) { if (r.s) guardaSes(r.s); ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; BKH = r.bkh == null ? -1 : r.bkh; ultimaCarga = Date.now(); guardaCopia(); if (!$('#ov').classList.contains('on')) render(); carregaProp(); avisaPedidos(); setTimeout(prePropostas, 2500); })
       .catch(function (e) { if (e.auth) { apagaCopia(); if (e.auth === 'sessao') { toLogin(''); if (gis) try { google.accounts.id.prompt(); } catch (x) { } return; } toLogin(e.message, e.auth === 'negado'); } else toast('Sem ligação: está a ver os dados guardados neste aparelho (de há ' + idTxt + ').', 1); })
       .finally(function () { sv1(''); });
     return;
@@ -650,7 +651,7 @@ function entrar(arranque) {
   post('entrar').then(function (r) {
     if (r.s) guardaSes(r.s);
     ME = r.email; D = r.all || VAZIO(); BK = r.bk || ''; BKH = r.bkh == null ? -1 : r.bkh; ultimaCarga = Date.now(); view = 'hoje';
-    $('#who').textContent = ME; render(); guardaCopia(); carregaProp(); avisaPedidos();
+    $('#who').textContent = ME; render(); guardaCopia(); carregaProp(); avisaPedidos(); setTimeout(prePropostas, 2500);
   }).catch(function (e) {
     // sessão do aparelho vencida: volta ao login normal do Google, sem mensagem de erro
     if (arranque && e.auth === 'sessao') { toLogin(''); if (gis) try { google.accounts.id.prompt(); } catch (x) { } return; }
@@ -1058,12 +1059,19 @@ function sessaoPropostas() {
     return fetch(PROPOSTAS_API, { method: 'POST', body: JSON.stringify({ fn: 'entrarBilhete', b: b }), credentials: 'omit' }).then(function (r) { return r.json(); });
   }).then(function (j) { if (j && j.ok && j.r && /^[a-f0-9]{64}$/.test(j.r.s)) try { localStorage.setItem(CH_PROP, j.r.s); } catch (e) { } }).catch(function () { }); // se falhar, as Propostas pedem o login como antes
 }
-function abrirPropostas(url) {
+function abrirPropostas(url, fundo) {
   var pa = $('#pa'), u = url || (SITE + '/propostas/');
   if (IFR) { if (url) IFR.src = url; return; }
   IFR = document.createElement('iframe'); IFR.title = 'Propostas'; IFR.setAttribute('allow', 'clipboard-write'); pa.appendChild(IFR);
-  sv1('A abrir as Propostas…');
-  sessaoPropostas().then(function () { sv1(''); IFR.src = u; });
+  if (!fundo) sv1('A abrir as Propostas…');
+  sessaoPropostas().then(function () { if (!fundo) sv1(''); IFR.src = u; });
+}
+// as Propostas demoram a abrir (página do site + servidor a acordar): começam a carregar escondidas
+// poucos segundos depois de entrar, para estarem prontas quando se toca nelas (não em modo de poupança de dados)
+function prePropostas() {
+  if (IFR || !ME) return;
+  try { if (navigator.connection && navigator.connection.saveData) return; } catch (e) { }
+  abrirPropostas('', true);
 }
 function abrirApps() {
   var m = $('#apm'); if (!m.hidden) return fecharApps();
