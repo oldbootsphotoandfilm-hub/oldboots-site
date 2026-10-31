@@ -1332,16 +1332,19 @@ function avisosPos() {
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
 /* ---------- questionário do dia (página dos noivos): link e estado ---------- */
-var Q_URL = 'https://oldbootsphotoandfilm.com/casal/#';
+var Q_URL = 'https://oldbootsphotoandfilm.com/questionario/#';
 var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
 var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
 var temQ = function (c) { return ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído'); };
-var qMsg = function (c, q) { var ab = qAbre(c); return 'Olá! Aqui está a vossa página do casal na Old Boots: ' + Q_URL + q.codigo + (ab ? '\nO questionário do dia abre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : ''); };
+var qMsg = function (c, q, soQ) { var ab = qAbre(c); return soQ ? 'Olá! Aqui está o questionário do vosso casamento: ' + Q_URL + q.codigo + '/q' + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : '') : 'Olá! Aqui está a vossa página do casal na Old Boots, com o vosso dia, os pagamentos e os documentos: ' + Q_URL + q.codigo + (ab ? '\nO questionário do dia abre lá a ' + fdc(ab) + '.' : ''); };
 function qEstado(c, q) {
   if (!q) return tg('Sem link', 'ne'); var ab = qAbre(c);
   return q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
 }
-function qAcoes(c, q) { return '<div class="acts2"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(Q_URL + q.codigo) + '" target="_blank" rel="noopener">Abrir página</a></div>'; }
+function qAcoes(c, q) {
+  var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : ''); return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '" data-v="' + (soQ ? 'q' : '') + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(u) + '" target="_blank" rel="noopener">Abrir</a></div>'; };
+  return linha('Link da página do casal', false) + linha('Link do questionário', true);
+}
 // separador «Questionário» da ficha
 function qAba(c) {
   var q = qDe(c.id), ab = qAbre(c), m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')), fe = m ? (function () { var d = new Date(+m[1], m[2] - 1, +m[3] - 7); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); })() : '';
@@ -1721,7 +1724,7 @@ var act = {
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
     openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm" style="word-break:break-all;margin-top:10px">' + E(Q_URL + q.codigo) + '</p><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
-  qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo; try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
+  qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo + (d.v === 'q' ? '/q' : ''); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
   fat: function (d) { var was = view === 'ficha' && fid === d.id; run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }); },
