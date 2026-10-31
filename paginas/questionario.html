@@ -203,7 +203,9 @@ var E = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, fun
 var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
 var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'); return { cod: h[0], q: h[1] === 'q' }; };
 var COD = lerHash().cod, IR_Q = lerHash().q;
-var L = ls.get('ob_q_lang') || (/^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en');
+var L = /^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en', L_MAO = false;
+var lingua = function (srv) { var m = ls.get('ob_q_lang_' + COD); if (m === 'pt' || m === 'en') { L = m; L_MAO = true; } else if (srv === 'pt' || srv === 'en') L = srv; };
+lingua('');
 var T = function (x) { return Array.isArray(x) ? x[L === 'en' ? 1 : 0] : x; };
 
 /* ---------- textos ---------- */
@@ -254,6 +256,17 @@ Object.assign(TX, {
   'Depósito': ['Entrada', 'Deposit'], 'Pagamento total': ['Pagamento total', 'Full payment'], 'Parcela_t': ['Parcela', 'Instalment']
 });
 var X = function (k) { return TX[k] ? T(TX[k]) : k; };
+var EN_TXT = { 'Foto': 'Photo', 'Vídeo': 'Video', 'Foto + Vídeo': 'Photo + Video', 'Fotos': 'Photos', 'Filme': 'Film',
+  'Fotos · meio dia': 'Photos · half day', 'Fotos · dia completo': 'Photos · full day', 'Filme · meio dia': 'Film · half day', 'Filme · dia completo': 'Film · full day',
+  'Fotos + Filme · meio dia': 'Photos + Film · half day', 'Fotos + Filme · dia completo': 'Photos + Film · full day',
+  'Duração: 5 horas de cobertura': 'Duration: 5 hours of coverage', 'Duração: 10 horas de cobertura': 'Duration: 10 hours of coverage',
+  'Cerimónia + almoço | jantar': 'Ceremony + lunch | dinner', 'Preparação dos noivos + cerimónia + almoço | jantar + festa': 'Getting ready + ceremony + lunch | dinner + party',
+  'Fotos ilimitadas editadas': 'Unlimited edited photos', '20 fotos editadas em 24 horas': '20 edited photos within 24 hours',
+  'Vídeo teaser de 30 segundos': '30-second teaser video', 'Vídeo teaser de 30 segundos em 48 horas': '30-second teaser video within 48 hours',
+  'Vídeo highlights de 2-3 minutos': '2–3 minute highlights video', 'Vídeo highlights de 1-2 minutos': '1–2 minute highlights video',
+  'Vídeo trailer completo de 8-10 minutos': 'Full 8–10 minute trailer film', 'Sessão pré-wedding (solteiros)': 'Pre-wedding session',
+  'Segundo fotógrafo': 'Second photographer', 'Segundo videógrafo': 'Second videographer', 'Vídeo cerimónia completa': 'Full ceremony video', 'Hora extra': 'Extra hour', 'Drone': 'Drone' };
+var TR = function (x) { x = String(x == null ? '' : x); return L === 'en' && EN_TXT[x.trim()] ? EN_TXT[x.trim()] : x; };
 var SIM3 = [['sim', 'Sim', 'Yes'], ['nao', 'Não', 'No'], ['nsei', 'Ainda não sabemos', 'Not sure yet']];
 var REL = [['mae', 'Mãe', 'Mother'], ['pai', 'Pai', 'Father'], ['avo_f', 'Avó', 'Grandmother'], ['avo_m', 'Avô', 'Grandfather'], ['madrinha', 'Madrinha', 'Godmother / bridesmaid'], ['padrinho', 'Padrinho', 'Godfather / best man'], ['irma', 'Irmã', 'Sister'], ['irmao', 'Irmão', 'Brother'], ['filha', 'Filha', 'Daughter'], ['filho', 'Filho', 'Son'], ['amigo', 'Amigo/a', 'Friend'], ['outro', 'Outro', 'Other']];
 
@@ -441,9 +454,9 @@ function casa() {
     I.trabalho.map(function (t) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
       return '<div class="tb' + (ok ? ' ok' : '') + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="stp" aria-hidden="true">' + st + '</div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
   var dia = '<section class="sec crm" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
-    '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', I.servico, 1) + '</div>' +
-    (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote || X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ul>' + (I.descricao ? '<p style="margin-top:12px;font-size:15px">' + E(I.descricao) + '</p>' : '') + '</div>' : '') +
-    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(x.servico) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></section>';
+    '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(I.servico), 1) + '</div>' +
+    (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + (I.descricao ? '<p style="margin-top:12px;font-size:15px">' + E(I.descricao) + '</p>' : '') + '</div>' : '') +
+    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></section>';
   var ent = I.forma === 'Entrada + parcelas' && I.entrada ? '<div class="rw2"><div>' + X('entrada') + '<small>' + I.entrada_pc + ' %</small></div><div class="v">' + eur(I.entrada) + '<br>' + chip(I.pago >= I.entrada - .005 ? 'Paga' : I.pago > 0 ? 'Parcial' : 'Pendente') + '</div></div>' : '';
   var pag = '<section class="sec ol" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
     '<div class="mon"><b>' + eur(I.pago) + '</b><small>' + X('pago') + ' ' + X('de2') + ' ' + eur(I.valor) + '</small></div><div class="pbar"><i style="width:' + pc + '%"></i></div>' +
@@ -533,7 +546,7 @@ A.addEventListener('click', function (e) {
   else if (b.dataset.fx) { S.v[b.dataset.fx].splice(+b.dataset.i, 1); mudou(b.dataset.fx); R.querySelector('[data-fl="' + b.dataset.fx + '"]').innerHTML = listaF(b.dataset.fx); }
   else if (b.dataset.ir != null) { P = +b.dataset.ir; guardaLocal(); render(); }
 });
-$$('.lg button').forEach(function (b) { b.onclick = function () { L = b.dataset.lang; ls.set('ob_q_lang', L); render(); }; });
+$$('.lg button').forEach(function (b) { b.onclick = function () { L = b.dataset.lang; L_MAO = true; ls.set('ob_q_lang_' + COD, L); render(); }; });
 
 // ficheiros: as imagens são reduzidas no aparelho (rápido mesmo com dados móveis); cada ficheiro vai logo para o servidor
 function lerURL(file, cb) { var r = new FileReader(); r.onload = function () { cb(r.result); }; r.onerror = function () { cb(''); }; r.readAsDataURL(file); }
@@ -610,7 +623,7 @@ function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c &
 function aplicar(r) {
   var emForm = S && MODO !== 'casa' && !S._cache;
   if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
-  S = r; S.v = r.v || {}; S.info = r.info || {}; MODO = 'casa';
+  S = r; S.v = r.v || {}; S.info = r.info || {}; MODO = 'casa'; if (!L_MAO) lingua(r.idioma);
   // alterações que ficaram neste aparelho sem chegar ao servidor (ex.: sem rede): repõe e volta a gravar
   var loc = null; try { loc = JSON.parse(ls.get(CH) || 'null'); } catch (e) { }
   if (loc && loc.pend && S.estado === 'aberto') { PEND = loc.pend; Object.keys(PEND).forEach(function (k) { S.v[k] = PEND[k]; }); if (typeof loc.p === 'number') P = Math.min(Math.max(loc.p, 0), PASSOS.length - 1); }
@@ -620,7 +633,7 @@ function abrir() {
   if (!/^q[a-f0-9]{40}$/.test(COD)) { splash(false); A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
   CHC = 'ob_q_c_' + COD;
   var c = leCache(), sc = 0;
-  if (c) { sc = R.scrollTop; S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
+  if (c) { sc = R.scrollTop; if (!L_MAO) lingua(c.idioma); S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
   else splash(true);
   if (IR_Q) { IR_Q = false; querQ = true; }
   api('q_ler', [COD]).then(function (r) {
