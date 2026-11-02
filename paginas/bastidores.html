@@ -515,6 +515,12 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .bnav button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #ob .bnav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #ob .bnav button.on{color:var(--ink);font-weight:700}
+#ob .bnav svg{transition:transform .2s}
+#ob .bnav button:active svg{transform:scale(.88)}
+#ob .bnav button.tap svg{animation:bnTap .5s cubic-bezier(.3,1.6,.5,1)}
+#ob .bnav button.tap::after{content:'';position:absolute;top:2px;left:50%;width:44px;height:30px;margin-left:-22px;border-radius:999px;background:rgba(138,90,52,.14);animation:bnHalo .55s ease-out forwards}
+@keyframes bnTap{0%{transform:scale(.86)}55%{transform:translateY(-3px) scale(1.12)}100%{transform:none}}
+@keyframes bnHalo{from{opacity:1;transform:scale(.4)}to{opacity:0;transform:scale(1.15)}}
 #ob .bnav button.on::before{content:'';position:absolute;top:-6px;left:30%;right:30%;height:2px;border-radius:2px;background:var(--bt)}
 #ob .fabm{display:flex;position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:7;width:56px;height:56px;border-radius:50%;background:var(--ink);color:#fff;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(42,38,20,.28);transition:transform .15s}
 #ob .fabm:active{transform:scale(.94)}
@@ -1056,6 +1062,7 @@ function vPag() {
 // IVA de cada um: o Gabriel está isento; a Ylana cobra IVA a 23 %. Se mudar, é só alterar aqui.
 var PESSOAS = { g: { nome: 'Gabriel', iva: 0 }, y: { nome: 'Ylana', iva: 23 } };
 var APP = 'bast', PES = 'emp', FANO = TODAY.slice(0, 4), FND = false, IFR = null;
+var TAPV = ''; document.addEventListener('pointerdown', function (e) { var b = e.target.closest && e.target.closest('.bnav button'); if (b) { TAPV = b.dataset.v || 'apps'; if (TAPV === 'apps') { b.classList.remove('tap'); void b.offsetWidth; b.classList.add('tap'); TAPV = ''; } } }, true);
 var ICN = { hoje: '<path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/>',
   orc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>', cli: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-3.4 3-5.4 5.5-5.4s4.9 2 5.5 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c2.5.2 4.3 2.1 4.9 5"/>',
   ag: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', pos: '<rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="10" y="4" width="5" height="11" rx="1.2"/><rect x="16.5" y="4" width="4" height="7" rx="1.2"/>',
@@ -1903,6 +1910,7 @@ function render() {
   var nv = NAVS[APP] || [];
   $('.nav').innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + (APP === 'bast' ? '<button class="pqm" data-a="pq">Pesquisar</button>' : '');
   var bn = $('.bnav'); if (bn) { bn.innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + (ICN[x[0]] || ICN.mais) + '</svg><span>' + x[1] + '</span></button>'; }).join('') + '<button data-a="apps" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICN.mais + '</svg><span>Mais</span></button>'; bn.hidden = APP === 'prop' && !nv.length ? false : false; }
+  if (bn && TAPV) { var tb = bn.querySelector('[data-v="' + TAPV + '"]') || (TAPV === 'apps' && bn.querySelector('[data-a=apps]')); if (tb) tb.classList.add('tap'); TAPV = ''; }
   var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag';
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
