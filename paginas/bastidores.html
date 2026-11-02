@@ -345,6 +345,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 #ob .ic span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mt);line-height:1.1;text-align:center}
 #ob .ic.wa{color:#2f6b3a}
+#ob .qic{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#ob .qic .ic{width:76px}#ob .qic .ic.on{color:#8a3b2e;border-color:#8a3b2e}
 #ob .acts2{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:28px}
 #ob .wab{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border:1px solid var(--sf);color:#2f6b3a;text-decoration:none!important}
 #ob .wab svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -1489,10 +1490,20 @@ function qEstado(c, q) {
   return q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
 }
 function qAcoes(c, q) {
-  var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : ''); return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '" data-v="' + (soQ ? 'q' : '') + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(u) + '" target="_blank" rel="noopener">Abrir</a></div>'; };
-  return linha('Link da página do casal', false) + linha('Link do questionário', true) +
-    (dono() ? '<p class="lb" style="margin-top:22px">Estado da página</p><div class="acts2" style="margin-top:10px">' + (q.desativada ? tg('Fora do ar', 'rd') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="">Voltar a pôr no ar</button>' : tg('No ar', 'gr') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="1">Tirar do ar</button>') + '</div>' +
-      '<p class="lb" style="margin-top:22px">Validade do link</p><p class="sm" style="margin-top:6px">' + (q.valido_ate ? (q.valido_ate < TODAY ? '<b style="color:var(--rd)">Expirou a ' + fdc(q.valido_ate) + '.</b> O casal vê «Este link expirou».' : 'Funciona até ' + fdc(q.valido_ate) + ' (6 meses depois do casamento).') : 'Sem data do casamento: não expira.') + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qnovo" data-id="' + E(c.id) + '">Gerar novo link</button></div>' : '');
+  // ações em ícones (como os contactos da ficha): copiar, WhatsApp e abrir; depois o estado e a validade do link
+  var SV = function (d) { return '<svg viewBox="0 0 24 24">' + d + '</svg>'; },
+    I = { cop: SV('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'), abr: SV('<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'),
+      off: SV('<path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/>'), nov: SV('<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/>') };
+  var bt = function (ic, rot, a, v, cls) { return '<button class="ic' + (cls ? ' ' + cls : '') + '" data-a="' + a + '" data-id="' + E(c.id) + '"' + (v != null ? ' data-v="' + v + '"' : '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '">' + ic + '<span>' + rot + '</span></button>'; };
+  var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : '');
+    return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="qic">' + bt(I.cop, 'Copiar', 'qcop', soQ ? 'q' : '') +
+      (c.telefone ? '<a class="ic wa" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener" aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp">' + ICO.wa + '<span>WhatsApp</span></a>' : '') +
+      '<a class="ic" href="' + E(u) + '" target="_blank" rel="noopener" aria-label="Abrir" title="Abrir">' + I.abr + '<span>Abrir</span></a></div>'; };
+  var exp = q.valido_ate && q.valido_ate < TODAY;
+  return linha('Página do casal', false) + linha('Questionário', true) +
+    (dono() ? '<p class="lb" style="margin-top:22px">Estado</p><p class="sm" style="margin:8px 0 10px">' + (q.desativada ? tg('Fora do ar', 'rd') : exp ? tg('Link expirado', 'rd') : tg('No ar', 'gr')) + ' ' +
+      (q.valido_ate ? (exp ? 'Expirou a ' + fdc(q.valido_ate) + ': o casal vê «Este link expirou».' : 'Link válido até ' + fdc(q.valido_ate) + '.') : 'Sem data do casamento: o link não expira.') + '</p>' +
+      '<div class="qic">' + (q.desativada ? bt(I.off, 'Pôr no ar', 'qforaC', '', 'on') : bt(I.off, 'Tirar do ar', 'qforaC', '1')) + bt(I.nov, 'Novo link', 'qnovo') + '</div>' : '');
 }
 // separador «Questionário» da ficha
 function qAba(c) {
@@ -1890,7 +1901,7 @@ var act = {
   qlink: function (d) { run(rpc('api_q_link', d.id), 'Link da página do casal criado'); },
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
-    openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm" style="word-break:break-all;margin-top:10px">' + E(Q_URL + q.codigo) + '</p><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
+    openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
   qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo + (d.v === 'q' ? '/q' : ''); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
