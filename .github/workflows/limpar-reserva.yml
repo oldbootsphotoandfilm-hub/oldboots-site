@@ -1,0 +1,19 @@
+# Depois de cada publicação, pede ao jsDelivr (a cópia de reserva usada pelo carregar.js quando o GitHub Pages falha)
+# que esqueça as versões antigas das páginas. Sem isto, a reserva podia servir uma versão antiga durante horas.
+name: Limpar cópia de reserva (jsDelivr)
+on:
+  push:
+    branches: [main]
+    paths: ['paginas/**', 'carregar.js']
+permissions:
+  contents: read
+jobs:
+  limpar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pedir ao jsDelivr para atualizar
+        run: |
+          for f in carregar.js paginas/*.html; do
+            curl -fsS --retry 3 "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@main/$f" > /dev/null && echo "ok  $f" || echo "falhou  $f"
+          done

@@ -690,7 +690,7 @@ function splash(on) {
   setTimeout(function () { sp.classList.add('out'); }, Math.max(0, 900 - (Date.now() - splT0))); // pelo menos ~1 s: sem piscar
 }
 function guardaCache(r) { var c = {}; Object.keys(r).forEach(function (k) { if (k !== 'v') c[k] = r[k]; }); c.casal_v = r.v && r.v.casal || ''; c._t = Date.now(); ls.set(CHC, JSON.stringify(c)); }
-function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 30 * 864e5 ? c : null; } catch (e) { return null; } }
+function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 7 * 864e5 ? c : null; /* no máximo 7 dias neste aparelho */ } catch (e) { return null; } }
 function aplicar(r) {
   var emForm = S && MODO !== 'casa' && !S._cache;
   if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
@@ -718,7 +718,10 @@ function abrir() {
   }, function (e) {
     splash(false);
     if (S && S._cache && !e.srv) { if (querQ) { querQ = false; render(); } return toast(X('semRede'), 1); } // sem rede: fica a versão guardada
-    if (e.srv) { try { localStorage.removeItem(CHC); } catch (x) { } S = null; R.classList.remove('casa'); }
+    // o servidor recusou: apaga a cópia deste aparelho (com os pagamentos). Link inválido ou expirado: apaga também o rascunho e a língua;
+    // em manutenção o rascunho fica (são respostas do casal que podem ainda não ter chegado ao servidor)
+    if (e.srv) { try { localStorage.removeItem(CHC); if (!/manuten/i.test(e.message)) { localStorage.removeItem(CH); localStorage.removeItem('ob_q_lang_' + COD); } } catch (x) { } S = null; R.classList.remove('casa'); }
+    if (e.srv && /expirou/i.test(e.message)) { A.innerHTML = '<div class="lock w"><h2>' + (L === 'en' ? 'This link has expired' : 'Este link expirou') + '</h2><p class="sub" style="margin-top:10px">' + (L === 'en' ? 'For your privacy, couple pages are available for 6 months after the wedding. Get in touch and we will send you a new link: WhatsApp +351 913 116 155 or oldbootsphotoandfilm@gmail.com.' : 'Por privacidade, a página do casal fica disponível até 6 meses depois do casamento. Entrem em contacto connosco para receberem um novo acesso: WhatsApp +351 913 116 155 ou oldbootsphotoandfilm@gmail.com.') + '</p></div>'; render(); return; }
     if (e.srv && /manuten/i.test(e.message)) { A.innerHTML = '<div class="lock w"><h2>' + (L === 'en' ? 'Back soon' : 'Voltamos já') + '</h2><p class="sub" style="margin-top:10px">' + (L === 'en' ? 'Your page is under maintenance. Please try again shortly; if you need anything, message us on WhatsApp.' : 'A vossa página está em manutenção. Voltem a tentar daqui a pouco; se precisarem de algo, falem connosco pelo WhatsApp.') + '</p><p style="margin-top:22px"><a class="b2" href="' + WHATS + '" target="_blank" rel="noopener">WhatsApp</a></p></div>'; return; }
     A.innerHTML = '<div class="ld w"><p>' + E(e.srv ? e.message : X('erroLer')) + '</p>' + (e.srv ? '' : '<p style="margin-top:16px"><button class="b2" id="obqRe">' + X('tentar') + '</button></p>') + '</div>';
     var re = $('#obqRe'); if (re) re.onclick = abrir;

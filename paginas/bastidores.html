@@ -815,8 +815,9 @@ function run(p, msg, after) {
   nGrav++; sv();
   return Promise.resolve(p).then(function (r) {
     if (r && r.existe) return r;
-    return (r && r.all ? Promise.resolve(r.all) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
-      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; }
+    // o servidor devolve só as folhas que podem ter mudado (allp); versões antigas devolviam tudo (all)
+    return (r && r.all ? Promise.resolve(r.all) : r && r.allp ? Promise.resolve(Object.assign({}, D, r.allp)) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
+      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; all.lemb = D.lemb; all.quota = D.quota; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -825,6 +826,7 @@ function run(p, msg, after) {
   }).catch(function (e) {
     if (e.auth) return;
     var m = 'Não foi gravado. ' + (e.message || String(e));
+    if (/Outra pessoa alterou/.test(e.message || '')) { nos = null; setTimeout(function () { atualizar(true); }, 50); } // dados velhos: recarrega em vez de reabrir o formulário antigo
     if (nos && !$('#ov').classList.contains('on')) { reabrir(nos); toast(m, 1); }
     else if (nos) { guardado = nos; toast(m, 1, 'Reabrir'); }
     else toast(m, 1);
@@ -892,8 +894,10 @@ return [[function (v) { return ehCas(v) ? 'Casal' : 'Cliente'; }, [['categoria',
 ['Valores', [['status', 'Status', 'sel', SEL.cs]].concat(CAMPOS_PLANO).concat([ ['contrato_previo', 'Contrato prévio', 'sel', SEL.cp], ['contrato_assinado', 'Contrato assinado', 'sel', SEL.sn], ['link_da_galeria', 'Link da galeria', 'url'], ['observacoes', 'Observações', 'area']])]]; };
 var reqName = function (v) { if (!String(v.nome_do_casal || '').trim()) { toast(ehCas(v) ? 'Preencha o nome do casal.' : 'Preencha o nome do cliente.', 1); return 1; } };
 var sem = function (v) { var x = {}; Object.keys(v).forEach(function (k) { if (k !== '_row') x[k] = v[k]; }); return x; };
-function novoOrc(o) { form(o ? 'Editar orçamento' : 'Novo orçamento', FO, o ? Object.assign({}, o) : { categoria: 'Casamento', origem: 'Instagram', status: 'Novo pedido', tipo_de_servico: 'Foto + Vídeo' }, function (v) { if (reqName(v)) return; var x = limpaCat(sem(v)); run(o ? rpc('api_upd', 'Orçamentos', o.id, x) : rpc('api_add', 'Orçamentos', Object.assign({}, x, { data_do_pedido: TODAY })), 'Orçamento guardado', function () { if (o) orcF(o.id); }); }); }
-function novoCli(c) { form(c ? 'Editar cliente' : 'Novo cliente', FC(c && c.id), c ? Object.assign({ ligado_a: '' }, c) : { categoria: cat === 'ee' ? 'Ensaio' : 'Casamento', ligado_a: '', status: 'Fechado', forma_de_pagamento: 'Entrada + parcelas', entrada: 40, contrato_previo: 'Não enviado', contrato_assinado: 'Não', tipo_de_servico: 'Foto + Vídeo', origem: 'Instagram' }, function (v) { if (reqName(v)) return; if (v.forma_de_pagamento === 'Entrada + parcelas' && !(+v.entrada > 0 && +v.entrada < 100)) return toast('Indique a percentagem da entrada (entre 1 e 99).', 1); var x = limpaCat(sem(v)); if (x.forma_de_pagamento !== 'Entrada + parcelas') x.entrada = ''; if (c) delete x.extras; else x.extras = ehCas(x) ? extrasLista(x.extras) : []; run(c ? rpc('api_upd', 'Clientes', c.id, x) : rpc('api_add', 'Clientes', x), 'Cliente guardado', function () { if (c) ficha(c.id, 'r'); }).then(depoisDeGravar); }); }
+// valores que o registo tinha ao abrir o formulário (o servidor recusa se outra pessoa os mudou entretanto)
+function antesDe(o, x) { var a = {}; Object.keys(x).forEach(function (k) { if (k !== 'extras') a[k] = o[k] == null ? '' : o[k]; }); return a; }
+function novoOrc(o) { form(o ? 'Editar orçamento' : 'Novo orçamento', FO, o ? Object.assign({}, o) : { categoria: 'Casamento', origem: 'Instagram', status: 'Novo pedido', tipo_de_servico: 'Foto + Vídeo' }, function (v) { if (reqName(v)) return; var x = limpaCat(sem(v)); run(o ? rpc('api_upd', 'Orçamentos', o.id, x, antesDe(o, x)) : rpc('api_add', 'Orçamentos', Object.assign({}, x, { data_do_pedido: TODAY })), 'Orçamento guardado', function () { if (o) orcF(o.id); }); }); }
+function novoCli(c) { form(c ? 'Editar cliente' : 'Novo cliente', FC(c && c.id), c ? Object.assign({ ligado_a: '' }, c) : { categoria: cat === 'ee' ? 'Ensaio' : 'Casamento', ligado_a: '', status: 'Fechado', forma_de_pagamento: 'Entrada + parcelas', entrada: 40, contrato_previo: 'Não enviado', contrato_assinado: 'Não', tipo_de_servico: 'Foto + Vídeo', origem: 'Instagram' }, function (v) { if (reqName(v)) return; if (v.forma_de_pagamento === 'Entrada + parcelas' && !(+v.entrada > 0 && +v.entrada < 100)) return toast('Indique a percentagem da entrada (entre 1 e 99).', 1); var x = limpaCat(sem(v)); if (x.forma_de_pagamento !== 'Entrada + parcelas') x.entrada = ''; if (c) delete x.extras; else x.extras = ehCas(x) ? extrasLista(x.extras) : []; run(c ? rpc('api_upd', 'Clientes', c.id, x, antesDe(c, x)) : rpc('api_add', 'Clientes', x), 'Cliente guardado', function () { if (c) ficha(c.id, 'r'); }).then(depoisDeGravar); }); }
 function novoPag(id, tipo, valor) { if (!D.cli.length) return toast('Crie primeiro um cliente.', 1); form('Registar pagamento', [['Pagamento', [['id_cliente', 'Cliente', 'sel', D.cli.map(function (c) { return [c.id, c.nome_do_casal]; })], ['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['tipo', 'Tipo', 'sel', SEL.tp], ['metodo', 'Método', 'sel', SEL.mt], ['parcela', 'Nº da parcela (se for parcela)', 'number'], ['notas', 'Notas', 'text']].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk']])]], { recebido_por: '', parte_do_gabriel: 50, fatura_emitida: 'Não', id_cliente: id || D.cli[0].id, data: TODAY, tipo: tipo || 'Depósito', metodo: 'MB Way', valor: valor || '' }, function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; run(rpc('api_add', 'Pagamentos', v), 'Pagamento registado', function () { if (id) ficha(id, 'p'); }); }); }
 
 /* ---------- vistas ---------- */
@@ -920,9 +924,18 @@ function vHoje() {
     '<p class="big" aria-hidden="true">' + hoje.getDate() + '</p>' +
     '<p class="h2 lead">' + (dono() && nPed() ? 'Há ' + pl(nPed(), 'pedido', 'pedidos') + ' da equipa para aprovar' + (partes.length ? ', ' + lista(partes) : '') + '.' : partes.length ? 'Há ' + lista(partes) + '.' : 'Tudo em dia por hoje.') + '</p>' +
     (dono() && nPed() ? '<hr class="st"><p class="lb gl" style="color:var(--rd)">Pedidos da equipa para aprovar · ' + nPed() + '</p>' + blocoPedidos() : '') +
-    avisosPos() + (tarefas ? '<hr class="st"><p class="lb gl">Por fazer</p>' + tarefas : '') + (dono() ? '' : meusPedidos()) +
+    avisosPos() + (tarefas ? '<hr class="st"><p class="lb gl">Por fazer</p>' + tarefas : '') + (dono() ? blocoLembretes() : meusPedidos()) +
     '<hr class="st"><p class="lb gl">Próximos eventos · 30 dias</p>' + (ev.slice(0, 4).map(evRow).join('') || '<p class="em">Sem eventos nos próximos 30 dias.</p>') +
     '<p class="ft" style="margin-top:40px">' + E(BK) + '</p></div>';
+}
+// lembretes automáticos de pagamento: desligados (aviso) ou os que saem amanhã, para corrigir antes; quota de e-mails
+function blocoLembretes() {
+  var L = D.lemb, h = '';
+  if (typeof D.quota === 'number' && D.quota < 20) h += '<div class="rw r2"><div><b>Restam ' + D.quota + ' e-mails automáticos hoje</b>' + tg('Limite do Gmail', 'oc') + '<small>Lembretes, questionários e cópias usam a mesma quota diária. Volta a encher amanhã.</small></div><span></span></div>';
+  if (!L) return h ? '<hr class="st"><p class="lb gl">E-mails automáticos</p>' + h : '';
+  if (!L.on) h += '<div class="rw r2"><div><b>Lembretes de pagamento desligados</b>' + tg('Desligados', 'rd') + '<small>Os casais não recebem lembretes automáticos por e-mail.</small></div><div class="rt"><button class="bt" data-a="lembOn" data-v="1">Ligar</button></div></div>';
+  else h += (L.amanha || []).map(function (x) { return '<div class="rw r2"><div><b>' + E(nc(x.casal)) + '</b>' + tg(x.tipo === 'Antes do vencimento' ? 'Antes' : 'Em atraso', x.tipo === 'Antes do vencimento' ? 'bl' : 'oc') + '<small>' + E(x.parcela) + '.ª parcela · ' + eur(x.valor) + ' · vence ' + fd(x.vence) + '</small></div><div class="rt"><button class="bt" data-a="lembSem" data-id="' + E(x.id) + '" data-v="1">Não enviar a este casal</button></div></div>'; }).join('');
+  return h ? '<hr class="st"><p class="lb gl">' + (L.on && (L.amanha || []).length ? 'Lembretes que saem amanhã às 9h · ' + L.amanha.length : 'E-mails automáticos') + '</p>' + h : '';
 }
 function evRow(c) { var d = dias(c.data_do_evento); return '<div class="rw" data-a="f" data-id="' + E(c.id) + '"><span class="n">' + fds(c.data_do_evento) + '</span><div><b>' + E(nc(c.nome_do_casal)) + '</b>' + tg2(c) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '<small>' + fd(c.data_do_evento) + ' ' + E(c.hora) + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small></div><div class="rt"><small>' + (d >= 0 ? 'faltam ' + d + ' dias' : 'há ' + (-d) + ' dias') + '</small></div></div>'; }
 
@@ -1129,7 +1142,8 @@ function avisaPedidos() {
     '<hr class="st"><p class="lb gl">Equipa com acesso</p>' + (!EQ ? '<p class="em">A carregar…</p>' : (EQ.map(function (x) { return '<div class="rw r2"><div><b>' + E(x.nome || x.email) + '</b><small>' + E(x.email) + '</small></div><div class="rt"><button class="bt" data-a="eqdel" data-v="' + E(x.email) + '">Retirar acesso</button></div></div>'; }).join('') || '<p class="em">Ainda ninguém. Adicione abaixo.</p>')) +
     '<div class="fm eqf"><label><span>E-mail Google da pessoa</span><input id="eqe" type="email" autocomplete="off" placeholder="nome@gmail.com"></label><label><span>Nome (opcional)</span><input id="eqn" type="text" autocomplete="off"></label></div><div class="btns" style="position:static;margin:16px 0 0;border:0;padding:0"><button class="b1" data-a="eqadd">Dar acesso</button></div>' +
     '<p class="sm" style="margin-top:14px">O acesso total (Gabriel, Ylana e a conta Old Boots) continua a ser gerido na aba «Acessos» da planilha.</p>' +
-    '<hr class="st"><p class="lb gl">Páginas dos casais</p><div class="rw r2"><div><b>' + (D.casalFora ? 'Fora do ar (manutenção)' : 'No ar') + '</b>' + (D.casalFora ? tg('Fora do ar', 'rd') : tg('No ar', 'gr')) + '<small>Se houver uma falha grave, tire do ar as páginas de todos os casais de uma vez. Para um só casal, use «Página do casal» na ficha dele.</small></div><div class="rt"><button class="bt" data-a="qforaT" data-v="' + (D.casalFora ? '' : '1') + '">' + (D.casalFora ? 'Pôr no ar' : 'Tirar do ar') + '</button></div></div></div>';
+    '<hr class="st"><p class="lb gl">Páginas dos casais</p><div class="rw r2"><div><b>' + (D.casalFora ? 'Fora do ar (manutenção)' : 'No ar') + '</b>' + (D.casalFora ? tg('Fora do ar', 'rd') : tg('No ar', 'gr')) + '<small>Se houver uma falha grave, tire do ar as páginas de todos os casais de uma vez. Para um só casal, use «Página do casal» na ficha dele.</small></div><div class="rt"><button class="bt" data-a="qforaT" data-v="' + (D.casalFora ? '' : '1') + '">' + (D.casalFora ? 'Pôr no ar' : 'Tirar do ar') + '</button></div></div>' +
+    (D.lemb ? '<hr class="st"><p class="lb gl">Lembretes de pagamento por e-mail</p><div class="rw r2"><div><b>' + (D.lemb.on ? 'Ligados' : 'Desligados') + '</b>' + (D.lemb.on ? tg('Ligados', 'gr') : tg('Desligados', 'rd')) + '<small>Todos os dias às 9h: 3 dias antes de cada parcela e, se não estiver paga, 2 dias depois. Para um só casal, use a ficha dele (separador Pagamentos).' + ((D.lemb.sem || []).length ? ' Sem lembretes: ' + D.lemb.sem.map(function (i) { var c = cli(i); return E(nc(c ? c.nome_do_casal : i)); }).join(', ') + '.' : '') + '</small></div><div class="rt"><button class="bt" data-a="lembOn" data-v="' + (D.lemb.on ? '' : '1') + '">' + (D.lemb.on ? 'Desligar' : 'Ligar') + '</button></div></div>' : '') + '</div>';
 }
 function meusPedidos() {
   var l = D.ped || []; if (!l.length) return '';
@@ -1270,6 +1284,7 @@ var etapaDe = function (p, k) { if (p._auto) return 'Entregue'; var e = p[k + '_
 // backups: 1 e 2 em discos diferentes; o 3.º (nuvem ou fora de casa) é opcional. Um backup apagado depois da entrega continua a contar como feito.
 var BKN = ['1', '2', '3'];
 var nConf = function (p) { return BKN.filter(function (n) { return !!p['backup_' + n + '_confirmado_por']; }).length; };
+var mais6m = function (s) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(s || '')); if (!m) return ''; var d = new Date(+m[1], +m[2] + 5, +m[3]); return iso(d); };
 var nAtivos = function (p) { return BKN.filter(function (n) { return !!p['backup_' + n + '_confirmado_por'] && !p['backup_' + n + '_apagado']; }).length; };
 var backupOk = function (p) { return !!p._auto || p.cartoes_descarregados === 'Sim' && nConf(p) >= 2; };
 var podeFormatar = function (p) { return p.cartoes_descarregados === 'Sim' && nAtivos(p) >= 2; };
@@ -1382,7 +1397,8 @@ function abrirProjeto(id) {
       '<label><span>Caminho da pasta</span><input type="text" data-p="' + b + 'caminho" placeholder="Ex.: /Casamentos/2026/Ana e Rui" value="' + E(p[b + 'caminho'] || '') + '"></label>' +
       num(b + 'ficheiros', 'Nº de ficheiros na cópia') + num(b + 'gb', 'Tamanho da cópia (GB)') + '</div>' +
       conf(b + 'ok', 'Backup ' + n + ' feito e conferido (mesmos ficheiros e GB dos cartões)', cf) +
-      (cf && ent ? '<button class="bt sm bkx" data-a="bkx" data-id="' + E(id) + '" data-n="' + n + '"' + (nAtivos(p) < 2 ? ' disabled title="Tem de ficar pelo menos um backup"' : '') + '>Apagar este backup</button>' : '')) + '</div>'; };
+      (cf && ent ? '<button class="bt sm bkx" data-a="bkx" data-id="' + E(id) + '" data-n="' + n + '"' + (nAtivos(p) <= minBk ? ' disabled title="' + (minBk === 2 ? 'Até ' + fdc(guarda) + ' têm de ficar 2 cópias' : 'Tem de ficar pelo menos um backup') + '"' : '') + '>Apagar este backup</button>' : '')) + '</div>'; };
+  var guarda = mais6m(c.data_do_evento), minBk = guarda && TODAY < guarda ? 2 : 1;
   var fmt = BKN.some(function (n) { return p['backup_' + n + '_apagado']; }) ? '' : podeFormatar(p) ? '<p class="fmt ok">✓ Pode formatar os cartões: há ' + nAtivos(p) + ' backups conferidos em discos diferentes.</p>' :
     '<p class="fmt no">✕ NÃO formatar os cartões' + (p.cartoes_descarregados === 'Sim' ? ': falta' + (nAtivos(p) === 1 ? ' 1 backup conferido' : 'm 2 backups conferidos') : ' ainda') + '.</p>';
   openM('<p class="lb">Pós-produção · ' + E(fdc(c.data_do_evento)) + '</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p class="sm">' + [E(c.tipo_de_servico), E(c.local_da_cerimonia)].filter(Boolean).join(' · ') + ' · <button class="lnk" data-a="pfic" data-id="' + E(id) + '">abrir ficha</button></p>' +
@@ -1392,6 +1408,7 @@ function abrirProjeto(id) {
     '<p class="sm" style="margin:8px 0 0">Veja o nº de ficheiros e os GB da pasta dos cartões (no Mac: botão direito › Obter informações; no Windows: Propriedades) e confira cada cópia com os mesmos números.</p>' +
     '<div class="bkb"><p class="lb"><span class="bkn">1</span>Cartões</p><div class="fm pj">' + num('cartoes_ficheiros', 'Nº de ficheiros nos cartões') + num('cartoes_gb', 'Tamanho total (GB)') + '</div>' +
     conf('cartoes_descarregados', 'Cartões descarregados e contados', p.cartoes_descarregados === 'Sim' ? (p.cartoes_confirmado_por || 'sim') : '') + '</div>' +
+    (ent && guarda ? '<p class="sm" style="margin:8px 0 0">' + (minBk === 2 ? 'Prazo de guarda do contrato: até <b>' + fdc(guarda) + '</b> ficam sempre 2 cópias. A partir dessa data pode reduzir a 1.' : 'O prazo de guarda (6 meses depois do casamento) já passou: pode ficar só com 1 cópia.') + '</p>' : '') +
     (un.length ? bk('1') + bk('2') + bk('3') : '<p class="em" style="margin-top:10px">Ainda não há unidades de armazenamento. <button class="lnk" data-a="go" data-v="equip">Registe os SSD, HD e a nuvem em Equipamento</button> para os poder escolher aqui.</p>') + '</div>' +
     '<div class="fm" style="margin-top:16px"><label><span>Notas</span><textarea data-p="notas" rows="3">' + E(p.notas || '') + '</textarea></label></div>' +
     '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="pok">Guardar</button></div>');
@@ -1474,7 +1491,8 @@ function qEstado(c, q) {
 function qAcoes(c, q) {
   var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : ''); return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qcop" data-id="' + E(c.id) + '" data-v="' + (soQ ? 'q' : '') + '">Copiar link</button>' + (c.telefone ? '<a class="bt" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener">Enviar por WhatsApp</a>' : '') + '<a class="bt" href="' + E(u) + '" target="_blank" rel="noopener">Abrir</a></div>'; };
   return linha('Link da página do casal', false) + linha('Link do questionário', true) +
-    (dono() ? '<p class="lb" style="margin-top:22px">Estado da página</p><div class="acts2" style="margin-top:10px">' + (q.desativada ? tg('Fora do ar', 'rd') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="">Voltar a pôr no ar</button>' : tg('No ar', 'gr') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="1">Tirar do ar</button>') + '</div>' : '');
+    (dono() ? '<p class="lb" style="margin-top:22px">Estado da página</p><div class="acts2" style="margin-top:10px">' + (q.desativada ? tg('Fora do ar', 'rd') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="">Voltar a pôr no ar</button>' : tg('No ar', 'gr') + '<button class="bt" data-a="qforaC" data-id="' + E(c.id) + '" data-v="1">Tirar do ar</button>') + '</div>' +
+      '<p class="lb" style="margin-top:22px">Validade do link</p><p class="sm" style="margin-top:6px">' + (q.valido_ate ? (q.valido_ate < TODAY ? '<b style="color:var(--rd)">Expirou a ' + fdc(q.valido_ate) + '.</b> O casal vê «Este link expirou».' : 'Funciona até ' + fdc(q.valido_ate) + ' (6 meses depois do casamento).') : 'Sem data do casamento: não expira.') + '</p><div class="acts2" style="margin-top:10px"><button class="bt" data-a="qnovo" data-id="' + E(c.id) + '">Gerar novo link</button></div>' : '');
 }
 // separador «Questionário» da ficha
 function qAba(c) {
@@ -1529,6 +1547,7 @@ function vFicha() {
       (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + fd(p.vencimento) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
       '<p class="lb gl" style="margin-top:30px">Recebido</p>' +
       (Rr.map(function (p) { return '<div class="ln"><span>' + fd(p.data) + '</span><span>' + eur(p.valor) + ' · ' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' ' + fatCell(p) + '</span></div>'; }).join('') || '<p class="em">Ainda nada.</p>') +
+      (dono() && D.lemb ? (function () { var sem = (D.lemb.sem || []).indexOf(id) >= 0; return '<p class="lb gl" style="margin-top:30px">Lembretes automáticos</p><div class="rw r2"><div><b>' + (!D.lemb.on ? 'Desligados para todos' : sem ? 'Desligados para este casal' : 'Ligados') + '</b><small>' + (sem ? 'Este casal não recebe lembretes por e-mail (ex.: renegociado ou pagou em mão).' : 'E-mail 3 dias antes de cada parcela e 2 dias depois, se não estiver paga.') + '</small></div><div class="rt"><button class="bt" data-a="lembSem" data-id="' + E(id) + '" data-v="' + (sem ? '' : '1') + '">' + (sem ? 'Voltar a ligar' : 'Desligar para este casal') + '</button></div></div>'; })() : '') +
       '<div class="acts2"><button class="bt" data-a="plano" data-id="' + E(id) + '">Plano de pagamento</button><button class="bt" data-a="reneg" data-id="' + E(id) + '">Renegociar</button><button class="bt" data-a="extr" data-id="' + E(id) + '">Extrato PDF</button></div>' +
       '<div class="btns"><button class="b1" data-a="np" data-id="' + E(id) + '">Registar pagamento</button></div>';
   }
@@ -1861,6 +1880,13 @@ var act = {
   qforaT: function (d) { var sim = d.v === '1';
     ask(sim ? 'Tirar do ar as páginas de TODOS os casais?' : 'Voltar a pôr no ar as páginas dos casais?', function () { run(rpc('api_casal_fora', sim), sim ? 'Páginas dos casais fora do ar' : 'Páginas dos casais de novo no ar'); }, sim ? 'Tirar tudo do ar' : 'Pôr no ar',
       '<p class="sm">' + (sim ? 'Use se houver uma falha grave. Todos os casais passam a ver «em manutenção» (página do casal e questionário). Nada se apaga; volta tudo ao normal quando as puser no ar.' : 'Os casais voltam a ver as suas páginas normalmente.') + '</p>'); },
+  qnovo: function (d) { var c = cli(d.id);
+    ask('Gerar um novo link para «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_novo_link', d.id), 'Novo link criado: envie-o ao casal', function () { if ($('#ov').classList.contains('on')) act.pcasal(d); }); }, 'Gerar novo link',
+      '<p class="sm">O link atual deixa de funcionar logo. O novo vale 6 meses e tem de ser enviado ao casal (Copiar link ou WhatsApp). Nada se apaga: respostas, ficheiros e pagamentos ficam iguais.</p>'); },
+  lembOn: function (d) { var sim = d.v === '1';
+    ask(sim ? 'Ligar os lembretes automáticos de pagamento?' : 'Desligar os lembretes automáticos de pagamento?', function () { run(rpc('api_lemb_ligar', sim), sim ? 'Lembretes ligados' : 'Lembretes desligados'); }, sim ? 'Ligar' : 'Desligar',
+      '<p class="sm">' + (sim ? 'Os casais voltam a receber os e-mails 3 dias antes de cada parcela e 2 dias depois, se não estiver paga.' : 'Nenhum casal recebe lembretes por e-mail até os voltar a ligar.') + '</p>'); },
+  lembSem: function (d) { var sem = d.v === '1'; run(rpc('api_lemb_cliente', d.id, sem), sem ? 'Este casal deixa de receber lembretes' : 'Lembretes ligados para este casal'); },
   qlink: function (d) { run(rpc('api_q_link', d.id), 'Link da página do casal criado'); },
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
