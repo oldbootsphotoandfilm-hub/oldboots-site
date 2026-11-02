@@ -1,0 +1,174 @@
+<link rel="preconnect" href="https://script.google.com">
+<style>
+/* ===== Old Boots · landing pages das sessões esporádicas (ex.: Natal em família) =====
+   Os textos e imagens são widgets normais do Elementor (editáveis lá); este ficheiro só dá o estilo
+   (o mesmo das propostas: textura oliva, papel, Chonburi + Luxurious Script) e o formulário de marcação. */
+:root{--ob-ol:#454205;--ob-cr:#fff4cf;--ob-dk:#2b2a07;--ob-rd:#8a3b2e;--ob-mt:#6b6548;
+--ob-olive:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-textura-oliva.jpg);--ob-papel:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-papel.jpg)}
+body.ob-ln-on{background:var(--ob-dk);margin:0}
+.elementor-section.ob-ln{padding:clamp(56px,9vw,120px) 22px!important;margin:0!important;position:relative;font-family:Montserrat,Arial,sans-serif;overflow-x:clip;box-sizing:border-box;width:100%}
+body.ob-ln-on{overflow-x:hidden}
+.ob-ln>.elementor-container{max-width:980px!important;margin:0 auto}
+.ob-ln>.elementor-container>.elementor-column>.elementor-widget-wrap{display:flex!important;flex-direction:column;align-items:center;text-align:center;padding:0!important;gap:0}
+.ob-ln :where(.elementor-widget-wrap>.elementor-element){width:100%}
+.ob-ln :where(.elementor-element){margin:0!important;--widgets-spacing:0px}
+.ob-ln .elementor-widget-container{margin:0!important;padding:0!important}
+.ob-ln-ol{background:var(--ob-ol) var(--ob-olive) center/cover!important;color:var(--ob-cr)}
+.ob-ln-pp{background:#f6f5f2 var(--ob-papel) center/cover!important;color:var(--ob-dk)}
+.ob-ln-cfg{height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden}
+.elementor-editor-active .ob-ln-cfg{height:auto!important;min-height:44px!important;background:#c08a2b!important}
+.elementor-editor-active .ob-ln-cfg::before{content:"CÓDIGO DA PÁGINA · NÃO APAGAR · o código da sessão (data-sessao) tem de ser igual ao dos Bastidores";display:block;padding:14px;font:600 11px/1.3 Montserrat,Arial,sans-serif;letter-spacing:.12em;color:#2b2a07;text-align:center}
+/* tipografia (igual às propostas) */
+.ob-ln .ob-T,.ob-ln .ob-S,.ob-ln .ob-tx,.ob-ln .ob-hd,.ob-ln .ob-lab,.ob-ln .ob-pr,.ob-ln .ob-ft{color:inherit}
+.ob-ln :is(.ob-T,.ob-S,.ob-tx,.ob-hd,.ob-lab,.ob-pr,.ob-ft) :is(h1,h2,h3,h4,h5,h6,p,span,a,li,strong,b,em){font:inherit!important;color:inherit!important;letter-spacing:inherit!important;text-transform:inherit!important;line-height:inherit!important;margin:0}
+.ob-ln .ob-T{font-family:Chonburi,Georgia,serif!important;text-transform:uppercase;line-height:.92;font-weight:400;font-size:clamp(40px,9vw,92px)}
+.ob-ln .ob-T.ob-xl{font-size:clamp(76px,22vw,230px);line-height:.86}
+.ob-ln .ob-T.ob-m{font-size:clamp(26px,5.6vw,52px);line-height:1.02}
+.ob-ln .ob-S{font-family:'Luxurious Script',cursive!important;line-height:1;font-weight:400;text-transform:none;font-size:clamp(44px,10vw,112px)}
+.ob-ln .ob-S.ob-over{margin-top:-.42em!important;position:relative;z-index:1}
+.ob-ln .ob-S.ob-xl{font-size:clamp(56px,14vw,150px)}
+.ob-ln .ob-hd{font:clamp(11px,1.3vw,13px)/1 Antic,sans-serif;letter-spacing:.14em;margin-bottom:clamp(26px,5vw,48px)!important}
+.ob-ln .ob-tx{font:500 clamp(12px,1.5vw,14px)/1.75 Montserrat,sans-serif;letter-spacing:.06em;text-transform:uppercase;max-width:620px;margin-top:clamp(18px,3vw,30px)!important}
+.ob-ln .ob-lab{font:clamp(12px,1.4vw,14px)/1.5 Antic,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.ob-ln .ob-pr{font:600 clamp(15px,2vw,19px)/1.3 Montserrat,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin-top:clamp(18px,3vw,28px)!important}
+.ob-ln .ob-ft{font:500 11px/1.4 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;margin-top:clamp(40px,6vw,70px)!important;opacity:.85}
+.ob-ln .ob-ft p{display:flex!important;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ob-ln .ob-ft b,.ob-ln .ob-ft strong{font-weight:700!important}
+/* imagem em moldura de papel (como a capa das propostas) */
+.ob-ln .ob-im{overflow:hidden}
+.ob-ln .ob-im img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover;display:block;border-radius:0!important}
+.ob-ln .ob-moldura{background:#f6f5f2 var(--ob-papel) center/cover;padding:clamp(14px,2.4vw,24px) clamp(14px,2.4vw,24px) clamp(30px,5vw,52px);width:min(78%,420px)!important;margin:clamp(30px,5vw,48px) auto 0!important;box-shadow:0 18px 40px rgba(0,0,0,.25);transform:rotate(-1.2deg)}
+.ob-ln .ob-moldura img{aspect-ratio:4/5;height:auto!important}
+/* botão (vai ao formulário) */
+.ob-ln .ob-btn{margin-top:clamp(30px,5vw,46px)!important;text-align:center}
+.ob-ln .ob-btn .elementor-button{background:var(--ob-cr)!important;color:var(--ob-dk)!important;border-radius:0!important;font:600 12px/1 Montserrat,sans-serif!important;letter-spacing:.22em!important;text-transform:uppercase;padding:20px 30px!important;border:0!important;transition:background .2s,color .2s}
+.ob-ln-pp .ob-btn .elementor-button{background:var(--ob-ol)!important;color:var(--ob-cr)!important}
+.ob-ln .ob-btn .elementor-button:hover{background:var(--ob-dk)!important;color:var(--ob-cr)!important}
+/* lista do que inclui: cartão de papel */
+.ob-ln .ob-lista,.ob-ln .ob-moldura{box-sizing:border-box}
+.ob-ln .ob-lista{background:#f6f5f2 var(--ob-papel) center/cover;color:var(--ob-dk);width:min(100%,560px)!important;margin:clamp(30px,5vw,46px) auto 0!important;padding:clamp(26px,4vw,40px) clamp(22px,4vw,44px)!important;text-align:left}
+.ob-ln .ob-lista ul{list-style:none;margin:0;padding:0}
+.ob-ln .ob-lista li{font:500 clamp(12px,1.5vw,14px)/1.5 Montserrat,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:12px 0 12px 30px;border-bottom:1px solid rgba(43,42,7,.14);position:relative}
+.ob-ln .ob-lista li:last-child{border-bottom:0}
+.ob-ln .ob-lista li::before{content:"✦";position:absolute;left:2px;top:12px;color:#8a5a34;font-size:13px}
+/* passos (lista numerada no editor de texto) */
+.ob-ln .ob-passos ol{list-style:none;margin:clamp(30px,5vw,46px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,3vw,36px);counter-reset:p;text-align:left}
+.ob-ln .ob-passos li{counter-increment:p;font:500 clamp(12px,1.4vw,14px)/1.65 Montserrat,sans-serif;letter-spacing:.05em;text-transform:uppercase;border-top:1px solid currentColor;padding-top:16px}
+.ob-ln .ob-passos li::before{content:counter(p,decimal-leading-zero);display:block;font:400 clamp(34px,5vw,52px)/1 Chonburi,Georgia,serif;margin-bottom:12px}
+@media(max-width:700px){.ob-ln .ob-passos ol{grid-template-columns:1fr}}
+/* galeria: imagens lado a lado */
+.ob-ln-gal>.elementor-container>.elementor-column>.elementor-widget-wrap{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1.6vw,16px)}
+.ob-ln-gal .elementor-widget-wrap>.elementor-element:not(.ob-im){grid-column:1/-1}
+.ob-ln-gal .ob-im{aspect-ratio:4/5;margin-top:clamp(26px,4vw,40px)!important}
+@media(max-width:700px){.ob-ln-gal>.elementor-container>.elementor-column>.elementor-widget-wrap{grid-template-columns:repeat(2,minmax(0,1fr))}.ob-ln-gal .ob-im:last-child{display:none}}
+/* entrada suave dos blocos (leve: só CSS + um observador) */
+.ob-ln .ob-rv{opacity:0;transform:translateY(24px);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+.ob-ln .ob-rv.ob-vis{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.ob-ln .ob-rv{opacity:1;transform:none;transition:none}}
+
+/* ===== formulário de marcação ===== */
+.ob-res{background:#f6f5f2 var(--ob-papel) center/cover;color:var(--ob-dk);width:min(100%,620px);margin:clamp(30px,5vw,46px) auto 0;padding:clamp(26px,4.5vw,46px) clamp(20px,4.5vw,46px);text-align:left;font-family:Montserrat,Arial,sans-serif;box-sizing:border-box}
+.ob-res *{box-sizing:border-box}
+.ob-res .rl{display:block;font:600 11px/1.3 Montserrat,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--ob-mt);margin:0 0 8px}
+.ob-res .cp{margin-bottom:22px}
+.ob-res input[type=text],.ob-res input[type=email],.ob-res input[type=tel]{display:block;width:100%;font:500 16px/1.3 Montserrat,sans-serif;color:var(--ob-dk);background:transparent;border:0;border-bottom:1px solid rgba(43,42,7,.35);border-radius:0;padding:10px 2px;outline:none;-webkit-appearance:none;appearance:none}
+.ob-res input:focus{border-bottom-color:var(--ob-ol);box-shadow:0 1px 0 var(--ob-ol)}
+.ob-res .ch{display:flex;flex-wrap:wrap;gap:8px}
+.ob-res .ch button{font:500 14px/1.2 Montserrat,sans-serif;color:var(--ob-dk);background:rgba(255,255,255,.55);border:1px solid rgba(43,42,7,.22);border-radius:0;padding:11px 14px;cursor:pointer;min-width:64px;text-align:center;transition:background .15s,color .15s,border-color .15s}
+.ob-res .ch button small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;margin-bottom:2px}
+.ob-res .ch button:hover{border-color:var(--ob-ol)}
+.ob-res .ch button.on{background:var(--ob-ol);color:var(--ob-cr);border-color:var(--ob-ol)}
+.ob-res .hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+.ob-res .go{display:block;width:100%;margin-top:8px;font:600 12px/1 Montserrat,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--ob-cr);background:var(--ob-ol);border:0;border-radius:0;padding:20px 24px;cursor:pointer;transition:background .2s}
+.ob-res .go:hover{background:var(--ob-dk)}.ob-res .go[disabled]{opacity:.6;cursor:wait}
+.ob-res .nt{font:500 12px/1.6 Montserrat,sans-serif;color:var(--ob-mt);margin:14px 0 0;letter-spacing:.02em}
+.ob-res .er{font:600 13px/1.5 Montserrat,sans-serif;color:var(--ob-rd);margin:0 0 14px}
+.ob-res .msg{text-align:center;padding:10px 0}
+.ob-res .msg h3{font:400 clamp(28px,5vw,40px)/1 Chonburi,Georgia,serif;text-transform:uppercase;margin:0 0 12px;color:var(--ob-dk)}
+.ob-res .msg p{font:500 14px/1.7 Montserrat,sans-serif;letter-spacing:.03em;margin:0 0 18px}
+.ob-res .msg .go{display:inline-block;width:auto;text-decoration:none}
+.ob-res .ld{display:flex;gap:6px;justify-content:center;padding:28px 0}.ob-res .ld i{width:7px;height:7px;border-radius:50%;background:var(--ob-ol);animation:obRes 1s infinite ease-in-out}.ob-res .ld i:nth-child(2){animation-delay:.15s}.ob-res .ld i:nth-child(3){animation-delay:.3s}
+@keyframes obRes{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:none}}
+</style>
+<script>
+(function () {
+  'use strict';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbztVnS_QlwCJlcYAcFtWgv1RysxMNTkfXX7d6AMUdibBy2nYFCJ4XuBhqihZBzMdpI4HA/exec';
+  var WHATS = 'https://wa.me/351913116155';
+  var cfg = document.querySelector('[data-ob="sessao"]'), COD = cfg && cfg.getAttribute('data-sessao') || '';
+  document.body.classList.add('ob-ln-on');
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var E = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var dia = function (iso) { var p = iso.split('-'); return new Date(+p[0], p[1] - 1, +p[2]); };
+  var fDia = function (iso) { var d = dia(iso); return { s: d.toLocaleDateString('pt-PT', { weekday: 'short' }).replace('.', ''), n: d.getDate() + ' ' + d.toLocaleDateString('pt-PT', { month: 'short' }).replace('.', '') }; };
+  var fLongo = function (iso) { return dia(iso).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); };
+  function api(fn, a) {
+    var c = new AbortController(), to = setTimeout(function () { c.abort(); }, 30000);
+    return fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: fn, a: a }), signal: c.signal, credentials: 'omit' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (j && j.ok) return j.r; var e = new Error((j && j.e) || 'Erro'); e.srv = 1; throw e; })
+      .finally(function () { clearTimeout(to); });
+  }
+
+  /* entrada suave dos blocos */
+  function anima() {
+    var els = $$('.ob-ln .elementor-widget-wrap>.elementor-element').filter(function (el) { return !el.closest('.ob-ln-cfg'); });
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('ob-vis'); io.unobserve(e.target); } }); }, { threshold: .05 });
+    els.forEach(function (el) { var r = el.getBoundingClientRect(); if (r.top < innerHeight) return; el.classList.add('ob-rv'); io.observe(el); });
+  }
+
+  /* formulário */
+  var caixas = $$('.ob-reserva'), S = { dias: [], d: '', h: '', v: { nome: '', email: '', tel: '' } };
+  function html(h) { caixas.forEach(function (c) { c.innerHTML = '<div class="ob-res">' + h + '</div>'; }); liga(); }
+  var semHorarios = function (t) { return '<div class="msg"><h3>' + t + '</h3><p>Fale connosco pelo WhatsApp: vemos juntos outro dia ou ficamos com o seu contacto para avisar quando abrirem novos horários.</p><a class="go" href="' + WHATS + '?text=' + encodeURIComponent('Olá! Vi a página «' + (S.nome || 'sessão de Natal') + '» no site e gostava de marcar uma sessão.') + '" target="_blank" rel="noopener">Falar no WhatsApp</a></div>'; };
+  function desenha(err) {
+    var d = S.dias.find(function (x) { return x.data === S.d; });
+    html((err ? '<p class="er" role="alert">' + E(err) + '</p>' : '') +
+      '<div class="cp"><label class="rl" for="obN">Nome</label><input id="obN" type="text" autocomplete="name" maxlength="120" value="' + E(S.v.nome) + '"></div>' +
+      '<div class="cp"><label class="rl" for="obE">E-mail</label><input id="obE" type="email" autocomplete="email" maxlength="120" value="' + E(S.v.email) + '"></div>' +
+      '<div class="cp"><label class="rl" for="obT">Telemóvel</label><input id="obT" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" value="' + E(S.v.tel) + '"></div>' +
+      '<input class="hp" id="obW" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+      '<div class="cp"><span class="rl">Dia</span><div class="ch" role="group" aria-label="Dia">' + S.dias.map(function (x) { var f = fDia(x.data); return '<button type="button" data-d="' + x.data + '" class="' + (x.data === S.d ? 'on' : '') + '" aria-pressed="' + (x.data === S.d) + '"><small>' + E(f.s) + '</small>' + E(f.n) + '</button>'; }).join('') + '</div></div>' +
+      (d ? '<div class="cp"><span class="rl">Hora · ' + E(fLongo(d.data)) + '</span><div class="ch" role="group" aria-label="Hora">' + d.horas.map(function (h) { return '<button type="button" data-h="' + h + '" class="' + (h === S.h ? 'on' : '') + '" aria-pressed="' + (h === S.h) + '">' + h + '</button>'; }).join('') + '</div></div>' : '') +
+      '<button type="button" class="go" id="obGo">Pedir marcação</button><p class="nt">Ao enviar, o horário fica reservado para si e abrimos o WhatsApp com a mensagem pronta para confirmarmos juntos.</p>');
+  }
+  function guarda() { var n = $('#obN'); if (!n) return; S.v.nome = n.value; S.v.email = $('#obE').value; S.v.tel = $('#obT').value; }
+  function liga() {
+    $$('.ob-res [data-d]').forEach(function (b) { b.onclick = function () { guarda(); S.d = b.getAttribute('data-d'); S.h = ''; desenha(); var h = $('.ob-res [data-h]'); if (h) h.focus(); }; });
+    $$('.ob-res [data-h]').forEach(function (b) { b.onclick = function () { guarda(); S.h = b.getAttribute('data-h'); desenha(); var g = $('#obGo'); if (g) g.focus(); }; });
+    var g = $('#obGo'); if (g) g.onclick = enviar;
+    var re = $('#obRe'); if (re) re.onclick = carregar;
+  }
+  function enviar() {
+    guarda();
+    var tel = S.v.tel.replace(/[^\d+]/g, '');
+    if (S.v.nome.trim().length < 2) return desenha('Escreva o seu nome.');
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(S.v.email.trim())) return desenha('O e-mail não parece certo.');
+    if (tel.replace(/\D/g, '').length < 9) return desenha('O telemóvel não parece certo.');
+    if (!S.d || !S.h) return desenha('Escolha o dia e a hora.');
+    var g = $('#obGo'); g.disabled = true; g.textContent = 'A enviar…';
+    api('s_pedir', [COD, { nome: S.v.nome.trim(), email: S.v.email.trim(), tel: S.v.tel.trim(), data: S.d, hora: S.h, site: ($('#obW') || {}).value || '' }]).then(function (r) {
+      html('<div class="msg"><h3>Pedido recebido</h3><p>Reservámos ' + E(fLongo(S.d)) + ' às ' + E(S.h) + ' para si.<br>A abrir o WhatsApp para confirmarmos…</p><a class="go" href="' + E(r.whats) + '">Abrir o WhatsApp</a></div>');
+      setTimeout(function () { location.href = r.whats; }, 1200);
+    }, function (e) {
+      if (/ocupado/i.test(e.message || '')) { S.h = ''; return carregar(e.message); }
+      desenha(e.srv ? e.message : 'Não foi possível enviar (sem ligação?). Tente outra vez.');
+    });
+  }
+  function carregar(msg) {
+    if (!caixas.length) return;
+    if (!/^[a-z0-9-]{3,40}$/.test(COD)) return html('<p class="er">Falta o código da sessão nesta página (data-sessao).</p>');
+    if (!S.dias.length) html('<div class="ld" aria-label="A carregar"><i></i><i></i><i></i></div>');
+    api('s_ler', [COD]).then(function (r) {
+      S.nome = r.nome; S.dias = r.dias || [];
+      if (!r.ativa) return html(semHorarios('Marcações fechadas'));
+      if (!S.dias.length) return html(semHorarios('Horários esgotados'));
+      if (!S.dias.some(function (x) { return x.data === S.d; })) S.d = S.dias[0].data;
+      var d = S.dias.find(function (x) { return x.data === S.d; }); if (d && d.horas.indexOf(S.h) < 0) S.h = '';
+      desenha(typeof msg === 'string' ? msg : '');
+    }, function () { html('<p class="er">Não foi possível carregar os horários.</p><button type="button" class="go" id="obRe">Tentar outra vez</button>'); });
+  }
+  carregar(); anima();
+})();
+</script>

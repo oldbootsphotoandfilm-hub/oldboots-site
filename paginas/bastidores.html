@@ -345,6 +345,14 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .ic svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 #ob .ic span{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--mt);line-height:1.1;text-align:center}
 #ob .ic.wa{color:#2f6b3a}
+#ob .sest{display:flex;align-items:center;justify-content:space-between;gap:12px}#ob .sest .lb.gl{margin:0}
+#ob .sesd{margin:18px 0 6px}#ob .sesd>.lb::first-letter{text-transform:uppercase}
+#ob .sesh{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#ob .hc{display:inline-flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;border:1px solid var(--sf);background:#fff;border-radius:10px;font-size:14px}
+#ob .hc b{font-weight:600}#ob .hc i{font-style:normal;font-size:11px;color:var(--mt)}#ob .hc small{font-size:12px;color:var(--mt);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ob .hc.ch{background:#e3ead8;border-color:#e3ead8}#ob .hc.pc{background:#f4e6c6;border-color:#f4e6c6}
+#ob .hc button{width:22px;height:22px;border-radius:50%;line-height:1;font-size:16px;color:var(--mt)}#ob .hc button:hover{background:rgba(74,68,41,.1);color:var(--rd)}
+#ob .sesx{opacity:.55}#ob .sespas{margin-top:22px}#ob .sespas summary{cursor:pointer}
 #ob .qic{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#ob .qic .ic{width:76px}#ob .qic .ic.on{color:#8a3b2e;border-color:#8a3b2e}
 #ob .acts2{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:28px}
 #ob .wab{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border:1px solid var(--sf);color:#2f6b3a;text-decoration:none!important}
@@ -657,7 +665,7 @@ var TG = { 'Novo pedido': 'oc', 'Orçamento enviado': 'ne', 'Em negociação': '
 var tg = function (t, c) { return t ? '<span class="tg ' + (c || TG[t] || 'ne') + '">' + E(t) + '</span>' : ''; };
 var openO = function (o) { return ['Novo pedido', 'Orçamento enviado', 'Em negociação'].indexOf(o.status) >= 0; };
 var cli = function (id) { return D.cli.find(function (c) { return c.id === id; }) || {}; };
-var SEL = { cat: ['Casamento', 'Ensaio', 'Evento'], sub: { Ensaio: ['Noivado', 'Pré-casamento', 'Gestante', 'Família', 'Casal', 'Retrato', 'Outro'], Evento: ['Batizado', 'Aniversário', 'Pedido de casamento', 'Corporativo', 'Outro'] }, origem: ['Instagram', 'Indicação', 'TikTok', 'Google', 'Outro'], serv: ['Foto', 'Vídeo', 'Foto + Vídeo'], orc: ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'], cs: ['Fechado', 'Concluído', 'Cancelado'], fp: ['À vista', 'Parcelado', 'Entrada + parcelas'], sn: ['Não', 'Sim'], cp: ['Não enviado', 'Enviado'], tp: ['Depósito', 'Parcela', 'Pagamento total', 'Outro'], mt: ['MB Way', 'Transferência', 'Dinheiro', 'Cartão', 'Outro'] };
+var SEL = { cat: ['Casamento', 'Ensaio', 'Evento'], sub: { Ensaio: ['Noivado', 'Pré-casamento', 'Gestante', 'Família', 'Casal', 'Retrato', 'Outro'], Evento: ['Batizado', 'Aniversário', 'Pedido de casamento', 'Corporativo', 'Outro'] }, origem: ['Instagram', 'Indicação', 'TikTok', 'Google', 'Site', 'Outro'], serv: ['Foto', 'Vídeo', 'Foto + Vídeo'], orc: ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'], cs: ['Fechado', 'Concluído', 'Cancelado'], fp: ['À vista', 'Parcelado', 'Entrada + parcelas'], sn: ['Não', 'Sim'], cp: ['Não enviado', 'Enviado'], tp: ['Depósito', 'Parcela', 'Pagamento total', 'Outro'], mt: ['MB Way', 'Transferência', 'Dinheiro', 'Cartão', 'Outro'] };
 var av = function (s) { return String(s || '').replace('⚠', '').trim(); };
 var hasF = function (p) { return 'fatura_emitida' in p; };
 var semFat = function () { return D.pag.filter(function (p) { return hasF(p) && p.fatura_emitida !== 'Sim'; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }); };
@@ -818,7 +826,7 @@ function run(p, msg, after) {
     if (r && r.existe) return r;
     // o servidor devolve só as folhas que podem ter mudado (allp); versões antigas devolviam tudo (all)
     return (r && r.all ? Promise.resolve(r.all) : r && r.allp ? Promise.resolve(Object.assign({}, D, r.allp)) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
-      if (!all.papel) { all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; all.lemb = D.lemb; all.quota = D.quota; }
+      if (!all.papel) { all.ses = D.ses; all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; all.lemb = D.lemb; all.quota = D.quota; }
       D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -937,6 +945,67 @@ function blocoLembretes() {
   if (!L.on) h += '<div class="rw r2"><div><b>Lembretes de pagamento desligados</b>' + tg('Desligados', 'rd') + '<small>Os casais não recebem lembretes automáticos por e-mail.</small></div><div class="rt"><button class="bt" data-a="lembOn" data-v="1">Ligar</button></div></div>';
   else h += (L.amanha || []).map(function (x) { return '<div class="rw r2"><div><b>' + E(nc(x.casal)) + '</b>' + tg(x.tipo === 'Antes do vencimento' ? 'Antes' : 'Em atraso', x.tipo === 'Antes do vencimento' ? 'bl' : 'oc') + '<small>' + E(x.parcela) + '.ª parcela · ' + eur(x.valor) + ' · vence ' + fd(x.vence) + '</small></div><div class="rt"><button class="bt" data-a="lembSem" data-id="' + E(x.id) + '" data-v="1">Não enviar a este casal</button></div></div>'; }).join('');
   return h ? '<hr class="st"><p class="lb gl">' + (L.on && (L.amanha || []).length ? 'Lembretes que saem amanhã às 9h · ' + L.amanha.length : 'E-mails automáticos') + '</p>' + h : '';
+}
+/* ---------- Sessões esporádicas (ex.: Natal em família): página própria no site, horários com vagas ---------- */
+var SESID = '';
+var SESD = function () { return D.ses || { s: [], h: [], p: [] }; };
+var sesOc = function (sid) { var o = {}; SESD().p.forEach(function (x) { if (x.id_sessao === sid && x.situacao !== 'Cancelado') { var k = x.data + '|' + x.hora; (o[k] = o[k] || []).push(x); } }); return o; };
+var sesConta = function (sid) { var oc = sesOc(sid), hs = SESD().h.filter(function (h) { return h.id_sessao === sid && String(h.data) > TODAY; }), liv = 0;
+  hs.forEach(function (h) { liv += Math.max(0, (+h.vagas || 1) - ((oc[h.data + '|' + h.hora] || []).length)); });
+  return { livres: liv, pedidos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao !== 'Cancelado'; }).length, novos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao === 'Novo'; }).length }; };
+var TGS = { 'Novo': 'oc', 'Confirmado': 'gr', 'Cancelado': 'gy' };
+function vSes() {
+  var L = SESD().s;
+  return '<div class="w1"><div class="pt"><div><p class="lb">Bastidores</p><h1 class="h1">Sessões</h1></div><button class="b1" data-a="sesN">Nova sessão</button></div>' +
+    '<p class="lead2">Sessões esporádicas com página própria no site, como o Natal em família. Aqui define os dias, os horários e as vagas; os pedidos chegam aqui e aos Orçamentos.</p>' +
+    (L.length ? '<hr class="st">' + L.map(function (x) { var n = sesConta(x.id);
+      return '<div class="rw" data-a="sesA" data-id="' + E(x.id) + '"><span class="n">' + E(x.id) + '</span><div><b>' + E(x.nome) + '</b>' + (x.ativa === 'Sim' ? tg('Marcações abertas', 'gr') : tg('Fechada', 'gy')) + (n.novos ? tg(pl(n.novos, 'pedido novo', 'pedidos novos'), 'oc') : '') +
+        '<small>' + pl(n.pedidos, 'pedido', 'pedidos') + ' · ' + pl(n.livres, 'vaga livre', 'vagas livres') + (x.local ? ' · ' + E(x.local) : '') + '</small></div><div class="rt">' + (x.valor !== '' && x.valor != null ? '<span class="num s">' + eur(x.valor) + '</span>' : '') + '</div></div>'; }).join('')
+      : '<p class="em" style="margin-top:20px">Ainda não há sessões. Crie a primeira (por exemplo «Natal em família», código natal-2026).</p>') + '</div>';
+}
+function vSesV() {
+  var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) { view = 'ses'; return vSes(); }
+  var oc = sesOc(x.id), n = sesConta(x.id), dias = {}, ps = SESD().p.filter(function (p) { return p.id_sessao === x.id; }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; });
+  SESD().h.filter(function (h) { return h.id_sessao === x.id; }).forEach(function (h) { (dias[h.data] = dias[h.data] || []).push(h); });
+  var dl = Object.keys(dias).sort(), pas = dl.filter(function (d) { return d <= TODAY; }), fut = dl.filter(function (d) { return d > TODAY; });
+  var dia = function (d) { var hs = dias[d].sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
+    return '<div class="sesd"><p class="lb">' + E(dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</p><div class="sesh">' + hs.map(function (h) { var q = oc[h.data + '|' + h.hora] || [], v = +h.vagas || 1, cheio = q.length >= v;
+      return '<span class="hc' + (cheio ? ' ch' : q.length ? ' pc' : '') + '"><b>' + E(h.hora) + '</b>' + (v > 1 ? '<i>' + q.length + '/' + v + '</i>' : '') + (q.length ? '<small>' + E(q.map(function (p) { return String(p.nome).split(' ')[0]; }).join(', ')) + '</small>' : '') +
+        (!q.length && d > TODAY ? '<button data-a="sesHx" data-id="' + E(h.id) + '" aria-label="Apagar ' + E(h.hora) + '" title="Apagar este horário">×</button>' : '') + '</span>'; }).join('') + '</div></div>'; };
+  var url = x.link_da_pagina || '';
+  return '<div class="w1"><p class="lb"><button class="lnk" data-a="go" data-v="ses">← Sessões</button></p><h1 class="h1" style="margin-top:6px">' + E(x.nome) + '</h1>' +
+    '<p style="margin:10px 0 0">' + (x.ativa === 'Sim' ? tg('Marcações abertas', 'gr') : tg('Fechada', 'gy')) + ' ' + tg(x.tipo || 'Família', 'bl') + '</p>' +
+    '<p class="sm" style="margin-top:10px">' + [x.valor !== '' && x.valor != null ? eur(x.valor) : '', E(x.local), 'código ' + E(x.codigo)].filter(Boolean).join(' · ') + '</p>' +
+    '<div class="qic" style="margin-top:16px">' + (url ? '<a class="ic" href="' + E(url) + '" target="_blank" rel="noopener" title="Abrir a página"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>Página</span></a><button class="ic" data-a="sesCop" data-id="' + E(x.id) + '" title="Copiar o link da página"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Copiar</span></button>' : '') +
+      '<button class="ic" data-a="sesE" data-id="' + E(x.id) + '" title="Editar"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Editar</span></button>' +
+      '<button class="ic' + (x.ativa === 'Sim' ? '' : ' on') + '" data-a="sesAt" data-id="' + E(x.id) + '" title="' + (x.ativa === 'Sim' ? 'Fechar as marcações' : 'Abrir as marcações') + '"><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg><span>' + (x.ativa === 'Sim' ? 'Fechar' : 'Abrir') + '</span></button></div>' +
+    '<hr class="st"><p class="lb gl">Pedidos · ' + n.pedidos + '</p>' + (ps.length ? ps.map(function (p) { var t = String(p.telemovel || '');
+      return '<div class="rw' + (p.situacao === 'Cancelado' ? ' sesx' : '') + '"><span class="n">' + fds(p.data) + '<br>' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b>' + tg(p.situacao || 'Novo', TGS[p.situacao] || 'oc') + '<small>' + E(t) + ' · ' + E(p.e_mail) + (p.id_orcamento ? ' · <button class="lnk" data-a="o" data-id="' + E(p.id_orcamento) + '">orçamento ' + E(p.id_orcamento) + '</button>' : '') + '</small></div><div class="rt"><span class="ac3">' +
+        (t ? '<a class="wab" href="' + E(wa(t)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : '') +
+        (p.situacao === 'Cancelado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Novo">Repor</button>' : (p.situacao !== 'Confirmado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Confirmado">Confirmar</button>' : '') + '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Cancelado">Cancelar</button>') + '</span></div></div>'; }).join('') : '<p class="em">Ainda sem pedidos.</p>') +
+    '<hr class="st"><div class="sest"><p class="lb gl">Dias e horários · ' + pl(n.livres, 'vaga livre', 'vagas livres') + '</p><button class="bt" data-a="sesH" data-id="' + E(x.id) + '">Adicionar horários</button></div>' +
+    (fut.length ? fut.map(dia).join('') : '<p class="em">Sem horários futuros. Adicione os dias e horários em que podem fazer a sessão.</p>') +
+    (pas.length ? '<details class="sespas"><summary class="sm">Dias que já passaram · ' + pas.length + '</summary>' + pas.map(dia).join('') + '</details>' : '') +
+    (x.notas ? '<hr class="st"><p class="lb gl">Notas</p><p class="sm" style="white-space:pre-wrap">' + E(x.notas) + '</p>' : '') + '</div>';
+}
+function sesEditar(id) {
+  var x = SESD().s.find(function (y) { return y.id === id; });
+  var v = x ? { nome: x.nome, codigo: x.codigo, ativa: x.ativa || 'Não', tipo: x.tipo || 'Família', valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas } : { nome: 'Natal em família', codigo: 'natal-' + TODAY.slice(0, 4), ativa: 'Sim', tipo: 'Família', valor: '', local: '', link: '', notas: '' };
+  form(x ? 'Editar sessão' : 'Nova sessão', [['Sessão', [['nome', 'Nome (aparece no e-mail e no WhatsApp)', 'text'], ['codigo', 'Código (o mesmo que está na página do Elementor)', 'text'], ['tipo', 'Tipo de ensaio', 'sel', SEL.sub.Ensaio], ['valor', 'Valor (€)', 'number'], ['local', 'Local', 'text'], ['link', 'Link da página no site', 'url'], ['ativa', 'Marcações abertas no site', 'chk'], ['notas', 'Notas (só para vocês)', 'area']]]], v,
+    function (val) { run(rpc('api_ses_guardar', id, val), 'Sessão guardada').then(function (r) { if (r && r.id) { SESID = r.id; view = 'sesv'; render(); } }); });
+}
+function sesHorarios(id) {
+  if (!id) return;
+  var v = { data: '', de: '10:00', ate: '13:00', cada: '30', vagas: 1 };
+  form('Adicionar horários', [['Dia e horários', [['data', 'Dia', 'date'], ['de', 'Primeiro horário', 'time'], ['ate', 'Último horário', 'time'], ['cada', 'De quanto em quanto tempo', 'sel', [['20', '20 minutos'], ['30', '30 minutos'], ['40', '40 minutos'], ['45', '45 minutos'], ['60', '1 hora'], ['90', '1 h 30'], ['120', '2 horas']]], ['vagas', 'Famílias por horário', 'number']]]], v,
+    function (val) {
+      var m = function (h) { var p = String(h || '').split(':'); return p.length === 2 ? +p[0] * 60 + +p[1] : NaN; }, a = m(val.de), b = m(val.ate), c = +val.cada || 30, l = [];
+      if (!/^\d{4}-\d\d-\d\d$/.test(val.data || '')) return toast('Escolha o dia.', 1);
+      if (val.data <= TODAY) return toast('Escolha um dia a partir de amanhã.', 1);
+      if (!(a >= 0) || !(b >= a)) return toast('O último horário tem de ser depois do primeiro.', 1);
+      for (var t = a; t <= b && l.length < 60; t += c) l.push({ data: val.data, hora: String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'), vagas: Math.max(1, Math.min(50, Math.floor(+val.vagas) || 1)) });
+      run(rpc('api_ses_horarios', id, l, []), pl(l.length, 'horário juntado', 'horários juntados') + ' a ' + fd(val.data));
+    }, 'Juntar horários');
 }
 function evRow(c) { var d = dias(c.data_do_evento); return '<div class="rw" data-a="f" data-id="' + E(c.id) + '"><span class="n">' + fds(c.data_do_evento) + '</span><div><b>' + E(nc(c.nome_do_casal)) + '</b>' + tg2(c) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '<small>' + fd(c.data_do_evento) + ' ' + E(c.hora) + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small></div><div class="rt"><small>' + (d >= 0 ? 'faltam ' + d + ' dias' : 'há ' + (-d) + ' dias') + '</small></div></div>'; }
 
@@ -1081,8 +1150,8 @@ var ICN = { hoje: '<path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 
   orc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>', cli: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-3.4 3-5.4 5.5-5.4s4.9 2 5.5 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c2.5.2 4.3 2.1 4.9 5"/>',
   ag: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', pos: '<rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="10" y="4" width="5" height="11" rx="1.2"/><rect x="16.5" y="4" width="4" height="7" rx="1.2"/>',
   equip: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', fres: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', frec: '<circle cx="12" cy="12" r="8.5"/><path d="M15 8.6a4 4 0 1 0 0 6.8M7.5 11h6M7.5 13.4h6"/>',
-  ffat: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', fdesp: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>', mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
-var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda']], prod: [['pos', 'Pós-produção'], ['equip', 'Equipamento']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas'], ['fdesp', 'Despesas']] };
+  ffat: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', fdesp: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>', ses: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5.5-4.5-5.5-2S10 9 12 9zM12 9c1.5-3.5 5.5-4.5 5.5-2S14 9 12 9z"/>', mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
+var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda'], ['ses', 'Sessões']], prod: [['pos', 'Pós-produção'], ['equip', 'Equipamento']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas'], ['fdesp', 'Despesas']] };
 var APPS = [['bast', 'Bastidores', 'Clientes, orçamentos e agenda'], ['prod', 'Produção', 'Pós-produção e equipamento'], ['fin', 'Finanças', 'Recebimentos, faturas e contabilista'], ['prop', 'Propostas', 'Gerador de propostas']];
 var VIEW0 = { bast: 'hoje', prod: 'pos', fin: 'fres', prop: 'prop', eq: 'equipa' };
 var parteG = function (p) { var r = p.recebido_por; if (r === 'Gabriel') return 1; if (r === 'Ylana') return 0; if (r === 'Ambos') { var x = p.parte_do_gabriel; return x === '' || x == null || !isFinite(+x) ? .5 : Math.max(0, Math.min(100, +x)) / 100; } return null; };
@@ -1809,7 +1878,7 @@ function gres(t) {
 
 var act = {
   go: function (d) { view = d.v; sel = ''; closeM(); render(); R.scrollTop = 0; try { $('#v').focus({ preventScroll: true }); } catch (e) { } },
-  fab: function () { if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
+  fab: function () { if (view === 'ses') return sesEditar(''); if (view === 'sesv') return sesHorarios(SESID); if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
   reab: function () { if (guardado && !$('#ov').classList.contains('on')) { reabrir(guardado); guardado = null; $('#t').style.display = 'none'; } },
   sair: function () { if (nGrav) return toast('Aguarde: ainda há alterações a guardar.', 1);
     openM('<p class="lb">Sair</p><h3 class="h2 mh2">Terminar a sessão</h3><p class="sm">Neste aparelho fica 7 dias sem pedir login. Para voltar a pedir já, saia aqui.</p><div class="btns"><button class="b2" data-a="sairT">Sair de todos os aparelhos</button><button class="b1" data-a="sairA">Sair deste aparelho</button></div>'); },
@@ -1898,6 +1967,18 @@ var act = {
     ask(sim ? 'Ligar os lembretes automáticos de pagamento?' : 'Desligar os lembretes automáticos de pagamento?', function () { run(rpc('api_lemb_ligar', sim), sim ? 'Lembretes ligados' : 'Lembretes desligados'); }, sim ? 'Ligar' : 'Desligar',
       '<p class="sm">' + (sim ? 'Os casais voltam a receber os e-mails 3 dias antes de cada parcela e 2 dias depois, se não estiver paga.' : 'Nenhum casal recebe lembretes por e-mail até os voltar a ligar.') + '</p>'); },
   lembSem: function (d) { var sem = d.v === '1'; run(rpc('api_lemb_cliente', d.id, sem), sem ? 'Este casal deixa de receber lembretes' : 'Lembretes ligados para este casal'); },
+  sesN: function () { sesEditar(''); },
+  sesA: function (d) { SESID = d.id; view = 'sesv'; render(); R.scrollTop = 0; },
+  sesE: function (d) { sesEditar(d.id); },
+  sesH: function (d) { sesHorarios(d.id); },
+  sesAt: function (d) { var x = SESD().s.find(function (y) { return y.id === d.id; }); if (!x) return; var abrir = x.ativa !== 'Sim';
+    ask(abrir ? 'Abrir as marcações de «' + E(x.nome) + '»?' : 'Fechar as marcações de «' + E(x.nome) + '»?', function () { run(rpc('api_ses_guardar', x.id, { nome: x.nome, codigo: x.codigo, ativa: abrir ? 'Sim' : 'Não', tipo: x.tipo, valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas }), abrir ? 'Marcações abertas' : 'Marcações fechadas'); }, abrir ? 'Abrir' : 'Fechar',
+      '<p class="sm">' + (abrir ? 'A página volta a mostrar os horários livres e a aceitar pedidos.' : 'A página deixa de aceitar pedidos e mostra «As marcações estão fechadas». Os pedidos que já chegaram ficam.') + '</p>'); },
+  sesHx: function (d) { var h = SESD().h.find(function (y) { return y.id === d.id; }); if (!h) return;
+    ask('Apagar o horário de ' + fd(h.data) + ' às ' + E(h.hora) + '?', function () { run(rpc('api_ses_horarios', h.id_sessao, [], [h.id]), 'Horário apagado'); }, 'Apagar'); },
+  sesP: function (d) { var p = SESD().p.find(function (y) { return y.id === d.id; }); if (!p) return; var go = function () { run(rpc('api_ses_pedido', d.id, d.v), d.v === 'Cancelado' ? 'Pedido cancelado: o horário ficou livre' : d.v === 'Confirmado' ? 'Pedido confirmado' : 'Pedido reposto'); };
+    if (d.v === 'Cancelado') return ask('Cancelar o pedido de ' + E(p.nome) + ' (' + fd(p.data) + ' às ' + E(p.hora) + ')?', go, 'Cancelar pedido', '<p class="sm">O horário volta a aparecer livre na página. O orçamento ' + E(p.id_orcamento || '') + ' continua nos Orçamentos (pode marcá-lo como perdido).</p>'); go(); },
+  sesCop: function (d) { var x = SESD().s.find(function (y) { return y.id === d.id; }); if (!x || !x.link_da_pagina) return; var u = x.link_da_pagina; try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   qlink: function (d) { run(rpc('api_q_link', d.id), 'Link da página do casal criado'); },
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
@@ -1944,7 +2025,7 @@ function render() {
   if (view === 'pag') { APP = 'fin'; view = 'frec'; }
   if (!dono() && APP !== 'bast' && APP !== 'prop') { APP = 'bast'; view = 'hoje'; }
   var np = dono() ? nPed() : 0, bd = $('.brand .bdg'); if (bd) { bd.textContent = np; bd.hidden = !np; }
-  var nv = NAVS[APP] || [];
+  var nv = (NAVS[APP] || []).filter(function (x) { return x[0] !== 'ses' || dono(); });
   $('.nav').innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + (APP === 'bast' ? '<button class="pqm" data-a="pq">Pesquisar</button>' : '');
   var bn = $('.bnav'); if (bn) { bn.innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + (ICN[x[0]] || ICN.mais) + '</svg><span>' + x[1] + '</span></button>'; }).join('') + '<button data-a="apps" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICN.mais + '</svg><span>Mais</span></button>'; bn.hidden = APP === 'prop' && !nv.length ? false : false; }
   if (bn && TAPV) { var tb = bn.querySelector('[data-v="' + TAPV + '"]') || (TAPV === 'apps' && bn.querySelector('[data-a=apps]')); if (tb) tb.classList.add('tap'); TAPV = ''; }
@@ -1952,8 +2033,8 @@ function render() {
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
-  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
+  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, ses: vSes, sesv: vSesV, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }

@@ -8,6 +8,7 @@ Código das páginas especiais do site (carregado pelo WordPress a partir daqui,
 | `paginas/propostas.html` | /propostas/ (editor) |
 | `paginas/proposta-pt.html` | /proposta/ (cliente, PT) |
 | `paginas/proposal-en.html` | /proposal/ (cliente, EN) |
+| `paginas/sessao.html` | landing pages das sessões esporádicas (ex.: /natal/): estilo + formulário de marcação |
 | `imagens/` | imagens novas usadas pelas páginas |
 
 Em cada página, o widget HTML do Elementor só tem uma linha:
