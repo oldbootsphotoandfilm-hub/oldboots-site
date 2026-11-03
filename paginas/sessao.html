@@ -93,6 +93,7 @@ body.ob-ln-on{overflow-x:hidden}
 .ob-ln .ob-mv{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover;display:block;border-radius:0!important;animation:obMf .6s ease both}
 .ob-ln .ob-moldura .ob-mv{aspect-ratio:4/5;height:auto!important}
 @keyframes obMf{from{opacity:0}to{opacity:1}}
+.ob-slot-n.ob-slot-c{pointer-events:auto;cursor:pointer;transition:transform .2s}.ob-slot-n.ob-slot-c:hover{transform:scale(1.08)}
 .ob-slot-n{position:absolute;left:12px;top:12px;z-index:5;background:#8a3b2e;color:#fff;font:700 15px/1 Montserrat,Arial,sans-serif;letter-spacing:.1em;padding:10px 14px;border-radius:99px;box-shadow:0 6px 16px rgba(0,0,0,.35);pointer-events:none}
 </style>
 <script>
@@ -141,7 +142,11 @@ body.ob-ln-on{overflow-x:hidden}
     });
   }
   try { aplicaMedia(JSON.parse(localStorage.getItem(MCH) || 'null')); } catch (e) { } // visitas seguintes: sem piscar
-  if (/^#fotos$/.test(location.hash)) setTimeout(function () { slots().forEach(function (sl, i) { var w = sl.cur.parentNode; if (getComputedStyle(w).position === 'static') w.style.position = 'relative'; var b = document.createElement('span'); b.className = 'ob-slot-n'; b.textContent = 'FOTO ' + (i + 1); w.appendChild(b); }); }, 300);
+  var EMB = window.parent !== window; // dentro dos Bastidores (separador «Fotos da página»)
+  if (/^#fotos$/.test(location.hash)) setTimeout(function () { slots().forEach(function (sl, i) { var w = sl.cur.parentNode; if (getComputedStyle(w).position === 'static') w.style.position = 'relative'; var b = document.createElement('span'); b.className = 'ob-slot-n' + (EMB ? ' ob-slot-c' : ''); b.textContent = 'FOTO ' + (i + 1) + (EMB ? ' · enviar' : '');
+    if (EMB) b.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); try { window.parent.postMessage({ ob: 'slot', pos: i + 1 }, location.origin); } catch (e) { } });
+    w.appendChild(b); }); try { if (EMB) window.parent.postMessage({ ob: 'pronto' }, location.origin); } catch (e) { } }, 300);
+  window.addEventListener('message', function (e) { if (e.origin !== location.origin || !e.data || e.data.ob !== 'media') return; aplicaMedia(e.data.media || []); });
   function guardaMedia(m) { aplicaMedia(m || []); try { localStorage.setItem(MCH, JSON.stringify(m || [])); } catch (e) { } }
 
   /* entrada suave dos blocos */

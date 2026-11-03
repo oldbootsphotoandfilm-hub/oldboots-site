@@ -360,6 +360,10 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .sfm{width:96px;height:96px;border-radius:14px;overflow:hidden;background:#ece9dc;display:grid;place-items:center;font-size:11px;color:var(--mt);letter-spacing:.08em;text-transform:uppercase}
 #ob .sfm img,#ob .sfm video{width:100%;height:100%;object-fit:cover;display:block}
 #ob .sfup{cursor:pointer}
+#ob .sff{margin:16px auto 0;border-radius:18px;overflow:hidden;box-shadow:0 18px 40px -18px rgba(42,38,20,.45);border:1px solid var(--sf);background:#fff;transition:width .35s}
+#ob .sff.pc{width:100%}#ob .sff.tel{width:390px;max-width:100%}
+#ob .sff iframe{display:block;width:100%;height:calc(100vh - 230px);min-height:520px;border:0}
+#ob .sfb{display:flex;gap:8px}#ob .chp{padding:8px 14px;border-radius:99px;border:1px solid var(--sf);background:#fff;font-size:13px;color:var(--mt)}#ob .chp.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #ob .sesd{margin:18px 0 6px}#ob .sesd>.lb::first-letter{text-transform:uppercase}
 #ob .sesh{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 #ob .hc{display:inline-flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;border:1px solid var(--sf);background:#fff;border-radius:10px;font-size:14px}
@@ -986,17 +990,39 @@ function vSes() {
 }
 /* fotos e vídeos da página da sessão: posição N = N.ª imagem da página (de cima para baixo) */
 var SES_MIME_OK = { 'image/jpeg': 1, 'image/png': 1, 'image/webp': 1, 'image/gif': 1, 'video/mp4': 1, 'video/webm': 1, 'video/quicktime': 1 };
+function sesfUrl(x) { return location.origin + location.pathname + '#fotos/' + encodeURIComponent(x.id); }
 function sesFotosBloco(x) {
-  var f = (SESD().f || []).filter(function (y) { return y.id_sessao === x.id && y.url; }), por = {};
-  f.forEach(function (y) { por[y.pos] = y; });
-  var maior = f.reduce(function (m, y) { return Math.max(m, +y.pos || 0); }, 0), n = Math.min(24, Math.max(6, maior + 1)), url = x.link_da_pagina || '';
-  var linhas = ''; for (var i = 1; i <= n; i++) { var m = por[i];
-    var mini = m ? (m.tipo === 'video' ? '<video src="' + E(m.url) + '" muted loop autoplay playsinline preload="metadata"></video>' : '<img src="' + E(m.url) + '" alt="">') : '<span>Elementor</span>';
-    linhas += '<div class="sfo"><div class="sfm">' + mini + '</div><div><b>Foto ' + i + '</b>' + (m ? tg(m.tipo === 'video' ? 'Vídeo em loop' : m.tipo === 'gif' ? 'GIF' : 'Foto', 'gr') : tg('Imagem do Elementor', 'gy')) + '<small>' + (m ? E(m.nome || '') + (m.em ? ' · ' + E(m.em) : '') : 'A ' + i + '.ª imagem da página, de cima para baixo') + '</small>' +
-      '<small style="margin-top:8px;display:block"><label class="lnk sfup">' + (m ? 'Trocar' : 'Enviar foto ou vídeo') + '<input type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" data-sesf="' + i + '" hidden></label>' + (m ? ' · <button class="lnk" data-a="sesFx" data-v="' + i + '">Voltar à do Elementor</button>' : '') + '</small></div></div>'; }
-  return '<hr class="st"><p class="lb gl">Fotos e vídeos da página</p><p class="sm">Troque as imagens da página sem abrir o Elementor. Fotos, GIFs ou vídeos (os vídeos tocam em loop, sem som). Até 20 MB por ficheiro; aparecem no site 1–2 minutos depois.' +
-    (url ? ' <a class="lnk" href="' + E(url.replace(/#.*$/, '') + '#fotos') + '" target="_blank" rel="noopener">Ver onde fica cada foto na página</a>' : ' Para ver onde fica cada foto, guarde primeiro o link da página (Editar).') + '</p>' + linhas;
+  var n = (SESD().f || []).filter(function (y) { return y.id_sessao === x.id && y.url; }).length;
+  return '<hr class="st"><p class="lb gl">Fotos e vídeos da página</p><p class="sm">Veja a página tal como fica no site e toque em cada foto para a trocar. Abre noutro separador.' + (n ? ' ' + pl(n, 'foto trocada', 'fotos trocadas') + ' pelos Bastidores.' : '') + '</p>' +
+    (x.link_da_pagina ? '<div class="btns" style="justify-content:flex-start"><a class="b1" href="' + E(sesfUrl(x)) + '" target="_blank" rel="noopener">Editar fotos e vídeos da página</a></div>' : '<p class="em">Para editar as fotos, guarde primeiro o link da página (Editar).</p>');
 }
+/* separador «Fotos da página»: a própria página do site, com as fotos no sítio onde vão ficar */
+var SESF_W = 'pc', SESF_HASH = 0;
+function sesfMedia() { return (SESD().f || []).filter(function (y) { return y.id_sessao === SESID && y.url; }).map(function (y) { return { pos: y.pos, tipo: y.tipo, url: y.url }; }); }
+function sesfAtualiza() { var fr = $('#sesfr'); if (fr && fr.contentWindow) try { fr.contentWindow.postMessage({ ob: 'media', media: sesfMedia() }, location.origin); } catch (e) { } }
+function vSesF() {
+  var x = SESD().s.find(function (y) { return y.id === SESID; });
+  if (!x) return '<div class="w1"><p class="em">A carregar a sessão…</p></div>';
+  var u = String(x.link_da_pagina || '').replace(/#.*$/, '');
+  var mesmo = false; try { mesmo = u && new URL(u, location.href).origin === location.origin; } catch (e) { }
+  return '<div class="w1 sfw"><div class="pt"><div><p class="lb"><button class="lnk" data-a="go" data-v="ses">Sessões</button> · Fotos da página</p><h1 class="h1">' + E(x.nome) + '</h1></div>' +
+    '<div class="sfb"><button class="chp' + (SESF_W === 'pc' ? ' on' : '') + '" data-a="sesfW" data-v="pc">Computador</button><button class="chp' + (SESF_W === 'tel' ? ' on' : '') + '" data-a="sesfW" data-v="tel">Telemóvel</button></div></div>' +
+    '<p class="sm">Toque na etiqueta <b>FOTO N</b> sobre cada imagem para enviar ou trocar uma foto, GIF ou vídeo (os vídeos tocam em loop, sem som). O resultado aparece logo aqui; no site demora 1–2 minutos.</p>' +
+    (!u ? '<p class="em">Esta sessão ainda não tem o link da página. Guarde-o em Sessões › Editar.</p>' : !mesmo ? '<p class="em">A página da sessão tem de estar no mesmo site dos Bastidores (' + E(location.host) + ') para poder editar as fotos aqui.</p>' :
+      '<div class="sff ' + SESF_W + '"><iframe id="sesfr" data-id="' + E(x.id) + '" title="Página da sessão" src="' + E(u) + '#fotos"></iframe></div>') + '</div>';
+}
+function sesfSlot(pos) {
+  var m = (SESD().f || []).find(function (y) { return y.id_sessao === SESID && +y.pos === pos && y.url; });
+  var prev = m ? (m.tipo === 'video' ? '<video src="' + E(m.url) + '" muted loop autoplay playsinline style="max-width:100%;max-height:220px;border-radius:12px"></video>' : '<img src="' + E(m.url) + '" alt="" style="max-width:100%;max-height:220px;border-radius:12px">') : '<p class="sm">Agora mostra a imagem do Elementor.</p>';
+  openM('<p class="lb">Página da sessão</p><h3 class="h2 mh2">Foto ' + pos + '</h3><div style="margin:10px 0 16px">' + prev + '</div>' +
+    '<div class="btns" style="justify-content:flex-start"><label class="b1 sfup">' + (m ? 'Trocar por outra' : 'Enviar foto ou vídeo') + '<input type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime" data-sesf="' + pos + '" hidden></label>' + (m ? '<button class="b2" data-a="sesFx" data-v="' + pos + '">Voltar à do Elementor</button>' : '') + '</div>' +
+    '<p class="sm" style="margin-top:12px">JPG, PNG, WEBP, GIF, MP4, WEBM ou MOV · até 20 MB. Os vídeos tocam em loop, sem som.</p>');
+}
+window.addEventListener('message', function (e) {
+  if (e.origin !== location.origin || !e.data || view !== 'sesf') return;
+  if (e.data.ob === 'slot' && +e.data.pos >= 1) sesfSlot(+e.data.pos);
+  if (e.data.ob === 'pronto') sesfAtualiza();
+});
 function sesEnviaFoto(inp) {
   var pos = +inp.dataset.sesf, f = inp.files && inp.files[0], id = SESID; inp.value = '';
   if (!f || !id) return;
@@ -1009,7 +1035,7 @@ function sesEnviaFoto(inp) {
     var b64 = String(rd.result).split(',')[1] || '';
     nGrav++; sv(); toast('A enviar a foto ' + pos + '…');
     rpc('api_ses_media', id, pos, f.name, tipo, b64).then(function (r) {
-      if (r && r.parcial) D.ses = r.parcial.ses; render(); toast('Foto ' + pos + ' enviada. Aparece no site em 1–2 minutos.');
+      if (r && r.parcial) D.ses = r.parcial.ses; if (view === 'sesf') { closeM(); sesfAtualiza(); } else render(); toast('Foto ' + pos + ' enviada. Aparece no site em 1–2 minutos.');
     }, function (e) {
       if (e && e.auth) return;
       if (/^GH:/.test(e.message || '')) return sesGhLigar();
@@ -2200,7 +2226,8 @@ var act = {
   reuMeet: function (d) { window.open('https://meet.new', '_blank', 'noopener'); reuLinkForm(d.id); },
   reuAbrir: function (d) { var x = reuDe(d.id); if (x && x.link) window.open(x.link, '_blank', 'noopener'); },
   reuWa: function (d) { var x = reuDe(d.id); if (!x) return; if (!x.link) return toast('Crie primeiro o link do Meet.', 1); if (!String(x.telemovel || '').replace(/\D/g, '')) return toast('Falta o telemóvel desta reunião. Toque em Editar.', 1); window.open(wa(x.telemovel) + '?text=' + encodeURIComponent(reuMsgWa(x)), '_blank', 'noopener'); },
-  sesFx: function (d) { var pos = +d.v, id = SESID; ask('Voltar a usar a imagem do Elementor na foto ' + pos + '? O ficheiro enviado fica guardado no histórico.', function () { closeM(); run(rpc('api_ses_media_limpar', id, pos), 'Foto ' + pos + ': volta a imagem do Elementor'); }, 'Voltar à do Elementor'); },
+  sesFx: function (d) { var pos = +d.v, id = SESID; ask('Voltar a usar a imagem do Elementor na foto ' + pos + '? O ficheiro enviado fica guardado no histórico.', function () { closeM(); if (view === 'sesf') { rpc('api_ses_media_limpar', id, pos).then(function (r) { if (r && r.parcial) D.ses = r.parcial.ses; sesfAtualiza(); toast('Foto ' + pos + ': volta a imagem do Elementor'); }, function (e) { if (!e.auth) toast('Não foi gravado. ' + (e.message || ''), 1); }); return; } run(rpc('api_ses_media_limpar', id, pos), 'Foto ' + pos + ': volta a imagem do Elementor'); }, 'Voltar à do Elementor'); },
+  sesfW: function (d) { SESF_W = d.v === 'tel' ? 'tel' : 'pc'; var f = document.querySelector('.sff'); if (f) f.className = 'sff ' + SESF_W; $$('.sfb .chp').forEach(function (b) { b.classList.toggle('on', b.dataset.v === SESF_W); }); },
   sesN: function () { sesEditar(''); },
   sesA: function (d) { SESID = d.id; view = 'sesv'; render(); R.scrollTop = 0; },
   sesE: function (d) { sesEditar(d.id); },
@@ -2255,6 +2282,8 @@ document.addEventListener('visibilitychange', function () { if (document.visibil
 var ultimoSitio = '';
 function render() {
   if (!ME) return;
+  if (!SESF_HASH && /^#fotos\//.test(location.hash) && dono() && SESD().s.length) { var hid = decodeURIComponent(location.hash.slice(7)); if (SESD().s.some(function (y) { return y.id === hid; })) { SESF_HASH = 1; SESID = hid; view = 'sesf'; } }
+  if (view === 'sesf' && $('#sesfr') && $('#sesfr').dataset.id === SESID) { sesfAtualiza(); return; }
   var sitio = view + '|' + fid + '|' + (view === 'ficha' ? ftab : ''), y = R.scrollTop, mesmo = sitio === ultimoSitio; ultimoSitio = sitio;
   if (view === 'pag') { APP = 'fin'; view = 'frec'; }
   if (!dono() && APP !== 'bast' && APP !== 'prop') { APP = 'bast'; view = 'hoje'; }
@@ -2267,8 +2296,8 @@ function render() {
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
-  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, ses: vSes, sesv: vSesV, reu: vReu, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
+  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses') || (view === 'sesf' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }
