@@ -130,7 +130,8 @@ body.ob-ln-on{overflow-x:hidden}
       '<div class="cp"><label class="rl" for="obT">Telemóvel</label><input id="obT" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" value="' + E(S.v.tel) + '"></div>' +
       '<input class="hp" id="obW" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">' +
       '<div class="cp"><span class="rl">Dia</span><div class="ch" role="group" aria-label="Dia">' + S.dias.map(function (x) { var f = fDia(x.data); return '<button type="button" data-d="' + x.data + '" class="' + (x.data === S.d ? 'on' : '') + '" aria-pressed="' + (x.data === S.d) + '"><small>' + E(f.s) + '</small>' + E(f.n) + '</button>'; }).join('') + '</div></div>' +
-      (d ? '<div class="cp"><span class="rl">Hora · ' + E(fLongo(d.data)) + '</span><div class="ch" role="group" aria-label="Hora">' + d.horas.map(function (h) { return '<button type="button" data-h="' + h + '" class="' + (h === S.h ? 'on' : '') + '" aria-pressed="' + (h === S.h) + '">' + h + '</button>'; }).join('') + '</div></div>' : '') +
+      (S.d && !S.mostra ? '<p class="nt" style="margin:0 0 22px"><b>Quero reservar um horário para ' + E(fLongo(S.d)) + '.</b><br>Ao pedir, abrimos o WhatsApp com esta mensagem e confirmamos a hora juntos.</p>' : '') +
+      (d && S.mostra ? '<div class="cp"><span class="rl">Hora · ' + E(fLongo(d.data)) + '</span><div class="ch" role="group" aria-label="Hora">' + d.horas.map(function (h) { return '<button type="button" data-h="' + h + '" class="' + (h === S.h ? 'on' : '') + '" aria-pressed="' + (h === S.h) + '">' + h + '</button>'; }).join('') + '</div></div>' : '') +
       '<button type="button" class="go" id="obGo">Pedir marcação</button><p class="nt">Ao enviar, o horário fica reservado para si e abrimos o WhatsApp com a mensagem pronta para confirmarmos juntos.</p>');
   }
   function guarda() { var n = $('#obN'); if (!n) return; S.v.nome = n.value; S.v.email = $('#obE').value; S.v.tel = $('#obT').value; }
@@ -146,10 +147,10 @@ body.ob-ln-on{overflow-x:hidden}
     if (S.v.nome.trim().length < 2) return desenha('Escreva o seu nome.');
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(S.v.email.trim())) return desenha('O e-mail não parece certo.');
     if (tel.replace(/\D/g, '').length < 9) return desenha('O telemóvel não parece certo.');
-    if (!S.d || !S.h) return desenha('Escolha o dia e a hora.');
+    if (!S.d || (S.mostra && !S.h)) return desenha(S.mostra ? 'Escolha o dia e a hora.' : 'Escolha o dia.');
     var g = $('#obGo'); g.disabled = true; g.textContent = 'A enviar…';
-    api('s_pedir', [COD, { nome: S.v.nome.trim(), email: S.v.email.trim(), tel: S.v.tel.trim(), data: S.d, hora: S.h, site: ($('#obW') || {}).value || '' }]).then(function (r) {
-      html('<div class="msg"><h3>Pedido recebido</h3><p>Reservámos ' + E(fLongo(S.d)) + ' às ' + E(S.h) + ' para si.<br>A abrir o WhatsApp para confirmarmos…</p><a class="go" href="' + E(r.whats) + '">Abrir o WhatsApp</a></div>');
+    api('s_pedir', [COD, { nome: S.v.nome.trim(), email: S.v.email.trim(), tel: S.v.tel.trim(), data: S.d, hora: S.mostra ? S.h : '', site: ($('#obW') || {}).value || '' }]).then(function (r) {
+      html('<div class="msg"><h3>Pedido recebido</h3><p>Reservámos ' + E(fLongo(S.d)) + (S.mostra ? ' às ' + E(S.h) : '') + ' para si.<br>A abrir o WhatsApp para confirmarmos…</p><a class="go" href="' + E(r.whats) + '">Abrir o WhatsApp</a></div>');
       setTimeout(function () { location.href = r.whats; }, 1200);
     }, function (e) {
       if (/ocupado/i.test(e.message || '')) { S.h = ''; return carregar(e.message); }
@@ -161,11 +162,11 @@ body.ob-ln-on{overflow-x:hidden}
     if (!/^[a-z0-9-]{3,40}$/.test(COD)) return html('<p class="er">Falta o código da sessão nesta página (data-sessao).</p>');
     if (!S.dias.length) html('<div class="ld" aria-label="A carregar"><i></i><i></i><i></i></div>');
     api('s_ler', [COD]).then(function (r) {
-      S.nome = r.nome; S.dias = r.dias || [];
+      S.nome = r.nome; S.dias = r.dias || []; S.mostra = r.horarios_visiveis !== false;
       if (!r.ativa) return html(semHorarios('Marcações fechadas'));
       if (!S.dias.length) return html(semHorarios('Horários esgotados'));
       if (!S.dias.some(function (x) { return x.data === S.d; })) S.d = S.dias[0].data;
-      var d = S.dias.find(function (x) { return x.data === S.d; }); if (d && d.horas.indexOf(S.h) < 0) S.h = '';
+      var d = S.dias.find(function (x) { return x.data === S.d; }); if (!S.mostra || (d && d.horas.indexOf(S.h) < 0)) S.h = '';
       desenha(typeof msg === 'string' ? msg : '');
     }, function () { html('<p class="er">Não foi possível carregar os horários.</p><button type="button" class="go" id="obRe">Tentar outra vez</button>'); });
   }

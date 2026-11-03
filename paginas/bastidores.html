@@ -990,8 +990,8 @@ function vSesV() {
 }
 function sesEditar(id) {
   var x = SESD().s.find(function (y) { return y.id === id; });
-  var v = x ? { nome: x.nome, codigo: x.codigo, ativa: x.ativa || 'Não', tipo: x.tipo || 'Família', valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas } : { nome: 'Natal em família', codigo: 'natal-' + TODAY.slice(0, 4), ativa: 'Sim', tipo: 'Família', valor: '', local: '', link: '', notas: '' };
-  form(x ? 'Editar sessão' : 'Nova sessão', [['Sessão', [['nome', 'Nome (aparece no e-mail e no WhatsApp)', 'text'], ['codigo', 'Código (o mesmo que está na página do Elementor)', 'text'], ['tipo', 'Tipo de ensaio', 'sel', SEL.sub.Ensaio], ['valor', 'Valor (€)', 'number'], ['local', 'Local', 'text'], ['link', 'Link da página no site', 'url'], ['ativa', 'Marcações abertas no site', 'chk'], ['notas', 'Notas (só para vocês)', 'area']]]], v,
+  var v = x ? { nome: x.nome, codigo: x.codigo, ativa: x.ativa || 'Não', mostrar_horarios: x.mostrar_horarios === 'Sim' ? 'Sim' : 'Não', tipo: x.tipo || 'Família', valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas } : { nome: 'Natal em família', codigo: 'natal-' + TODAY.slice(0, 4), ativa: 'Sim', mostrar_horarios: 'Não', tipo: 'Família', valor: '', local: '', link: '', notas: '' };
+  form(x ? 'Editar sessão' : 'Nova sessão', [['Sessão', [['nome', 'Nome (aparece no e-mail e no WhatsApp)', 'text'], ['codigo', 'Código (o mesmo que está na página do Elementor)', 'text'], ['tipo', 'Tipo de ensaio', 'sel', SEL.sub.Ensaio], ['valor', 'Valor (€)', 'number'], ['local', 'Local', 'text'], ['link', 'Link da página no site', 'url'], ['ativa', 'Marcações abertas no site', 'chk'], ['mostrar_horarios', 'Mostrar os horários na página (desligado: o cliente só vê os dias)', 'chk'], ['notas', 'Notas (só para vocês)', 'area']]]], v,
     function (val) { run(rpc('api_ses_guardar', id, val), 'Sessão guardada').then(function (r) { if (r && r.id) { SESID = r.id; view = 'sesv'; render(); } }); });
 }
 function sesHorarios(id) {
