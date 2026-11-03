@@ -89,6 +89,11 @@ body.ob-ln-on{overflow-x:hidden}
 .ob-res .msg .go{display:inline-block;width:auto;text-decoration:none}
 .ob-res .ld{display:flex;gap:6px;justify-content:center;padding:28px 0}.ob-res .ld i{width:7px;height:7px;border-radius:50%;background:var(--ob-ol);animation:obRes 1s infinite ease-in-out}.ob-res .ld i:nth-child(2){animation-delay:.15s}.ob-res .ld i:nth-child(3){animation-delay:.3s}
 @keyframes obRes{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:none}}
+/* fotos e vídeos enviados nos Bastidores (substituem as imagens do Elementor, pela ordem na página) */
+.ob-ln .ob-mv{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover;display:block;border-radius:0!important;animation:obMf .6s ease both}
+.ob-ln .ob-moldura .ob-mv{aspect-ratio:4/5;height:auto!important}
+@keyframes obMf{from{opacity:0}to{opacity:1}}
+.ob-slot-n{position:absolute;left:12px;top:12px;z-index:5;background:#8a3b2e;color:#fff;font:700 15px/1 Montserrat,Arial,sans-serif;letter-spacing:.1em;padding:10px 14px;border-radius:99px;box-shadow:0 6px 16px rgba(0,0,0,.35);pointer-events:none}
 </style>
 <script>
 (function () {
@@ -109,6 +114,35 @@ body.ob-ln-on{overflow-x:hidden}
       .then(function (j) { if (j && j.ok) return j.r; var e = new Error((j && j.e) || 'Erro'); e.srv = 1; throw e; })
       .finally(function () { clearTimeout(to); });
   }
+
+  /* fotos e vídeos dos Bastidores: a posição N é a N.ª imagem da página, de cima para baixo */
+  var SLOTS = null, MCH = 'ob_ses_m_' + COD;
+  function slots() {
+    if (SLOTS) return SLOTS;
+    SLOTS = $$('.ob-ln img').filter(function (im) { return !im.closest('.ob-ln-cfg') && !im.closest('.ob-reserva') && !/logo/i.test((im.getAttribute('src') || '') + ' ' + (im.alt || '')); })
+      .map(function (im) { return { orig: im, cur: im, url: '' }; });
+    return SLOTS;
+  }
+  function poe(sl, el) { if (sl.cur !== el) { sl.cur.parentNode.replaceChild(el, sl.cur); sl.cur = el; } }
+  function aplicaMedia(lista) {
+    if (!Array.isArray(lista)) return;
+    slots().forEach(function (sl, i) {
+      var m = lista.find(function (x) { return +x.pos === i + 1 && /^https:\/\/oldbootsphotoandfilm-hub\.github\.io\//.test(String(x.url)); });
+      if (!m) { sl.url = ''; return poe(sl, sl.orig); }
+      if (sl.url === m.url) return; sl.url = m.url;
+      var el;
+      if (m.tipo === 'video') {
+        el = document.createElement('video'); el.muted = true; el.defaultMuted = true; el.loop = true; el.autoplay = true; el.playsInline = true;
+        el.setAttribute('muted', ''); el.setAttribute('playsinline', ''); el.setAttribute('loop', ''); el.setAttribute('autoplay', ''); el.preload = 'auto'; el.src = m.url;
+      } else { el = document.createElement('img'); el.src = m.url; el.alt = sl.orig.alt || ''; el.decoding = 'async'; }
+      el.className = (sl.orig.className || '') + ' ob-mv';
+      poe(sl, el);
+      if (el.play) { var t = el.play(); if (t && t.catch) t.catch(function () { }); }
+    });
+  }
+  try { aplicaMedia(JSON.parse(localStorage.getItem(MCH) || 'null')); } catch (e) { } // visitas seguintes: sem piscar
+  if (/^#fotos$/.test(location.hash)) setTimeout(function () { slots().forEach(function (sl, i) { var w = sl.cur.parentNode; if (getComputedStyle(w).position === 'static') w.style.position = 'relative'; var b = document.createElement('span'); b.className = 'ob-slot-n'; b.textContent = 'FOTO ' + (i + 1); w.appendChild(b); }); }, 300);
+  function guardaMedia(m) { aplicaMedia(m || []); try { localStorage.setItem(MCH, JSON.stringify(m || [])); } catch (e) { } }
 
   /* entrada suave dos blocos */
   function anima() {
@@ -158,10 +192,11 @@ body.ob-ln-on{overflow-x:hidden}
     });
   }
   function carregar(msg) {
-    if (!caixas.length) return;
+    if (!caixas.length) { if (/^[a-z0-9-]{3,40}$/.test(COD)) api('s_ler', [COD]).then(function (r) { guardaMedia(r.media); }, function () { }); return; }
     if (!/^[a-z0-9-]{3,40}$/.test(COD)) return html('<p class="er">Falta o código da sessão nesta página (data-sessao).</p>');
     if (!S.dias.length) html('<div class="ld" aria-label="A carregar"><i></i><i></i><i></i></div>');
     api('s_ler', [COD]).then(function (r) {
+      guardaMedia(r.media);
       S.nome = r.nome; S.dias = r.dias || []; S.mostra = r.horarios_visiveis !== false;
       if (!r.ativa) return html(semHorarios('Marcações fechadas'));
       if (!S.dias.length) return html(semHorarios('Horários esgotados'));

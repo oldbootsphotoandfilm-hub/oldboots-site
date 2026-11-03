@@ -170,6 +170,9 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
 #obq .trilho{position:relative;margin-top:44px}
 #obq .trilho .stp{margin-top:0}
+#obqDemo{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:50;background:#2b2a26;color:#fff4cf;font:600 11px/1 system-ui,sans-serif;letter-spacing:.08em;padding:8px 14px;border-radius:99px;opacity:.9;pointer-events:none;white-space:nowrap}
+#obq .tb.dm .trilho{cursor:pointer;position:relative}
+#obq .tb.dm .trilho::after{content:'';position:absolute;left:-6px;right:-6px;top:-18px;bottom:-18px}
 #obq .bts{position:absolute;left:0;bottom:7px;display:flex;align-items:flex-end;transform:translateX(-50%) scaleX(var(--f,1));transition:left 1.5s cubic-bezier(.45,.05,.3,1);pointer-events:none}
 #obq .bts i{display:block;width:30px;aspect-ratio:4/3;background:url(https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/bota.png) center/contain no-repeat;transform-origin:50% 100%}
 #obq .bts i+i{margin-left:-9px}
@@ -229,6 +232,7 @@ var E = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, fun
 var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
 var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'); return { cod: h[0], q: h[1] === 'q' }; };
 var COD = lerHash().cod, IR_Q = lerHash().q;
+var DEMO = COD === 'demo'; // página de exemplo para reuniões: dados fictícios, nada vai para o servidor
 var L = /^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en', L_MAO = false;
 var lingua = function (srv) { var m = ls.get('ob_q_lang_' + COD); if (m === 'pt' || m === 'en') { L = m; L_MAO = true; } else if (srv === 'pt' || srv === 'en') L = srv; };
 lingua('');
@@ -363,6 +367,11 @@ var campoDe = function (k) { return CAMPOS.find(function (c) { return c.k === k;
 
 /* ---------- servidor ---------- */
 function api(fn, a) {
+  if (DEMO) { // exemplo: não fala com o servidor; devolve respostas simuladas
+    if (fn === 'q_enviar') return Promise.resolve({ envios: (S.envios || 0) + 1, em: new Date().toLocaleDateString('pt-PT') + ' ' + new Date().toTimeString().slice(0, 5) });
+    if (fn === 'q_ficheiro') return Promise.resolve({ id: 'demo' + Date.now(), n: String(a && a[2] || 'ficheiro') });
+    return Promise.resolve({});
+  }
   var c = new AbortController(), to = setTimeout(function () { c.abort(); }, fn === 'q_ficheiro' || fn === 'q_enviar' ? 90000 : 30000);
   return fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: fn, a: a }), signal: c.signal, credentials: 'omit' })
     .then(function (r) { return r.json(); })
@@ -374,7 +383,7 @@ function api(fn, a) {
 // S.v = respostas; PEND = campos mudados ainda por confirmar no servidor (também guardados neste aparelho: nada se perde sem rede)
 var S = null, P = 0, MODO = 'ler', PEND = {}, enviando = false, aSubir = 0, svT = 0, retry = 0, THUMB = {};
 var CH = 'ob_q_' + COD;
-function guardaLocal() { ls.set(CH, JSON.stringify({ pend: PEND, p: P })); }
+function guardaLocal() { if (DEMO) return; ls.set(CH, JSON.stringify({ pend: PEND, p: P })); }
 function svTxt(t, off) { var x = $('#obqSv'); if (x) { x.textContent = t; x.className = 'sv' + (off ? ' off' : ''); } }
 // guarda uma cópia: o que segue para o servidor não muda por baixo enquanto a pessoa continua a escrever
 function mudou(k) { PEND[k] = JSON.parse(JSON.stringify(S.v[k] === undefined ? '' : S.v[k])); guardaLocal(); svTxt(X('aGuardar')); clearTimeout(svT); svT = setTimeout(flushSilencioso, 1200); }
@@ -402,7 +411,7 @@ function flush() {
 }
 // ao sair da página (fechar o separador, mudar de app): tenta gravar o que falta
 document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'hidden' && Object.keys(PEND).length && navigator.sendBeacon) try { navigator.sendBeacon(ENDPOINT, JSON.stringify({ fn: 'q_guardar', a: [COD, PEND] })); } catch (e) { }
+  if (!DEMO && document.visibilityState === 'hidden' && Object.keys(PEND).length && navigator.sendBeacon) try { navigator.sendBeacon(ENDPOINT, JSON.stringify({ fn: 'q_guardar', a: [COD, PEND] })); } catch (e) { }
 });
 
 /* ---------- regras ---------- */
@@ -451,6 +460,7 @@ function resumo() {
     return '<button data-ir="' + i + '"><span>' + (i + 1) + '. ' + E(T(p.t)) + '</span>' + (f ? '<span class="no">' + X('faltaN') + ' ' + f + '</span>' : n ? '<span class="ok">✓ ' + n + ' ' + (n > 1 ? X('resps') : X('resp')) + '</span>' : '<span class="op2">' + X('vazio') + '</span>') + '</button>'; }).join('') + '</div>';
 }
 function render() {
+  if (DEMO && !document.getElementById('obqDemo')) { var db = document.createElement('div'); db.id = 'obqDemo'; db.textContent = 'EXEMPLO · dados fictícios · nada é guardado'; R.appendChild(db); }
   R.setAttribute('lang', L === 'en' ? 'en' : 'pt-PT');
   $$('.lg button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === L); });
   R.classList.toggle('casa', !!S && MODO === 'casa');
@@ -484,10 +494,10 @@ function casa() {
   var pc = I.valor ? Math.min(100, Math.round(I.pago / I.valor * 100)) : 0;
   var chip = function (e) { return '<span class="chip' + (e === 'Paga' ? ' ok' : e === 'Em atraso' ? ' at' : '') + '">' + E(X(e)) + '</span>'; };
   var dts = function (x) { return dt(x, { day: 'numeric', month: 'short', year: 'numeric' }); };
-  var tr = (I.trabalho || []).length ? '<section class="sec @C" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' +
-    I.trabalho.map(function (t) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
+  var tr = (I.trabalho || []).length ? '<section class="sec @C" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' + (DEMO ? '<p class="em2" style="color:#a4572d"><b>' + (L === 'en' ? 'Example: click the track to change the stage.' : 'Exemplo: clique no trilho para mudar a etapa.') + '</b></p>' : '') +
+    I.trabalho.map(function (t, ti) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
       if (t.antes) { var st0 = ''; for (var j = 1; j < (t.passos || 4); j++) st0 += '<i></i>'; return '<div class="tb"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="0"><i></i><i></i></span><div class="stp">' + st0 + '</div></div><p class="et"><b>' + X('comeca') + '</b><span></span></p></div>'; }
-      return '<div class="tb' + (ok ? ' ok' : '') + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="' + (ok ? 1 : Math.max(0, t.passo) / Math.max(1, t.passos - 1)) + '"><i></i><i></i></span><div class="stp">' + st + '</div></div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
+      return '<div class="tb' + (ok ? ' ok' : '') + (DEMO ? ' dm' : '') + '" data-i="' + ti + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="' + (ok ? 1 : Math.max(0, t.passo) / Math.max(1, t.passos - 1)) + '"><i></i><i></i></span><div class="stp">' + st + '</div></div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
   var dia = '<section class="sec @C" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
     '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(servDe(I)), 1) + '</div>' +
     (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + descExtra(I) + '</div>' : '') +
@@ -601,6 +611,7 @@ A.addEventListener('change', function (e) {
   else if (t.dataset.pf != null) fotoPessoa(t);
 });
 A.addEventListener('click', function (e) {
+  if (DEMO) { var tbd = e.target.closest('.tb.dm'); if (tbd && e.target.closest('.trilho')) { demoPasso(tbd, e); return; } }
   var b = e.target.closest('button'); if (!b) return; var a = b.dataset.a;
   if (a === 'seg') { var f = faltam(P); if (f.length) { f.forEach(function (c) { marca(c.k, true); }); R.querySelector('[data-f="' + f[0].k + '"]').scrollIntoView({ behavior: 'smooth', block: 'center' }); return toast(X('falta'), 1); } P++; guardaLocal(); flush().catch(function () { }); render(); }
   else if (a === 'ant') { P--; guardaLocal(); render(); }
@@ -671,6 +682,7 @@ $('#obqSim').onclick = function () {
   }, function (e) { toast(e.srv ? e.message : X('semRede'), 1); }).finally(function () { b.disabled = false; b.textContent = X('sim'); });
 };
 function baixar(b, fn, args) {
+  if (DEMO) return toast(L === 'en' ? 'Example page: in a real page you would download the PDF here.' : 'Página de exemplo: numa página real descarregaria aqui o PDF.');
   b.disabled = true;
   api(fn, args).then(function (r) {
     var bin = atob(r.b64), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
@@ -700,7 +712,35 @@ function aplicar(r) {
   if (loc && loc.pend && S.estado === 'aberto') { PEND = loc.pend; Object.keys(PEND).forEach(function (k) { S.v[k] = PEND[k]; }); if (typeof loc.p === 'number') P = Math.min(Math.max(loc.p, 0), PASSOS.length - 1); }
   if (!S.v.pessoas || !S.v.pessoas.length) S.v.pessoas = [{ n: '', r: 'mae', f: '', e: 0 }, { n: '', r: 'pai', f: '', e: 0 }];
 }
+function demoDados() {
+  var d = function (n) { var x = new Date(); x.setDate(x.getDate() + n); return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); };
+  return {
+    casal: 'Inês & Tomás', data: d(120), estado: 'aberto', abre: d(30), fecha: d(113), envios: 0, enviado_em: '', alterado: false, idioma: 'pt', v: { casal: 'Inês & Tomás' },
+    info: {
+      hora: '16:00', cerimonia: 'Quinta de Exemplo, Leiria', rececao: 'Quinta de Exemplo, Leiria', servico: 'Foto + Vídeo', pacote: 'Fotos + Filme',
+      inclui: ['Cobertura da cerimónia e da receção', 'Fotos editadas em galeria online', 'Filme highlights', 'Teaser para partilhar'],
+      extras: [{ servico: 'Sessão de casal', qt: 1, total: 150 }], deslocacao: 60,
+      valor: 2400, pago: 800, falta: 1600, forma: 'Entrada + parcelas', entrada: 800, entrada_pc: 33.33,
+      parcelas: [{ n: 1, vence: d(60), valor: 800, estado: 'Pendente' }, { n: 2, vence: d(110), valor: 800, estado: 'Pendente' }],
+      pagamentos: [{ data: d(-20), valor: 800, tipo: 'Depósito', parcela: '' }],
+      contrato: 'assinado', resumo: true, contrato_pdf: true,
+      trabalho: [{ parte: 'fotos', etapa: 'Por começar', passo: 0, passos: 4, prazo: d(150) }, { parte: 'teaser', etapa: 'Por começar', passo: 0, passos: 7, prazo: d(140) }, { parte: 'highlights', etapa: 'Por começar', passo: 0, passos: 7, prazo: d(170) }]
+    }
+  };
+}
+var DEMO_ET = { fotos: ['Por começar', 'Escolha das fotos', 'Edição', 'Entregue'], v: ['Por começar', 'Decupagem', 'Separação das músicas', 'Cortes iniciais', 'Color grading', 'Ajustes finais', 'Entregue'] };
+// exemplo: clicar no trilho muda a etapa (só no ecrã, não grava em lado nenhum)
+function demoPasso(tb, ev) {
+  var idx = +tb.dataset.i, t = S.info.trabalho[idx], tr = tb.querySelector('.trilho'), r = tr.getBoundingClientRect(), fr = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+  var lista = t.parte === 'fotos' ? DEMO_ET.fotos : DEMO_ET.v, passo = Math.round(fr * (lista.length - 1)); t.passo = passo; t.etapa = lista[passo];
+  var ok = t.etapa === 'Entregue', stp = tb.querySelectorAll('.stp i');
+  tb.classList.toggle('ok', ok);
+  Array.prototype.forEach.call(stp, function (i, k) { i.classList.toggle('on', k + 1 <= passo); });
+  var b = tb.querySelector('.bts'); b.style.left = (ok ? 100 : passo / Math.max(1, t.passos - 1) * 100) + '%'; b.dataset.foi = 1;
+  var et = tb.querySelector('.et'); et.innerHTML = '<b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && passo > 0 ? X('fase') + ' ' + passo + '/' + (t.passos - 2) : '') + '</span>';
+}
 function abrir() {
+  if (DEMO) { S = demoDados(); MODO = 'casa'; if (!L_MAO) lingua('pt'); render(); splash(false); if (IR_Q) { IR_Q = false; abrirQ(); } return; }
   if (!/^q[a-f0-9]{40}$/.test(COD)) { splash(false); A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
   CHC = 'ob_q_c_' + COD;
   var c = leCache(), sc = 0;
