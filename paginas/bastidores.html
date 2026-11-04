@@ -375,6 +375,21 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .hc b{font-weight:600}#ob .hc i{font-style:normal;font-size:11px;color:var(--mt)}#ob .hc small{font-size:12px;color:var(--mt);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ob .hc.ch{background:#e3ead8;border-color:#e3ead8}#ob .hc.pc{background:#f4e6c6;border-color:#f4e6c6}
 #ob .hc button{width:22px;height:22px;border-radius:50%;line-height:1;font-size:16px;color:var(--mt)}#ob .hc button:hover{background:rgba(74,68,41,.1);color:var(--rd)}
+#ob .sescal>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:6px 0;list-style:none}#ob .sescal>summary::-webkit-details-marker{display:none}
+#ob .sescal>summary .sm{margin:0;text-decoration:underline;text-underline-offset:3px}
+#ob .scd{position:relative;aspect-ratio:1;min-width:0;border:1px solid var(--sf);background:#fff;border-radius:10px;font:inherit;color:var(--ink);padding:5px 0 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px}
+#ob .scd b{font-weight:500;font-size:14px}#ob .scd.pas{opacity:.55}#ob .scd.hj{border-color:var(--ink)}#ob .scd.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+#ob .scd i{display:flex;gap:3px;align-items:center;min-height:14px;font-style:normal}
+#ob u.lv{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ol);text-decoration:none}#ob .scd.on u.lv{background:#e3ead8}
+#ob u.scm{display:inline-block;min-width:15px;height:15px;line-height:15px;border-radius:8px;background:var(--gd);color:#fff;font-size:10px;font-weight:600;text-align:center;text-decoration:none;padding:0 3px;box-sizing:border-box}
+#ob .scleg{margin:10px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#ob .scdia{margin-top:20px;padding-top:16px;border-top:1px solid var(--sf)}#ob .scmk{margin-top:10px}#ob .scmb{margin-top:14px}
+#ob .scdl{margin:18px 0 2px}
+#ob .schs{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
+#ob .hch{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50px;padding:6px 4px;border-radius:10px;border:1px solid var(--sf);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--mt);cursor:pointer}
+#ob .hch{letter-spacing:0;text-transform:none}#ob .hch small{letter-spacing:0;text-transform:none;font-size:11px;font-weight:400;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ob .hch.fr{background:#e3ead8;border-color:#e3ead8;color:var(--ink)}#ob .hch.bk{background:var(--gd);border-color:var(--gd);color:#fff;cursor:default;opacity:1}#ob .hch.off{border-style:dashed}
+#ob .scrow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}#ob .scrow label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mt)}#ob .scrow select,#ob .scrow input{font:inherit;font-size:15px;padding:8px;border:1px solid var(--sf);border-radius:8px;background:#fff;color:var(--ink)}
 #ob .sesx{opacity:.55}#ob .sespas{margin-top:22px}#ob .sespas summary{cursor:pointer}
 #ob .qic{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#ob .qic .ic{width:76px}#ob .qic .ic.on{color:#8a3b2e;border-color:#8a3b2e}
 #ob .acts2{display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:28px}
@@ -1063,31 +1078,73 @@ function sesGhLigar() {
     rpc('api_ses_gh_ligar', t).then(function () { closeM(); toast('Ligado. Já pode enviar as fotos.'); }, function (e) { b.disabled = false; if (!e.auth) toast(e.message || 'Não foi possível ligar.', 1); });
   };
 }
+/* ---------- página de uma sessão: ensaios marcados, pedidos, calendário (menu), fotos ---------- */
+var SES_DUR = 40; // minutos de cada ensaio (marca-se de hora em hora)
+var SES_BASE = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+var SESC = { m: '', dia: '', aberto: false }; // calendário: mês (AAAA-MM), dia escolhido, menu aberto
+var sesFim = function (h) { var p = String(h).split(':'), t = +p[0] * 60 + +p[1] + SES_DUR; return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+var sesDiaLong = function (d) { var s = dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
+var sesTel = function (t) { return t ? '<a class="wab" href="' + E(wa(t)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : ''; };
+// as marcações confirmadas com hora (ensaios fechados)
+function sesFechados(sid) { return SESD().p.filter(function (p) { return p.id_sessao === sid && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; }); }
+function sesCalHtml(x) {
+  var oc = sesOc(x.id), hs = SESD().h.filter(function (h) { return h.id_sessao === x.id; }), porDia = {};
+  hs.forEach(function (h) { (porDia[h.data] = porDia[h.data] || []).push(h); });
+  if (!SESC.m) { var ini = SESC.dia || Object.keys(porDia).filter(function (d) { return d >= TODAY; }).sort()[0] || TODAY; SESC.m = ini.slice(0, 7); }
+  var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1, p1 = (new Date(y, m, 1).getDay() + 6) % 7, nd = new Date(y, m + 1, 0).getDate(), g = '';
+  for (var i = 0; i < p1; i++) g += '<span></span>';
+  for (var d = 1; d <= nd; d++) {
+    var k = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'), sl = porDia[k] || [], liv = 0, mar = 0;
+    sl.forEach(function (h) { var q = (oc[h.data + '|' + h.hora] || []).length; mar += q; liv += Math.max(0, (+h.vagas || 1) - q); });
+    SESD().p.forEach(function (p) { if (p.id_sessao === x.id && p.data === k && p.situacao === 'Confirmado' && p.hora && !sl.some(function (h) { return h.hora === p.hora; })) mar++; });
+    g += '<button type="button" class="scd' + (k < TODAY ? ' pas' : '') + (k === TODAY ? ' hj' : '') + (k === SESC.dia ? ' on' : '') + (sl.length ? ' ab' : '') + '" data-a="sesDia" data-d="' + k + '" aria-label="' + E(sesDiaLong(k)) + '"><b>' + d + '</b>' +
+      '<i>' + (mar ? '<u class="scm">' + mar + '</u>' : '') + (liv ? '<u class="lv"></u>' : '') + '</i></button>';
+  }
+  var h = '<div class="calh"><button type="button" class="bt" data-a="sesMes" data-v="-1" aria-label="Mês anterior">‹</button><b>' + SES_MES[m] + ' ' + y + '</b><button type="button" class="bt" data-a="sesMes" data-v="1" aria-label="Mês seguinte">›</button></div>' +
+    '<div class="calw"><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span></div><div class="calg">' + g + '</div>' +
+    '<p class="sm scleg"><u class="lv"></u> tem horas livres &nbsp; <u class="scm">2</u> clientes marcados</p>';
+  return h + (SESC.dia ? sesDiaHtml(x, oc, porDia[SESC.dia] || []) : '<p class="em">Toque num dia para ver as marcações e escolher as horas.</p>');
+}
+function sesDiaHtml(x, oc, sl) {
+  var d = SESC.dia, edit = d >= TODAY, marc = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return a.hora < b.hora ? -1 : 1; }), pend = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Novo' && !p.hora; });
+  var by = {}; sl.forEach(function (h) { by[h.hora] = h; });
+  var horas = SES_BASE.slice(); sl.forEach(function (h) { if (h.hora && horas.indexOf(h.hora) < 0) horas.push(h.hora); }); marc.forEach(function (p) { if (horas.indexOf(p.hora) < 0) horas.push(p.hora); }); horas.sort();
+  var op = function (sel) { return SES_BASE.map(function (hh) { return '<option' + (hh === sel ? ' selected' : '') + '>' + hh + '</option>'; }).join(''); };
+  var o = '<div class="scdia"><div class="sest"><div><p class="lb gl" style="margin:0">' + E(sesDiaLong(d)) + '</p></div><button class="bt" data-a="sesPdf" data-d="' + d + '"' + (marc.length ? '' : ' disabled') + '>Exportar PDF do dia</button></div>';
+  o += marc.length ? '<div class="scmk">' + marc.map(function (p) { return '<div class="rw"><span class="n">' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b><small>' + E(p.hora) + ' às ' + sesFim(p.hora) + (p.telemovel ? ' · ' + E(p.telemovel) : '') + (p.notas && !/^Marcado por WhatsApp$/.test(p.notas) ? ' · ' + E(p.notas) : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(String(p.telemovel || '')) + '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Cancelado">Cancelar</button></span></div></div>'; }).join('') + '</div>' : '<p class="em">Sem clientes marcados neste dia.</p>';
+  if (pend.length) o += '<p class="sm">' + pl(pend.length, 'pedido do site sem hora ainda', 'pedidos do site sem hora ainda') + ': ' + E(pend.map(function (p) { return p.nome; }).join(', ')) + '.</p>';
+  if (edit) {
+    o += '<button class="b1 scmb" data-a="sesMk" data-d="' + d + '">Marcar cliente neste dia</button>' +
+      '<p class="lb gl" style="margin-top:18px">Horas disponíveis</p><p class="sm" style="margin:0 0 8px">Toque numa hora para a abrir ou fechar. Cada ensaio dura ' + SES_DUR + ' min; marca-se de hora em hora.</p><div class="schs">' +
+      (by[''] ? '<button type="button" class="hch fr" data-a="sesHt" data-d="' + d + '" data-h="" title="Tocar para tirar">Dia inteiro<small>sem hora</small></button>' : '') +
+      horas.map(function (hh) { var s = by[hh], q = s ? (oc[d + '|' + hh] || []) : marc.filter(function (p) { return p.hora === hh; }), cheio = q.length >= (s ? Math.max(1, +s.vagas || 1) : 1) && q.length;
+        return '<button type="button" class="hch ' + (cheio ? 'bk' : s ? 'fr' : 'off') + '"' + (cheio ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (cheio ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>'; }).join('') + '</div>' +
+      '<div class="scrow"><label><span>Abrir de hora em hora, das</span><select id="scDe">' + op('10:00') + '</select></label><label><span>às</span><select id="scAte">' + op('17:00') + '</select></label><button class="bt" data-a="sesHr" data-d="' + d + '">Abrir</button></div>' +
+      '<div class="scrow"><label><span>Outra hora</span><input id="scOut" type="time"></label><button class="bt" data-a="sesHo" data-d="' + d + '">Adicionar</button></div>';
+  } else o += '<p class="sm">Este dia já passou.</p>';
+  return o + '</div>';
+}
 function vSesV() {
   var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) { view = 'ses'; return vSes(); }
-  var oc = sesOc(x.id), n = sesConta(x.id), dias = {}, ps = SESD().p.filter(function (p) { return p.id_sessao === x.id; }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; });
-  SESD().h.filter(function (h) { return h.id_sessao === x.id; }).forEach(function (h) { (dias[h.data] = dias[h.data] || []).push(h); });
-  var dl = Object.keys(dias).sort(), pas = dl.filter(function (d) { return d <= TODAY; }), fut = dl.filter(function (d) { return d > TODAY; });
-  var dia = function (d) { var hs = dias[d].sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
-    return '<div class="sesd"><p class="lb">' + E(dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</p><div class="sesh">' + hs.map(function (h) { var q = oc[h.data + '|' + h.hora] || [], v = +h.vagas || 1, cheio = q.length >= v;
-      return '<span class="hc' + (cheio ? ' ch' : q.length ? ' pc' : '') + '"><b>' + (h.hora ? E(h.hora) : 'Dia') + '</b>' + (v > 1 ? '<i>' + q.length + '/' + v + '</i>' : '') + (q.length ? '<small>' + E(q.map(function (p) { return String(p.nome).split(' ')[0]; }).join(', ')) + '</small>' : '') +
-        (!q.length && d > TODAY ? '<button data-a="sesHx" data-id="' + E(h.id) + '" aria-label="Apagar ' + E(h.hora || 'dia') + '" title="Apagar este horário">×</button>' : '') + '</span>'; }).join('') + '</div></div>'; };
-  var url = x.link_da_pagina || '';
+  var n = sesConta(x.id), todos = SESD().p.filter(function (p) { return p.id_sessao === x.id; }), fe = sesFechados(x.id), ps = todos.filter(function (p) { return !(p.situacao === 'Confirmado' && p.hora); }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; });
+  var fut = fe.filter(function (p) { return p.data >= TODAY; }), pas = fe.filter(function (p) { return p.data < TODAY; }).reverse(), url = x.link_da_pagina || '', ult = '';
+  var lin = function (p) { var c = p.data !== ult; ult = p.data; return (c ? '<p class="lb scdl">' + E(sesDiaLong(p.data)) + '</p>' : '') + '<div class="rw" data-a="sesDia" data-d="' + E(p.data) + '"><span class="n">' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b><small>' + E(p.hora) + ' às ' + sesFim(p.hora) + (p.telemovel ? ' · ' + E(p.telemovel) : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(String(p.telemovel || '')) + '</span></div></div>'; };
+  var nLiv = n.livres;
   return '<div class="w1"><p class="lb"><button class="lnk" data-a="go" data-v="ses">← Sessões</button></p><h1 class="h1" style="margin-top:6px">' + E(x.nome) + '</h1>' +
     '<p style="margin:10px 0 0">' + (x.ativa === 'Sim' ? tg('Marcações abertas', 'gr') : tg('Fechada', 'gy')) + ' ' + tg(x.tipo || 'Família', 'bl') + '</p>' +
     '<p class="sm" style="margin-top:10px">' + [x.valor !== '' && x.valor != null ? eur(x.valor) : '', E(x.local), 'código ' + E(x.codigo)].filter(Boolean).join(' · ') + '</p>' +
     '<div class="qic" style="margin-top:16px">' + (url ? '<a class="ic" href="' + E(url) + '" target="_blank" rel="noopener" title="Abrir a página"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>Página</span></a><button class="ic" data-a="sesCop" data-id="' + E(x.id) + '" title="Copiar o link da página"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Copiar</span></button>' : '') +
       '<button class="ic" data-a="sesE" data-id="' + E(x.id) + '" title="Editar"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Editar</span></button>' +
       '<button class="ic' + (x.ativa === 'Sim' ? '' : ' on') + '" data-a="sesAt" data-id="' + E(x.id) + '" title="' + (x.ativa === 'Sim' ? 'Fechar as marcações' : 'Abrir as marcações') + '"><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg><span>' + (x.ativa === 'Sim' ? 'Fechar' : 'Abrir') + '</span></button></div>' +
-    sesFotosBloco(x) +
-    '<hr class="st"><p class="lb gl">Pedidos · ' + n.pedidos + '</p>' + (ps.length ? ps.map(function (p) { var t = String(p.telemovel || '');
-      return '<div class="rw' + (p.situacao === 'Cancelado' ? ' sesx' : '') + '"><span class="n">' + fds(p.data) + '<br>' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b>' + tg(p.situacao || 'Novo', TGS[p.situacao] || 'oc') + '<small>' + E(t) + ' · ' + E(p.e_mail) + (p.id_orcamento ? ' · <button class="lnk" data-a="o" data-id="' + E(p.id_orcamento) + '">orçamento ' + E(p.id_orcamento) + '</button>' : '') + '</small></div><div class="rt"><span class="ac3">' +
-        (t ? '<a class="wab" href="' + E(wa(t)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : '') +
-        (p.situacao === 'Cancelado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Novo">Repor</button>' : (p.situacao !== 'Confirmado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Confirmado">Confirmar</button>' : '') + '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Cancelado">Cancelar</button>') + '</span></div></div>'; }).join('') : '<p class="em">Ainda sem pedidos.</p>') +
-    '<hr class="st"><div class="sest"><p class="lb gl">Dias e horários · ' + pl(n.livres, 'vaga livre', 'vagas livres') + '</p><button class="bt" data-a="sesH" data-id="' + E(x.id) + '">Adicionar horários</button></div>' +
-    (fut.length ? fut.map(dia).join('') : '<p class="em">Sem horários futuros. Adicione os dias e horários em que podem fazer a sessão.</p>') +
-    (pas.length ? '<details class="sespas"><summary class="sm">Dias que já passaram · ' + pas.length + '</summary>' + pas.map(dia).join('') + '</details>' : '') +
-    (x.notas ? '<hr class="st"><p class="lb gl">Notas</p><p class="sm" style="white-space:pre-wrap">' + E(x.notas) + '</p>' : '') + '</div>';
+    '<hr class="st"><div class="sest"><p class="lb gl">Ensaios marcados · ' + fut.length + '</p><button class="bt" data-a="sesMk" data-d="">Marcar cliente</button></div>' +
+    (fut.length ? fut.map(lin).join('') : '<p class="em">Ainda sem ensaios marcados. Quando combinar um horário no WhatsApp, toque em «Marcar cliente».</p>') +
+    (pas.length ? '<details class="sespas"><summary class="sm">Ensaios já feitos · ' + pas.length + '</summary>' + (ult = '', pas.map(lin).join('')) + '</details>' : '') +
+    (ps.length ? '<hr class="st"><p class="lb gl">Pedidos antigos do site · ' + ps.filter(function (p) { return p.situacao !== 'Cancelado'; }).length + '</p>' + ps.map(function (p) { var t = String(p.telemovel || '');
+      return '<div class="rw' + (p.situacao === 'Cancelado' ? ' sesx' : '') + '"><span class="n">' + fds(p.data) + '<br>' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b>' + tg(p.situacao || 'Novo', TGS[p.situacao] || 'oc') + '<small>' + E(t) + ' · ' + E(p.e_mail) + (p.id_orcamento ? ' · <button class="lnk" data-a="o" data-id="' + E(p.id_orcamento) + '">orçamento ' + E(p.id_orcamento) + '</button>' : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(t) +
+        (p.situacao === 'Cancelado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Novo">Repor</button>' : (p.situacao !== 'Confirmado' ? '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Confirmado">Confirmar</button>' : '') + '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Cancelado">Cancelar</button>') + '</span></div></div>'; }).join('') : '') +
+    '<hr class="st"><details class="sescal" id="sescal"' + (SESC.aberto ? ' open' : '') + '><summary><span class="lb gl">Dias e horários · ' + pl(nLiv, 'vaga livre', 'vagas livres') + '</span><span class="sm">' + (SESC.aberto ? 'fechar' : 'abrir calendário') + '</span></summary>' + sesCalHtml(x) + '</details>' +
+    (x.notas ? '<hr class="st"><p class="lb gl">Notas</p><p class="sm" style="white-space:pre-wrap">' + E(x.notas) + '</p>' : '') +
+    '<hr class="st">' + sesFotosBloco(x) + '</div>';
 }
 function sesEditar(id) {
   var x = SESD().s.find(function (y) { return y.id === id; });
@@ -1114,53 +1171,62 @@ function sesDatasTxt(iso, hmin, hmax) { // o mesmo texto que a página do Natal 
   if (hmin) t += (hmax && hmax !== hmin ? ', das ' + hmin + ' às ' + hmax : ', às ' + hmin);
   return t;
 }
-function sesHorarios(id) {
-  if (!id) return;
-  var jaDias = {}, jaHoras = [];
-  SESD().h.filter(function (h) { return h.id_sessao === id && h.data > TODAY; }).forEach(function (h) { jaDias[h.data] = 1; if (h.hora) jaHoras.push(String(h.hora)); });
-  jaHoras.sort();
-  var sel = {}, mes = new Date(); mes = new Date(mes.getFullYear(), mes.getMonth(), 1);
-  var iso = function (y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); };
-  var horas = function () { // horários escolhidos (vazio = só os dias, sem horas)
-    var m = function (h) { var p = String(h || '').split(':'); return p.length === 2 && p[0] !== '' ? +p[0] * 60 + +p[1] : NaN; };
-    var a = m($('#shDe').value), b = m($('#shAte').value), c = +$('#shCada').value || 30, l = [];
-    if (!(a >= 0)) return l; if (!(b >= a)) b = a;
-    for (var t = a; t <= b && l.length < 60; t += c) l.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'));
-    return l;
+/* marcar um cliente (combinado por WhatsApp) num dia e hora */
+function sesMarcar(dia) {
+  var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) return;
+  var horasDe = function (d) { var ocu = {}; SESD().p.forEach(function (p) { if (p.id_sessao === x.id && p.data === d && p.situacao !== 'Cancelado' && p.hora) ocu[p.hora] = 1; });
+    var ab = {}; SESD().h.forEach(function (h) { if (h.id_sessao === x.id && h.data === d && h.hora) ab[h.hora] = 1; });
+    var l = SES_BASE.slice(); Object.keys(ab).forEach(function (h) { if (l.indexOf(h) < 0) l.push(h); }); l.sort();
+    return l.filter(function (h) { return !ocu[h]; }).map(function (h) { return '<option value="' + h + '">' + h + (ab[h] ? ' · aberta' : ' · fechada') + '</option>'; }).join(''); };
+  openM('<h2 class="mt">Marcar cliente</h2><p class="sm">Registe o horário combinado por WhatsApp. O horário fica ocupado e deixa de aparecer livre.</p>' +
+    '<div class="fm"><label><span>Dia</span><input id="mkD" type="date" value="' + E(dia || '') + '" min="' + TODAY + '"></label><label><span>Hora</span><select id="mkH"></select></label>' +
+    '<label><span>Nome do cliente</span><input id="mkN" type="text" maxlength="120" autocomplete="off"></label><label><span>Telemóvel (opcional)</span><input id="mkT" type="tel" maxlength="20" autocomplete="off"></label>' +
+    '<label><span>Nota (opcional)</span><input id="mkO" type="text" maxlength="300" autocomplete="off"></label></div>' +
+    '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="mkOk">Marcar</button></div>');
+  var pinta = function () { $('#mkH').innerHTML = horasDe($('#mkD').value); }; $('#mkD').onchange = pinta; pinta();
+  $('#mkOk').onclick = function () {
+    var d = $('#mkD').value, h = $('#mkH').value, n = $('#mkN').value.trim();
+    if (!/^\d{4}-\d\d-\d\d$/.test(d)) return toast('Escolha o dia.', 1); if (!h) return toast('Escolha a hora.', 1); if (n.length < 2) return toast('Escreva o nome do cliente.', 1);
+    SESC.dia = d; SESC.m = d.slice(0, 7); SESC.aberto = true;
+    run(rpc('api_ses_marcar', x.id, d, h, n, $('#mkT').value, $('#mkO').value), n + ' marcado(a) às ' + h);
   };
-  var desenha = function () {
-    var y = mes.getFullYear(), m = mes.getMonth(), p1 = (new Date(y, m, 1).getDay() + 6) % 7, nd = new Date(y, m + 1, 0).getDate(), h = '';
-    for (var i = 0; i < p1; i++) h += '<span></span>';
-    for (var d = 1; d <= nd; d++) { var k = iso(y, m, d), pas = k <= TODAY;
-      h += '<button type="button" class="cald' + (sel[k] ? ' on' : '') + (jaDias[k] ? ' ja' : '') + '"' + (pas ? ' disabled' : '') + ' data-d="' + k + '">' + d + '</button>'; }
-    $('#shCal').innerHTML = h; $('#shMes').textContent = SES_MES[m] + ' ' + y;
-    $$('#shCal .cald').forEach(function (b) { b.onclick = function () { var k = b.getAttribute('data-d'); if (sel[k]) delete sel[k]; else sel[k] = 1; b.classList.toggle('on'); atualiza(); }; });
-  };
-  var atualiza = function () {
-    var ks = Object.keys(sel), hs = horas(), todos = Object.keys(jaDias).concat(ks), hh = jaHoras.concat(hs).sort();
-    $('#shTxt').textContent = todos.length ? sesDatasTxt(todos, hh[0], hh[hh.length - 1]) : 'Ainda sem datas';
-    $('#shN').textContent = ks.length ? pl(ks.length, 'dia escolhido', 'dias escolhidos') + (hs.length ? ' · ' + pl(hs.length, 'horário', 'horários') + ' por dia' : ' · sem horários') : 'Toque nos dias para os escolher.';
-  };
-  openM('<h2 class="mt">Datas e horários</h2><p class="sm">Escolha os dias no calendário. Os horários são opcionais: se os deixar vazios, a página mostra só as datas.</p>' +
-    '<div class="calh"><button type="button" class="bt" id="shP" aria-label="Mês anterior">‹</button><b id="shMes"></b><button type="button" class="bt" id="shS" aria-label="Mês seguinte">›</button></div>' +
-    '<div class="calw"><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span></div><div class="calg" id="shCal"></div>' +
-    '<p class="sm" id="shN" style="margin:8px 0 0"></p>' +
-    '<p class="lb gl" style="margin-top:16px">Horários (opcional)</p><div class="fm"><label><span>Primeiro horário</span><input id="shDe" type="time"></label><label><span>Último horário</span><input id="shAte" type="time"></label>' +
-    '<label><span>De quanto em quanto tempo</span><select id="shCada"><option value="20">20 minutos</option><option value="30" selected>30 minutos</option><option value="40">40 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 h 30</option><option value="120">2 horas</option></select></label>' +
-    '<label><span>Famílias por horário (ou por dia, sem horários)</span><input id="shV" type="number" value="1" min="1" max="50"></label></div>' +
-    '<p class="lb gl" style="margin-top:14px">Como fica na página</p><p id="shTxt" class="shtxt"></p>' +
-    '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="shOk">Juntar</button></div>');
-  $('#shP').onclick = function () { mes = new Date(mes.getFullYear(), mes.getMonth() - 1, 1); desenha(); };
-  $('#shS').onclick = function () { mes = new Date(mes.getFullYear(), mes.getMonth() + 1, 1); desenha(); };
-  ['shDe', 'shAte', 'shCada'].forEach(function (i) { $('#' + i).oninput = atualiza; $('#' + i).onchange = atualiza; });
-  desenha(); atualiza();
-  $('#shOk').onclick = function () {
-    var ks = Object.keys(sel).sort(), hs = horas(), v = Math.max(1, Math.min(50, Math.floor(+$('#shV').value) || 1)), l = [];
-    if (!ks.length) return toast('Escolha pelo menos um dia no calendário.', 1);
-    ks.forEach(function (k) { if (!hs.length) l.push({ data: k, hora: '', vagas: v }); else hs.forEach(function (hh) { l.push({ data: k, hora: hh, vagas: v }); }); });
-    if (l.length > 300) return toast('Demasiados horários de uma vez (máximo 300). Escolha menos dias.', 1);
-    closeM(); run(rpc('api_ses_horarios', id, l, []), pl(ks.length, 'dia juntado', 'dias juntados'));
-  };
+}
+/* PDF do dia (gerado aqui, sem bibliotecas): A4 com as marcações */
+function pdfSimples(paginas) { // paginas: [[{t,x,y,s,b,g}]] (texto, posição, tamanho, negrito, cinzento)
+  var enc = function (s) { return String(s).replace(/[\u2013\u2014]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[^\x20-\x7E\xA0-\xFF]/g, '?').replace(/([\\()])/g, '\\$1'); };
+  var obj = [], add = function (s) { obj.push(s); return obj.length; };
+  add('<< /Type /Catalog /Pages 2 0 R >>'); add(''); add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>'); add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+  var kids = [];
+  paginas.forEach(function (pg) {
+    var c = pg.map(function (e) { if (e.l) return '0.8 0.78 0.72 RG ' + e.x + ' ' + e.y + ' m ' + e.x2 + ' ' + e.y + ' l S'; return 'BT /F' + (e.b ? 2 : 1) + ' ' + e.s + ' Tf ' + (e.g ? '0.45 0.43 0.35' : '0.18 0.17 0.1') + ' rg ' + e.x + ' ' + e.y + ' Td (' + enc(e.t) + ') Tj ET'; }).join('\n');
+    var ci = add('<< /Length ' + c.length + ' >>\nstream\n' + c + '\nendstream'); kids.push(add('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ' + ci + ' 0 R >>') + ' 0 R');
+  });
+  obj[1] = '<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + kids.length + ' >>';
+  var out = '%PDF-1.4\n', off = [];
+  obj.forEach(function (o, i) { off.push(out.length); out += (i + 1) + ' 0 obj\n' + o + '\nendobj\n'; });
+  var xr = out.length; out += 'xref\n0 ' + (obj.length + 1) + '\n0000000000 65535 f \n' + off.map(function (o) { return String(o).padStart(10, '0') + ' 00000 n \n'; }).join('') + 'trailer\n<< /Size ' + (obj.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xr + '\n%%EOF';
+  var u = new Uint8Array(out.length); for (var i = 0; i < out.length; i++) u[i] = out.charCodeAt(i) & 255; return u;
+}
+function sesPdfDia(d) {
+  var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) return;
+  var marc = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
+  if (!marc.length) return toast('Sem marcações neste dia.', 1);
+  var oc = sesOc(x.id), livres = SESD().h.filter(function (h) { return h.id_sessao === x.id && h.data === d && h.hora && !(oc[d + '|' + h.hora] || []).length; }).map(function (h) { return h.hora; }).sort();
+  var pgs = [[]], pg = pgs[0], y = 780, put = function (t, xx, s, b, g) { pg.push({ t: t, x: xx, y: y, s: s, b: b, g: g }); };
+  var cab = function () { put('OLD BOOTS', 50, 10, 1, 1); y -= 26; put(x.nome, 50, 20, 1); y -= 24; put(sesDiaLong(d) + ' de ' + dt(d).getFullYear(), 50, 13); y -= 12; pg.push({ l: 1, x: 50, x2: 545, y: y }); y -= 30; };
+  cab();
+  marc.forEach(function (p) {
+    if (y < 110) { pg = []; pgs.push(pg); y = 780; cab(); }
+    put(p.hora + ' - ' + sesFim(p.hora), 50, 15, 1); put(p.nome, 175, 15, 0); y -= 18;
+    var l2 = [p.telemovel ? 'Tel.: ' + p.telemovel : '', p.notas && !/^Marcado por WhatsApp$/.test(p.notas) ? p.notas : ''].filter(Boolean).join('   ·   '); if (l2) { put(l2, 175, 10, 0, 1); y -= 14; }
+    y -= 6; pg.push({ l: 1, x: 50, x2: 545, y: y + 4 }); y -= 20;
+  });
+  if (livres.length) { if (y < 90) { pg = []; pgs.push(pg); y = 780; } put('Horas ainda livres: ' + livres.join(', '), 50, 10, 0, 1); y -= 14; }
+  pg.push({ t: 'Gerado em ' + new Date().toLocaleDateString('pt-PT') + ' ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) + ' · ' + marc.length + (marc.length === 1 ? ' ensaio' : ' ensaios') + ' de ' + SES_DUR + ' min', x: 50, y: 40, s: 9, g: 1 });
+  var nome = 'marcacoes-' + x.codigo + '-' + d + '.pdf', blob = new Blob([pdfSimples(pgs)], { type: 'application/pdf' });
+  var baixa = function () { var u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 60000); toast('PDF criado'); };
+  try { var f = new File([blob], nome, { type: 'application/pdf' }); if (navigator.canShare && navigator.canShare({ files: [f] })) { navigator.share({ files: [f], title: x.nome + ' · ' + fd(d) }).catch(function (e) { if (e && e.name !== 'AbortError') baixa(); }); return; } } catch (e) { }
+  baixa();
 }
 function evRow(c) { var d = dias(c.data_do_evento); return '<div class="rw" data-a="f" data-id="' + E(c.id) + '"><span class="n">' + fds(c.data_do_evento) + '</span><div><b>' + E(nc(c.nome_do_casal)) + '</b>' + tg2(c) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '<small>' + fd(c.data_do_evento) + ' ' + E(c.hora) + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small></div><div class="rt"><small>' + (d >= 0 ? 'faltam ' + d + ' dias' : 'há ' + (-d) + ' dias') + '</small></div></div>'; }
 
@@ -2197,7 +2263,7 @@ function gres(t) {
 
 var act = {
   go: function (d) { view = d.v; sel = ''; closeM(); render(); R.scrollTop = 0; try { $('#v').focus({ preventScroll: true }); } catch (e) { } },
-  fab: function () { if (view === 'reu') return REU ? reuEditar('') : undefined; if (view === 'ses') return sesEditar(''); if (view === 'sesv') return sesHorarios(SESID); if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
+  fab: function () { if (view === 'reu') return REU ? reuEditar('') : undefined; if (view === 'ses') return sesEditar(''); if (view === 'sesv') return sesMarcar(SESC.dia || ''); if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
   reab: function () { if (guardado && !$('#ov').classList.contains('on')) { reabrir(guardado); guardado = null; $('#t').style.display = 'none'; } },
   sair: function () { if (nGrav) return toast('Aguarde: ainda há alterações a guardar.', 1);
     openM('<p class="lb">Sair</p><h3 class="h2 mh2">Terminar a sessão</h3><p class="sm">Neste aparelho fica 7 dias sem pedir login. Para voltar a pedir já, saia aqui.</p><div class="btns"><button class="b2" data-a="sairT">Sair de todos os aparelhos</button><button class="b1" data-a="sairA">Sair deste aparelho</button></div>'); },
@@ -2320,7 +2386,15 @@ var act = {
   sesN: function () { sesEditar(''); },
   sesA: function (d) { SESID = d.id; view = 'sesv'; render(); R.scrollTop = 0; },
   sesE: function (d) { sesEditar(d.id); },
-  sesH: function (d) { sesHorarios(d.id); },
+  sesDia: function (d) { SESC.dia = d.d; SESC.m = String(d.d).slice(0, 7); SESC.aberto = true; render(); var e = $('#sescal'); if (e) e.scrollIntoView({ block: 'start' }); },
+  sesMes: function (d) { var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1 + (+d.v); var n = new Date(y, m, 1); SESC.m = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0'); render(); },
+  sesHt: function (d) { var h = SESD().h.find(function (y) { return y.id_sessao === SESID && y.data === d.d && String(y.hora || '') === d.h; });
+    if (h) run(rpc('api_ses_horarios', SESID, [], [h.id]), 'Hora fechada'); else run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: d.h, vagas: 1 }], []), 'Hora aberta'); },
+  sesHr: function (d) { var a = $('#scDe').value, b = $('#scAte').value; if (!(a <= b)) return toast('A primeira hora tem de ser antes da última.', 1);
+    var l = SES_BASE.filter(function (h) { return h >= a && h <= b; }).map(function (h) { return { data: d.d, hora: h, vagas: 1 }; }); run(rpc('api_ses_horarios', SESID, l, []), 'Horas abertas'); },
+  sesHo: function (d) { var v = $('#scOut').value; if (!/^\d\d:\d\d$/.test(v)) return toast('Escolha a hora.', 1); run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: v, vagas: 1 }], []), 'Hora aberta'); },
+  sesMk: function (d) { sesMarcar(d.d || SESC.dia || ''); },
+  sesPdf: function (d) { sesPdfDia(d.d); },
   sesAt: function (d) { var x = SESD().s.find(function (y) { return y.id === d.id; }); if (!x) return; var abrir = x.ativa !== 'Sim';
     ask(abrir ? 'Abrir as marcações de «' + E(x.nome) + '»?' : 'Fechar as marcações de «' + E(x.nome) + '»?', function () { run(rpc('api_ses_guardar', x.id, { nome: x.nome, codigo: x.codigo, ativa: abrir ? 'Sim' : 'Não', tipo: x.tipo, valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas }), abrir ? 'Marcações abertas' : 'Marcações fechadas'); }, abrir ? 'Abrir' : 'Fechar',
       '<p class="sm">' + (abrir ? 'A página volta a mostrar os horários livres e a aceitar pedidos.' : 'A página deixa de aceitar pedidos e mostra «As marcações estão fechadas». Os pedidos que já chegaram ficam.') + '</p>'); },
@@ -2342,6 +2416,7 @@ var act = {
   ed: function (d) { var x = D.doc.find(function (y) { return y.id_cliente === d.id; }) || {}; form('Documentos', [['Links', [['link_do_pdf_do_contrato', 'Link do PDF do contrato', 'url'], ['link_do_google_docs', 'Link do Google Docs', 'url'], ['notas', 'Notas', 'text']]]], Object.assign({}, x), function (v) { var o = {}; Object.keys(v).forEach(function (k) { if (k !== '_row' && k !== 'id_cliente') o[k] = v[k]; }); run(rpc('api_upd', 'Documentos', d.id, o), 'Guardado', function () { ficha(d.id, 'd'); }); }); },
   sn: function (d) { run(rpc('api_upd', 'Clientes', d.id, { observacoes: $('#nt').value }), 'Notas guardadas', function () { ficha(d.id, 'n'); }); }
 };
+document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sm'); if (t) t.textContent = SESC.aberto ? 'fechar' : 'abrir calendário'; } }, true);
 R.addEventListener('click', function (e) { if (e.target.closest('a')) return; var b = e.target.closest('[data-a]'); if (b && R.contains(b) && act[b.dataset.a]) { e.stopPropagation(); e.preventDefault(); act[b.dataset.a](b.dataset); } }, true);
 $('#ov').addEventListener('click', function (e) { if (e.target.id === 'ov') closeM(); });
 R.addEventListener('change', function (e) { if (e.target.dataset && e.target.dataset.sesf) return sesEnviaFoto(e.target); var k = e.target.dataset && e.target.dataset.fx; if (k) { FX[k] = e.target.value; guardaFx(); render(); } });
