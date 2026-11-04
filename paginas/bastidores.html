@@ -1125,7 +1125,7 @@ function vOrc() {
   return '<div class="w1"><div class="pt"><div><p class="lb">Pedidos de orçamento</p><h1 class="h1">Orçamentos</h1></div><button class="b1" data-a="no">Novo orçamento</button></div>' +
     (tot ? (function () { var pr = o.filter(function (x) { return x.status !== 'Novo pedido'; }).length, b = function (rot, n) { return '<div><span>' + rot + '</span><i><b style="width:' + Math.max(2, Math.round(n / tot * 100)) + '%"></b></i><span>' + n + (n !== tot ? ' · ' + Math.round(n / tot * 100) + ' %' : '') + '</span></div>'; };
       return '<div class="funil" aria-label="Conversão">' + b('Pedidos', tot) + b('Com orçamento', pr) + b('Convertidos', cv) + '</div>'; })() : '<p class="lead2">Ainda sem pedidos.</p>') +
-    grp('Novo pedido', by('Novo pedido'), 'novo') + grp('Orçamento enviado', by('Orçamento enviado'), 'env') + grp('Em negociação', by('Em negociação'), 'neg') + grp('Outros', out, 'out', '', true) + grp('Encerrados', enc, 'enc', '', true) + '</div>';
+    grp('Novo pedido', by('Novo pedido'), 'novo') + grp('Orçamento enviado', by('Orçamento enviado'), 'env') + grp('Em negociação', by('Em negociação'), 'neg') + grp('Outros', out, 'out', '', true) + grp('Encerrados', enc, 'enc', '', true) + (dono() ? grp('Arquivados', D.arqO || [], 'arq', '', true) : '') + '</div>';
 }
 
 var atraso = function (id) { return D.par.some(function (p) { return p.id_cliente === id && p.estado === 'Em atraso'; }); };
@@ -1280,10 +1280,10 @@ function vReu() {
     '<p class="sm">Casal fictício (Inês &amp; Tomás) com todas as abas, incluindo o questionário. Os trilhos de progresso mudam com um clique e nada é gravado.</p>' +
     '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuEx" data-v="abrir">Abrir a página de exemplo</button><button class="b2" data-a="reuEx" data-v="copiar">Copiar o link</button></div>' +
     '<hr class="st"><p class="lb gl">Roteiro da reunião</p>' +
-    '<p class="sm">Abre numa janela à parte no computador (arraste-a para o outro ecrã). As mensagens que enviar do telemóvel aparecem lá.</p>' +
-    '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuPop">Abrir roteiro em popup</button><button class="b2" data-a="reuRot">Editar roteiro</button></div>' +
+    '<p class="sm">Duas janelas separadas no computador, que pode arrastar para o outro ecrã: o roteiro e os avisos que enviar do telemóvel.</p>' +
+    '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuPop">Abrir roteiro (popup)</button><button class="b1" data-a="reuAv">Abrir avisos (popup)</button><button class="b2" data-a="reuRot">Editar roteiro</button></div>' +
     '<hr class="st"><p class="lb gl">Mensagem para o computador</p>' +
-    '<p class="sm">Escreva aqui (no telemóvel) e aparece no popup do computador, sem som. O popup tem de estar aberto.</p>' +
+    '<p class="sm">Escreva aqui (no telemóvel) e aparece no popup de avisos do computador, sem som. Esse popup tem de estar aberto.</p>' +
     '<div class="fm"><label><span>Lembrete</span><input id="rmT" type="text" maxlength="300" placeholder="Ex.: falar do prazo de entrega"></label></div>' +
     '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuEnv">Enviar para o computador</button></div>' +
     '<p class="sm" style="margin-top:14px">' + REU_RAP.map(function (t, i) { return '<button class="lnk" data-a="reuRap" data-i="' + i + '">' + E(t) + '</button>'; }).join(' · ') + '</p>' +
@@ -1296,15 +1296,26 @@ function reuEnviar(txt) {
   txt = String(txt || '').trim(); if (!txt) return toast('Escreva a mensagem.', 1);
   return rpc('api_reu_msg', txt).then(function () { toast('Enviado para o computador'); var i = $('#rmT'); if (i) i.value = ''; }, function (e) { if (!e.auth) toast('Não foi enviado. ' + (e.message || ''), 1); });
 }
-/* popup do computador */
+/* popups do computador: dois painéis separados, cada um na sua janela (roteiro e avisos do telemóvel) */
+var REUWA = null, REUTA = 0;
+function reuAbreJanela(nome, w, h, esq) {
+  var f = 'popup=yes,toolbar=no,location=no,menubar=no,status=no,scrollbars=yes,resizable=yes,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - esq) + ',top=40';
+  var j = window.open('', nome, f);
+  if (!j) { openM('<p class="lb">Popup bloqueado</p><h3 class="h2 mh2">O navegador bloqueou a janela</h3><p class="sm">Clique no ícone de popup bloqueado na barra de endereço (à direita) e escolha «Permitir sempre os pop-ups deste site». Depois toque outra vez no botão.</p>'); return null; }
+  try { j.focus(); } catch (e) { }
+  return j;
+}
+var REU_CSS = 'body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#f7f6f0;color:#2b2a26}header{position:sticky;top:0;background:#2b2a26;color:#fff4cf;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:3}header b{font-size:15px;letter-spacing:.06em}header small{opacity:.8}#st i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#7bbf6a;margin-right:6px}#st.off i{background:#c0553a}button{font:inherit;border:1px solid #cfc9b3;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}';
 function reuPopHtml() {
-  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Roteiro · Reunião</title><style>' +
-    'body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#f7f6f0;color:#2b2a26}header{position:sticky;top:0;background:#2b2a26;color:#fff4cf;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:3}' +
-    'header b{font-size:15px;letter-spacing:.04em}header small{opacity:.8}#st i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#7bbf6a;margin-right:6px}#st.off i{background:#c0553a}' +
-    '#al{position:sticky;top:46px;z-index:2}#al .a{background:#a4572d;color:#fff;padding:16px;font-size:22px;line-height:1.3;font-weight:600;border-bottom:3px solid #fff4cf;cursor:pointer;animation:pi .35s}#al .a small{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:4px}' +
-    '@keyframes pi{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}main{padding:14px 16px 40px}main p{margin:0;padding:7px 10px;border-radius:8px;cursor:pointer}main p:hover{background:#ece9dc}main p.h{font-weight:700;margin-top:12px}main p.d{text-decoration:line-through;opacity:.45}main p.sp{height:8px;padding:0;cursor:default}' +
-    'footer{padding:0 16px 20px;font-size:12px;color:#7a7561}button{font:inherit;border:1px solid #cfc9b3;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}</style></head><body>' +
-    '<header><b>ROTEIRO</b><span id="st"><i></i><small>ligado</small></span></header><div id="al"></div><main id="rt"></main><footer>Clique numa linha para a riscar. Clique num aviso para o fechar. <button id="at">Atualizar roteiro</button></footer></body></html>';
+  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Roteiro da reunião</title><style>' + REU_CSS +
+    'main{padding:14px 16px 40px}main p{margin:0;padding:7px 10px;border-radius:8px;cursor:pointer}main p:hover{background:#ece9dc}main p.h{font-weight:700;margin-top:12px}main p.d{text-decoration:line-through;opacity:.45}main p.sp{height:8px;padding:0;cursor:default}footer{padding:0 16px 20px;font-size:12px;color:#7a7561}</style></head><body>' +
+    '<header><b>ROTEIRO DA REUNIÃO</b><button id="at">Atualizar</button></header><main id="rt"></main><footer>Clique numa linha para a riscar.</footer></body></html>';
+}
+function reuAvisosHtml() {
+  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Avisos da reunião</title><style>' + REU_CSS +
+    '#al .a{background:#a4572d;color:#fff;padding:16px;font-size:22px;line-height:1.3;font-weight:600;border-bottom:3px solid #fff4cf;cursor:pointer;animation:pi .35s}#al .a small{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:4px}@keyframes pi{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}' +
+    '#vz{padding:26px 18px;color:#7a7561;text-align:center;font-size:14px}</style></head><body>' +
+    '<header><b>AVISOS DO TELEMÓVEL</b><span id="st"><i></i><small>ligado</small></span></header><div id="al"></div><p id="vz">Os lembretes que enviar do telemóvel aparecem aqui, sem som. Clique num aviso para o fechar.</p></body></html>';
 }
 function reuPopRot(w) {
   var rt = w.document.getElementById('rt'); if (!rt) return;
@@ -1313,29 +1324,34 @@ function reuPopRot(w) {
 }
 function reuEstado(w, ok) { var s = w.document.getElementById('st'); if (!s) return; s.className = ok ? '' : 'off'; s.querySelector('small').textContent = ok ? 'ligado' : 'sem ligação'; }
 function reuPoll(w) {
-  if (!w || w.closed) { clearInterval(REUT); REUT = 0; return; }
+  if (!w || w.closed) { clearInterval(REUTA); REUTA = 0; return; }
   rpcAgora('api_reu_msgs', [REUDESDE]).then(function (r) {
     if (w.closed) return; reuEstado(w, true);
-    var al = w.document.getElementById('al');
+    var al = w.document.getElementById('al'), vz = w.document.getElementById('vz');
     (r.msgs || []).forEach(function (m) {
       if (REUDESDE === -1) return; // primeira leitura: só regista o ponto de partida
-      var d = w.document.createElement('div'); d.className = 'a'; d.innerHTML = E(m.texto) + '<small>' + E(m.quando) + ' · clique para fechar</small>'; d.onclick = function () { d.remove(); }; al.insertBefore(d, al.firstChild);
-      try { w.focus(); } catch (e) { }
+      var d = w.document.createElement('div'); d.className = 'a'; d.innerHTML = E(m.texto) + '<small>' + E(m.quando) + ' · clique para fechar</small>';
+      d.onclick = function () { d.remove(); if (vz) vz.style.display = al.children.length ? 'none' : ''; };
+      al.insertBefore(d, al.firstChild); if (vz) vz.style.display = 'none';
+      try { w.document.title = '● ' + m.texto.slice(0, 30); w.focus(); } catch (e) { }
     });
     REUDESDE = r.ultimo || 0;
-  }, function (e) { if (w.closed) return; reuEstado(w, false); if (e && e.auth) { clearInterval(REUT); REUT = 0; } });
+  }, function (e) { if (w.closed) return; reuEstado(w, false); if (e && e.auth) { clearInterval(REUTA); REUTA = 0; } });
 }
+// painel 1: roteiro
 function reuPopup() {
-  var w = REUW && !REUW.closed ? REUW : window.open('', 'ob_reuniao', 'popup=yes,width=440,height=760,left=' + Math.max(0, (screen.availWidth || 1200) - 470) + ',top=40');
-  if (!w) return toast('O navegador bloqueou o popup. Permita popups para este site e tente de novo.', 1);
-  REUW = w; try { w.focus(); } catch (e) { }
+  var w = reuAbreJanela('ob_roteiro', 460, 780, 500); if (!w) return; REUW = w;
   w.document.open(); w.document.write(reuPopHtml()); w.document.close();
   var rot = function () { reuPopRot(w); };
   w.document.getElementById('at').onclick = function () { reuCarrega2().then(rot); };
   w.document.getElementById('rt').addEventListener('click', function (ev) { var p = ev.target.closest('p'); if (p && !p.classList.contains('sp')) p.classList.toggle('d'); });
-  (REU ? Promise.resolve() : reuCarrega()).then(rot);
-  rot();
-  REUDESDE = -1; clearInterval(REUT); reuPoll(w); REUT = setInterval(function () { reuPoll(w); }, 4000);
+  (REU ? Promise.resolve() : reuCarrega()).then(rot); rot();
+}
+// painel 2: avisos enviados do telemóvel
+function reuAvisos() {
+  var w = reuAbreJanela('ob_avisos', 400, 360, 440); if (!w) return; REUWA = w;
+  w.document.open(); w.document.write(reuAvisosHtml()); w.document.close();
+  REUDESDE = -1; clearInterval(REUTA); reuPoll(w); REUTA = setInterval(function () { reuPoll(w); }, 4000);
 }
 function reuCarrega2() { REUCARR = false; return rpc('api_reu_ler').then(function (r) { REU = r; return r; }, function () { }); }
 /* roteiro */
@@ -1831,21 +1847,29 @@ function naoFechou(id) {
   };
 }
 function orcF(id) {
-  var o = D.orc.find(function (x) { return x.id === id; }); if (!o) return; cur = id; atualizaProp(id);
-  var est = ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'];
+  var o = D.orc.find(function (x) { return x.id === id; }) || (D.arqO || []).find(function (x) { return x.id === id; }); if (!o) return; cur = id; atualizaProp(id);
+  var arqd = o.arquivado === 'Sim', est = ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'];
   var ln = function (k, v, w) { return v ? '<div class="ln' + (w ? ' lw' : '') + '"><span>' + k + '</span><span>' + v + '</span></div>' : ''; };
   var pc = o.proximo_contacto, dd = pc ? dias(pc) : null;
-  openM('<p class="lb">Orçamento ' + E(o.id) + '</p><h2 class="h2 mh2">' + E(o.nome_do_casal) + '</h2><p class="tgs">' + tg2(o) + (o.aviso ? tg(av(o.aviso), 'rd') : '') + '</p>' +
+  openM('<p class="lb">Orçamento ' + E(o.id) + '</p><h2 class="h2 mh2">' + E(o.nome_do_casal) + '</h2><p class="tgs">' + (arqd ? tg('Arquivado', 'gy') : '') + tg2(o) + (o.aviso ? tg(av(o.aviso), 'rd') : '') + '</p>' +
     contactos(o) +
     (o.status !== 'Convertido' ? '<div class="mq"><p class="lb">Estado</p><div class="stp">' + est.map(function (t) { return '<button data-a="ost" data-id="' + E(id) + '" data-v="' + E(t) + '" style="--c:' + CORO[t] + '" class="' + (o.status === t ? 'on' : '') + '">' + t + '</button>'; }).join('') + '</div></div>' +
       '<div class="mq"><p class="lb">Próximo contacto · ' + (pc ? (dd < 0 ? '<span class="atr">' + fdc(pc) + ' (atrasado)</span>' : fdc(pc)) : 'sem data') + '</p><div class="stp">' +
       [[1, 'Amanhã'], [3, 'Daqui a 3 dias'], [7, 'Daqui a 1 semana'], [0, 'Sem data']].map(function (x) { return '<button data-a="opc" data-id="' + E(id) + '" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' : '<p class="tgs" style="margin-top:14px">' + tg('Convertido') + '</p>') +
     '<div class="g2" style="margin-top:18px">' + ln('Data do evento', fdc(o.data_do_evento)) + ln('Valor orçado', o.valor_orcado ? eur(o.valor_orcado) : '') + ln('Serviço', E(o.tipo_de_servico)) + ln('Origem', E(o.origem)) + (o.status === 'Perdido' ? ln('Porque não fechou', E(o.motivo_da_perda || 'sem motivo indicado'), 1) : '') + ln('Local', E(o.local), 1) + ln('Notas', E(o.observacoes), 1) + '</div>' +
     caixaProp(o) + '<button class="xe" data-a="eo" data-id="' + E(id) + '">✎ Editar</button>' +
-    (o.status === 'Convertido' ? '' : '<div class="btns dec">' + (o.status !== 'Perdido' ? '<button class="bo" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou ✓' : 'Fechou ✓') + '</button></div>'));
+    (o.status === 'Convertido' ? '' : '<div class="btns dec">' + (o.status !== 'Perdido' ? '<button class="bo" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou ✓' : 'Fechou ✓') + '</button></div>') +
+    (dono() ? '<p style="margin-top:18px"><button class="lnk" data-a="arqo" data-id="' + E(id) + '" data-v="' + (arqd ? '0' : '1') + '">' + (arqd ? 'Restaurar este orçamento' : 'Arquivar este orçamento') + '</button></p>' : ''));
 }
 
 function ficha(id, tab, topo) { if (!todosCli().some(function (x) { return x.id === id; })) return; cat = cli(id).arquivado === 'Sim' ? 'arq' : cli(id).status === 'Concluído' ? 'conc' : ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
+// ficha de um cliente arquivado: junta de volta (só para ver) os pagamentos, parcelas, extras e documentos dele
+function vFichaArq() {
+  var c = cli(fid);
+  if (c.arquivado !== 'Sim') return vFicha();
+  var d0 = D; D = Object.assign({}, D, { par: D.par.concat(D.arqPar || []), pag: D.pag.concat(D.arqPag || []), ext: D.ext.concat(D.arqExt || []), doc: D.doc.concat(D.arqDoc || []) });
+  try { return vFicha(); } finally { D = d0; }
+}
 function vFicha() {
   var c = todosCli().find(function (x) { return x.id === fid; }); if (!c) { view = 'cli'; return vCli(); }
   var id = fid, tab = ftab, d = c.data_do_evento ? dias(c.data_do_evento) : null, pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, doc = D.doc.find(function (x) { return x.id_cliente === id; }) || {};
@@ -2121,6 +2145,11 @@ var act = {
   sairA: function () { var s0 = SES; if (s0) post('sair').catch(function () { }); if (gis) try { google.accounts.id.disableAutoSelect(); } catch (e) { } toLogin(''); },
   sairT: function () { busy(1); post('sairTodos').then(function () { toast('Sessões terminadas em todos os aparelhos.'); }, function () { }).finally(function () { busy(0); if (gis) try { google.accounts.id.disableAutoSelect(); } catch (e) { } toLogin('Sessões terminadas em todos os aparelhos.'); }); },
   perdeu: function (d) { naoFechou(d.id); },
+  arqo: function (d) {
+    var sim = d.v === '1', o = D.orc.concat(D.arqO || []).find(function (x) { return x.id === d.id; }); if (!o) return;
+    ask(sim ? 'Arquivar o orçamento de «' + E(nc(o.nome_do_casal)) + '»? Sai das listas e deixa de contar nos números do site, como se não existisse. Não se apaga: fica em Orçamentos › Arquivados e pode restaurá-lo.' : 'Restaurar o orçamento de «' + E(nc(o.nome_do_casal)) + '»? Volta às listas e aos números.',
+      function () { closeM(); run(rpc('api_arquivar_orc', d.id, sim), sim ? 'Orçamento arquivado' : 'Orçamento restaurado'); }, sim ? 'Arquivar' : 'Restaurar');
+  },
   ost: function (d) { if (d.v === 'Perdido') return naoFechou(d.id); run(rpc('api_upd', 'Orçamentos', d.id, { status: d.v }), 'Estado: ' + d.v, function () { orcF(d.id); }); },
   opc: function (d) { var n = +d.v, v = ''; if (n) { var t = new Date(); t.setDate(t.getDate() + n); v = iso(t); } run(rpc('api_upd', 'Orçamentos', d.id, { proximo_contacto: v }), v ? 'Próximo contacto: ' + fdc(v) : 'Próximo contacto sem data', function () { orcF(d.id); }); },
   apps: function () { abrirApps(); },
@@ -2214,6 +2243,7 @@ var act = {
   lembSem: function (d) { var sem = d.v === '1'; run(rpc('api_lemb_cliente', d.id, sem), sem ? 'Este casal deixa de receber lembretes' : 'Lembretes ligados para este casal'); },
   reuEx: function (d) { if (d.v === 'abrir') { window.open(REU_DEMO, '_blank', 'noopener'); return; } try { navigator.clipboard.writeText(REU_DEMO).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', REU_DEMO); }); } catch (e) { prompt('Copie o link:', REU_DEMO); } },
   reuPop: function () { reuPopup(); },
+  reuAv: function () { reuAvisos(); },
   reuRot: function () { if (!REU) return; reuRoteiro(); },
   reuEnv: function () { var i = $('#rmT'); reuEnviar(i && i.value); },
   reuRap: function (d) { reuEnviar(REU_RAP[+d.i]); },
@@ -2297,7 +2327,7 @@ function render() {
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
   $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses') || (view === 'sesf' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFicha, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFichaArq, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }
