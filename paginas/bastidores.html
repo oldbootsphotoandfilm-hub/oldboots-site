@@ -388,7 +388,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .schs{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
 #ob .hch{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50px;padding:6px 4px;border-radius:10px;border:1px solid var(--sf);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--mt);cursor:pointer}
 #ob .hch{letter-spacing:0;text-transform:none}#ob .hch small{letter-spacing:0;text-transform:none;font-size:11px;font-weight:400;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#ob .hch.fr{background:#e3ead8;border-color:#e3ead8;color:var(--ink)}#ob .hch.bk{background:var(--gd);border-color:var(--gd);color:#fff;cursor:default;opacity:1}#ob .hch.off{border-style:dashed}
+#ob .hch.fr{background:#e3ead8;border-color:#e3ead8;color:var(--ink)}#ob .hch.bk{background:var(--gd);border-color:var(--gd);color:#fff;cursor:default;opacity:1}#ob .hch.off{border-style:dashed}#ob .hch.sel{outline:3px solid var(--gd);outline-offset:1px}#ob .schp{margin-top:14px;padding:14px;background:#fff;border:1px solid var(--sf);border-radius:12px}#ob .schp .btns{margin-top:12px}
 #ob .scrow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}#ob .scrow label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mt)}#ob .scrow select,#ob .scrow input{font:inherit;font-size:15px;padding:8px;border:1px solid var(--sf);border-radius:8px;background:#fff;color:var(--ink)}
 #ob .sesx{opacity:.55}#ob .sespas{margin-top:22px}#ob .sespas summary{cursor:pointer}
 #ob .qic{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#ob .qic .ic{width:76px}#ob .qic .ic.on{color:#8a3b2e;border-color:#8a3b2e}
@@ -1081,7 +1081,7 @@ function sesGhLigar() {
 /* ---------- página de uma sessão: ensaios marcados, pedidos, calendário (menu), fotos ---------- */
 var SES_DUR = 40; // minutos de cada ensaio (marca-se de hora em hora)
 var SES_BASE = (function () { var l = []; for (var h = 5; h <= 21; h++) l.push(String(h).padStart(2, '0') + ':30'); return l; })(); // 05:30, 06:30 … 21:30
-var SESC = { m: '', dia: '', aberto: false }; // calendário: mês (AAAA-MM), dia escolhido, menu aberto
+var SESC = { m: '', dia: '', hora: '', aberto: false }; // calendário: mês (AAAA-MM), dia escolhido, menu aberto
 var sesFim = function (h) { var p = String(h).split(':'), t = +p[0] * 60 + +p[1] + SES_DUR; return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
 var sesDiaLong = function (d) { var s = dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
 var sesTel = function (t) { return t ? '<a class="wab" href="' + E(wa(t)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : ''; };
@@ -1105,6 +1105,11 @@ function sesCalHtml(x) {
     '<p class="sm scleg"><u class="lv"></u> tem horas livres &nbsp; <u class="scm">2</u> clientes marcados</p>';
   return h + (SESC.dia ? sesDiaHtml(x, oc, porDia[SESC.dia] || []) : '<p class="em">Toque num dia para ver as marcações e escolher as horas.</p>');
 }
+function sesHoraHtml(d, slot) { // painel por baixo das horas: marcar o cliente na hora escolhida
+  var h = SESC.hora; if (!h) return '';
+  return '<div class="schp"><p class="lb gl" style="margin:0 0 8px">' + E(h) + ' às ' + sesFim(h) + '</p><div class="fm"><label><span>Nome do cliente</span><input id="mkN" type="text" maxlength="120" autocomplete="off"></label><label><span>Telemóvel (opcional)</span><input id="mkT" type="tel" maxlength="20" autocomplete="off"></label></div>' +
+    '<div class="btns"><button class="b2" data-a="sesHa" data-d="' + d + '" data-h="' + h + '">' + (slot ? 'Fechar esta hora' : 'Abrir esta hora (sem cliente)') + '</button><button class="b1" data-a="sesMk2" data-d="' + d + '" data-h="' + h + '">Marcar</button></div></div>';
+}
 function sesDiaHtml(x, oc, sl) {
   var d = SESC.dia, edit = d >= TODAY, marc = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return a.hora < b.hora ? -1 : 1; }), pend = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Novo' && !p.hora; });
   var by = {}; sl.forEach(function (h) { by[h.hora] = h; });
@@ -1114,11 +1119,10 @@ function sesDiaHtml(x, oc, sl) {
   o += marc.length ? '<div class="scmk">' + marc.map(function (p) { return '<div class="rw"><span class="n">' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b><small>' + E(p.hora) + ' às ' + sesFim(p.hora) + (p.telemovel ? ' · ' + E(p.telemovel) : '') + (p.notas && !/^Marcado por WhatsApp$/.test(p.notas) ? ' · ' + E(p.notas) : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(String(p.telemovel || '')) + '<button class="bt" data-a="sesP" data-id="' + E(p.id) + '" data-v="Cancelado">Cancelar</button></span></div></div>'; }).join('') + '</div>' : '<p class="em">Sem clientes marcados neste dia.</p>';
   if (pend.length) o += '<p class="sm">' + pl(pend.length, 'pedido do site sem hora ainda', 'pedidos do site sem hora ainda') + ': ' + E(pend.map(function (p) { return p.nome; }).join(', ')) + '.</p>';
   if (edit) {
-    o += '<button class="b1 scmb" data-a="sesMk" data-d="' + d + '">Marcar cliente neste dia</button>' +
-      '<p class="lb gl" style="margin-top:18px">Horas disponíveis</p><p class="sm" style="margin:0 0 8px">Toque numa hora para a abrir ou fechar. Cada ensaio dura ' + SES_DUR + ' min; marca-se de hora em hora.</p><div class="schs">' +
-      (by[''] ? '<button type="button" class="hch fr" data-a="sesHt" data-d="' + d + '" data-h="" title="Tocar para tirar">Dia inteiro<small>sem hora</small></button>' : '') +
+    o += '<p class="lb gl" style="margin-top:18px">Horas do dia</p><p class="sm" style="margin:0 0 8px">Toque numa hora para marcar um cliente. Cada ensaio dura ' + SES_DUR + ' min.</p><div class="schs">' +
+      (by[''] ? '<button type="button" class="hch fr" data-a="sesHa" data-d="' + d + '" data-h="" title="Tocar para tirar">Dia inteiro<small>sem hora · tirar</small></button>' : '') +
       horas.map(function (hh) { var s = by[hh], q = s ? (oc[d + '|' + hh] || []) : marc.filter(function (p) { return p.hora === hh; }), cheio = q.length >= (s ? Math.max(1, +s.vagas || 1) : 1) && q.length;
-        return '<button type="button" class="hch ' + (cheio ? 'bk' : s ? 'fr' : 'off') + '"' + (cheio ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (cheio ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>'; }).join('') + '</div>' +
+        return '<button type="button" class="hch ' + (cheio ? 'bk' : s ? 'fr' : 'off') + (SESC.hora === hh ? ' sel' : '') + '"' + (cheio ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (cheio ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>'; }).join('') + '</div>' + sesHoraHtml(d, by[SESC.hora]) +
       '<div class="scrow"><label><span>Abrir de hora em hora, das</span><select id="scDe">' + op('09:30') + '</select></label><label><span>às</span><select id="scAte">' + op('17:30') + '</select></label><button class="bt" data-a="sesHr" data-d="' + d + '">Abrir</button></div>' +
       '<div class="scrow"><label><span>Outra hora</span><input id="scOut" type="time"></label><button class="bt" data-a="sesHo" data-d="' + d + '">Adicionar</button></div>';
   } else o += '<p class="sm">Este dia já passou.</p>';
@@ -1136,8 +1140,8 @@ function vSesV() {
     '<div class="qic" style="margin-top:16px">' + (url ? '<a class="ic" href="' + E(url) + '" target="_blank" rel="noopener" title="Abrir a página"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>Página</span></a><button class="ic" data-a="sesCop" data-id="' + E(x.id) + '" title="Copiar o link da página"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></svg><span>Copiar</span></button>' : '') +
       '<button class="ic" data-a="sesE" data-id="' + E(x.id) + '" title="Editar"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Editar</span></button>' +
       '<button class="ic' + (x.ativa === 'Sim' ? '' : ' on') + '" data-a="sesAt" data-id="' + E(x.id) + '" title="' + (x.ativa === 'Sim' ? 'Fechar as marcações' : 'Abrir as marcações') + '"><svg viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/></svg><span>' + (x.ativa === 'Sim' ? 'Fechar' : 'Abrir') + '</span></button></div>' +
-    '<hr class="st"><div class="sest"><p class="lb gl">Ensaios marcados · ' + fut.length + '</p><button class="bt" data-a="sesMk" data-d="">Marcar cliente</button></div>' +
-    (fut.length ? fut.map(lin).join('') : '<p class="em">Ainda sem ensaios marcados. Quando combinar um horário no WhatsApp, toque em «Marcar cliente».</p>') +
+    '<hr class="st"><div class="sest"><p class="lb gl">Ensaios marcados · ' + fut.length + '</p></div>' +
+    (fut.length ? fut.map(lin).join('') : '<p class="em">Ainda sem ensaios marcados. Quando combinar um horário no WhatsApp, abra o calendário, escolha o dia e toque na hora.</p>') +
     (pas.length ? '<details class="sespas"><summary class="sm">Ensaios já feitos · ' + pas.length + '</summary>' + (ult = '', pas.map(lin).join('')) + '</details>' : '') +
     (ps.length ? '<hr class="st"><p class="lb gl">Pedidos antigos do site · ' + ps.filter(function (p) { return p.situacao !== 'Cancelado'; }).length + '</p>' + ps.map(function (p) { var t = String(p.telemovel || '');
       return '<div class="rw' + (p.situacao === 'Cancelado' ? ' sesx' : '') + '"><span class="n">' + fds(p.data) + '<br>' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b>' + tg(p.situacao || 'Novo', TGS[p.situacao] || 'oc') + '<small>' + E(t) + ' · ' + E(p.e_mail) + (p.id_orcamento ? ' · <button class="lnk" data-a="o" data-id="' + E(p.id_orcamento) + '">orçamento ' + E(p.id_orcamento) + '</button>' : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(t) +
@@ -1170,26 +1174,6 @@ function sesDatasTxt(iso, hmin, hmax) { // o mesmo texto que a página do Natal 
   if (mesmo) t += ' de ' + SES_MES[d[0].getMonth()];
   if (hmin) t += (hmax && hmax !== hmin ? ', das ' + hmin + ' às ' + hmax : ', às ' + hmin);
   return t;
-}
-/* marcar um cliente (combinado por WhatsApp) num dia e hora */
-function sesMarcar(dia) {
-  var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) return;
-  var horasDe = function (d) { var ocu = {}; SESD().p.forEach(function (p) { if (p.id_sessao === x.id && p.data === d && p.situacao !== 'Cancelado' && p.hora) ocu[p.hora] = 1; });
-    var ab = {}; SESD().h.forEach(function (h) { if (h.id_sessao === x.id && h.data === d && h.hora) ab[h.hora] = 1; });
-    var l = SES_BASE.slice(); Object.keys(ab).forEach(function (h) { if (l.indexOf(h) < 0) l.push(h); }); l.sort();
-    return l.filter(function (h) { return !ocu[h]; }).map(function (h) { return '<option value="' + h + '">' + h + (ab[h] ? ' · aberta' : ' · fechada') + '</option>'; }).join(''); };
-  openM('<h2 class="mt">Marcar cliente</h2><p class="sm">Registe o horário combinado por WhatsApp. O horário fica ocupado e deixa de aparecer livre.</p>' +
-    '<div class="fm"><label><span>Dia</span><input id="mkD" type="date" value="' + E(dia || '') + '" min="' + TODAY + '"></label><label><span>Hora</span><select id="mkH"></select></label>' +
-    '<label><span>Nome do cliente</span><input id="mkN" type="text" maxlength="120" autocomplete="off"></label><label><span>Telemóvel (opcional)</span><input id="mkT" type="tel" maxlength="20" autocomplete="off"></label>' +
-    '<label><span>Nota (opcional)</span><input id="mkO" type="text" maxlength="300" autocomplete="off"></label></div>' +
-    '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="mkOk">Marcar</button></div>');
-  var pinta = function () { $('#mkH').innerHTML = horasDe($('#mkD').value); }; $('#mkD').onchange = pinta; pinta();
-  $('#mkOk').onclick = function () {
-    var d = $('#mkD').value, h = $('#mkH').value, n = $('#mkN').value.trim();
-    if (!/^\d{4}-\d\d-\d\d$/.test(d)) return toast('Escolha o dia.', 1); if (!h) return toast('Escolha a hora.', 1); if (n.length < 2) return toast('Escreva o nome do cliente.', 1);
-    SESC.dia = d; SESC.m = d.slice(0, 7); SESC.aberto = true;
-    run(rpc('api_ses_marcar', x.id, d, h, n, $('#mkT').value, $('#mkO').value), n + ' marcado(a) às ' + h);
-  };
 }
 /* PDF do dia (gerado aqui, sem bibliotecas): A4 com as marcações */
 function pdfSimples(paginas) { // paginas: [[{t,x,y,s,b,g}]] (texto, posição, tamanho, negrito, cinzento)
@@ -2263,7 +2247,7 @@ function gres(t) {
 
 var act = {
   go: function (d) { view = d.v; sel = ''; closeM(); render(); R.scrollTop = 0; try { $('#v').focus({ preventScroll: true }); } catch (e) { } },
-  fab: function () { if (view === 'reu') return REU ? reuEditar('') : undefined; if (view === 'ses') return sesEditar(''); if (view === 'sesv') return sesMarcar(SESC.dia || ''); if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
+  fab: function () { if (view === 'reu') return REU ? reuEditar('') : undefined; if (view === 'ses') return sesEditar(''); if (view === 'sesv') return; if (view === 'orc') return novoOrc(); if (view === 'cli') return novoCli(); if (view === 'equip') return editarEq(); if (view === 'fdesp') return editarDesp(); if (APP === 'fin') return novoPag(); openM((dono() ? '' : '<p class="sm" style="margin-bottom:10px">O que registar fica à espera de aprovação.</p>') + '<p class="lb">Adicionar</p><h3 class="h2 mh2">O que quer registar?</h3><button class="opt" data-a="no"><span class="nm">Novo orçamento</span><span class="bt">Abrir</span><small>Pedido de casamento, ensaio ou evento</small></button><button class="opt" data-a="nc"><span class="nm">Novo cliente</span><span class="bt">Abrir</span><small>Casamento, ensaio ou evento com contrato fechado</small></button>' + (dono() ? '<button class="opt" data-a="np"><span class="nm">Novo pagamento</span><span class="bt">Abrir</span><small>Depósito, parcela ou outro valor</small></button>' : '')); },
   reab: function () { if (guardado && !$('#ov').classList.contains('on')) { reabrir(guardado); guardado = null; $('#t').style.display = 'none'; } },
   sair: function () { if (nGrav) return toast('Aguarde: ainda há alterações a guardar.', 1);
     openM('<p class="lb">Sair</p><h3 class="h2 mh2">Terminar a sessão</h3><p class="sm">Neste aparelho fica 7 dias sem pedir login. Para voltar a pedir já, saia aqui.</p><div class="btns"><button class="b2" data-a="sairT">Sair de todos os aparelhos</button><button class="b1" data-a="sairA">Sair deste aparelho</button></div>'); },
@@ -2386,14 +2370,16 @@ var act = {
   sesN: function () { sesEditar(''); },
   sesA: function (d) { SESID = d.id; view = 'sesv'; render(); R.scrollTop = 0; },
   sesE: function (d) { sesEditar(d.id); },
-  sesDia: function (d) { SESC.dia = d.d; SESC.m = String(d.d).slice(0, 7); SESC.aberto = true; render(); var e = $('#sescal'); if (e) e.scrollIntoView({ block: 'start' }); },
+  sesDia: function (d) { SESC.dia = d.d; SESC.hora = ''; SESC.m = String(d.d).slice(0, 7); SESC.aberto = true; render(); var e = $('#sescal'); if (e) e.scrollIntoView({ block: 'start' }); },
   sesMes: function (d) { var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1 + (+d.v); var n = new Date(y, m, 1); SESC.m = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0'); render(); },
-  sesHt: function (d) { var h = SESD().h.find(function (y) { return y.id_sessao === SESID && y.data === d.d && String(y.hora || '') === d.h; });
+  sesHt: function (d) { SESC.hora = SESC.hora === d.h ? '' : d.h; render(); var i = $('#mkN'); if (i && !toque) try { i.focus({ preventScroll: true }); } catch (e) { } },
+  sesHa: function (d) { var h = SESD().h.find(function (y) { return y.id_sessao === SESID && y.data === d.d && String(y.hora || '') === d.h; }); SESC.hora = '';
     if (h) run(rpc('api_ses_horarios', SESID, [], [h.id]), 'Hora fechada'); else run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: d.h, vagas: 1 }], []), 'Hora aberta'); },
+  sesMk2: function (d) { var n = ($('#mkN').value || '').trim(); if (n.length < 2) { toast('Escreva o nome do cliente.', 1); return; } var t = $('#mkT').value; SESC.hora = '';
+    run(rpc('api_ses_marcar', SESID, d.d, d.h, n, t, ''), n + ' marcado(a) às ' + d.h); },
   sesHr: function (d) { var a = $('#scDe').value, b = $('#scAte').value; if (!(a <= b)) return toast('A primeira hora tem de ser antes da última.', 1);
     var l = SES_BASE.filter(function (h) { return h >= a && h <= b; }).map(function (h) { return { data: d.d, hora: h, vagas: 1 }; }); run(rpc('api_ses_horarios', SESID, l, []), 'Horas abertas'); },
   sesHo: function (d) { var v = $('#scOut').value; if (!/^\d\d:\d\d$/.test(v)) return toast('Escolha a hora.', 1); run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: v, vagas: 1 }], []), 'Hora aberta'); },
-  sesMk: function (d) { sesMarcar(d.d || SESC.dia || ''); },
   sesPdf: function (d) { sesPdfDia(d.d); },
   sesAt: function (d) { var x = SESD().s.find(function (y) { return y.id === d.id; }); if (!x) return; var abrir = x.ativa !== 'Sim';
     ask(abrir ? 'Abrir as marcações de «' + E(x.nome) + '»?' : 'Fechar as marcações de «' + E(x.nome) + '»?', function () { run(rpc('api_ses_guardar', x.id, { nome: x.nome, codigo: x.codigo, ativa: abrir ? 'Sim' : 'Não', tipo: x.tipo, valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas }), abrir ? 'Marcações abertas' : 'Marcações fechadas'); }, abrir ? 'Abrir' : 'Fechar',
@@ -2456,7 +2442,7 @@ function render() {
   $('.nav').innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + (APP === 'bast' ? '<button class="pqm" data-a="pq">Pesquisar</button>' : '');
   var bn = $('.bnav'); if (bn) { bn.innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + (ICN[x[0]] || ICN.mais) + '</svg><span>' + x[1] + '</span></button>'; }).join('') + '<button data-a="apps" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICN.mais + '</svg><span>Mais</span></button>'; bn.hidden = APP === 'prop' && !nv.length ? false : false; }
   if (bn && TAPV) { var tb = bn.querySelector('[data-v="' + TAPV + '"]') || (TAPV === 'apps' && bn.querySelector('[data-a=apps]')); if (tb) tb.classList.add('tap'); TAPV = ''; }
-  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag';
+  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag' || view === 'sesv';
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
