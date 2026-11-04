@@ -385,7 +385,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .scleg{margin:10px 0 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #ob .scdia{margin-top:20px;padding-top:16px;border-top:1px solid var(--sf)}#ob .scmk{margin-top:10px}#ob .scmb{margin-top:14px}
 #ob .scdl{margin:18px 0 2px}
-#ob .schs{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
+#ob .schs{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
 #ob .hch{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50px;padding:6px 4px;border-radius:10px;border:1px solid var(--sf);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--mt);cursor:pointer}
 #ob .hch{letter-spacing:0;text-transform:none}#ob .hch small{letter-spacing:0;text-transform:none;font-size:11px;font-weight:400;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ob .hch.fr{background:#e3ead8;border-color:#e3ead8;color:var(--ink)}#ob .hch.bk{background:var(--gd);border-color:var(--gd);color:#fff;cursor:default;opacity:1}#ob .hch.off{border-style:dashed}
@@ -1080,7 +1080,7 @@ function sesGhLigar() {
 }
 /* ---------- página de uma sessão: ensaios marcados, pedidos, calendário (menu), fotos ---------- */
 var SES_DUR = 40; // minutos de cada ensaio (marca-se de hora em hora)
-var SES_BASE = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
+var SES_BASE = (function () { var l = []; for (var h = 5; h <= 21; h++) l.push(String(h).padStart(2, '0') + ':30'); return l; })(); // 05:30, 06:30 … 21:30
 var SESC = { m: '', dia: '', aberto: false }; // calendário: mês (AAAA-MM), dia escolhido, menu aberto
 var sesFim = function (h) { var p = String(h).split(':'), t = +p[0] * 60 + +p[1] + SES_DUR; return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
 var sesDiaLong = function (d) { var s = dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
@@ -1119,7 +1119,7 @@ function sesDiaHtml(x, oc, sl) {
       (by[''] ? '<button type="button" class="hch fr" data-a="sesHt" data-d="' + d + '" data-h="" title="Tocar para tirar">Dia inteiro<small>sem hora</small></button>' : '') +
       horas.map(function (hh) { var s = by[hh], q = s ? (oc[d + '|' + hh] || []) : marc.filter(function (p) { return p.hora === hh; }), cheio = q.length >= (s ? Math.max(1, +s.vagas || 1) : 1) && q.length;
         return '<button type="button" class="hch ' + (cheio ? 'bk' : s ? 'fr' : 'off') + '"' + (cheio ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (cheio ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>'; }).join('') + '</div>' +
-      '<div class="scrow"><label><span>Abrir de hora em hora, das</span><select id="scDe">' + op('10:00') + '</select></label><label><span>às</span><select id="scAte">' + op('17:00') + '</select></label><button class="bt" data-a="sesHr" data-d="' + d + '">Abrir</button></div>' +
+      '<div class="scrow"><label><span>Abrir de hora em hora, das</span><select id="scDe">' + op('09:30') + '</select></label><label><span>às</span><select id="scAte">' + op('17:30') + '</select></label><button class="bt" data-a="sesHr" data-d="' + d + '">Abrir</button></div>' +
       '<div class="scrow"><label><span>Outra hora</span><input id="scOut" type="time"></label><button class="bt" data-a="sesHo" data-d="' + d + '">Adicionar</button></div>';
   } else o += '<p class="sm">Este dia já passou.</p>';
   return o + '</div>';
