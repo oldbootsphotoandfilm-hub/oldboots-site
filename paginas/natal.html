@@ -233,17 +233,27 @@
   var E=function(s){return String(s==null?'':s)};
   var MES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   function dia(iso){var p=String(iso).split('-');return new Date(+p[0],p[1]-1,+p[2])}
-  function intervalo(dias){
+  // texto das datas (o mesmo que os Bastidores mostram): «14 à 20 de Novembro», «14, 15 e 20 de Novembro»…
+  function intervalo(dias,hmin,hmax){
     var d=(dias||[]).map(function(x){return dia(x.data)}).filter(function(x){return !isNaN(x)}).sort(function(a,b){return a-b});
-    if(!d.length)return '';var a=d[0],b=d[d.length-1];
-    if(+a===+b)return a.getDate()+' de '+MES[a.getMonth()];
-    if(a.getMonth()===b.getMonth())return a.getDate()+' à '+b.getDate()+' de '+MES[b.getMonth()];
-    return a.getDate()+' de '+MES[a.getMonth()]+' à '+b.getDate()+' de '+MES[b.getMonth()];
+    d=d.filter(function(x,i){return !i||+x!==+d[i-1]}); if(!d.length)return '';
+    var runs=[],c=[d[0]];
+    for(var i=1;i<d.length;i++){ if(Math.round((d[i]-d[i-1])/864e5)===1)c.push(d[i]); else{runs.push(c);c=[d[i]]} } runs.push(c);
+    var mesmo=d.every(function(x){return x.getMonth()===d[0].getMonth()&&x.getFullYear()===d[0].getFullYear()});
+    var f=function(x,m){return x.getDate()+(m?' de '+MES[x.getMonth()]:'')};
+    var ps=[];
+    runs.forEach(function(r){var a=r[0],b=r[r.length-1];
+      if(r.length<=2)r.forEach(function(x){ps.push(f(x,!mesmo))});
+      else ps.push(f(a,!mesmo&&a.getMonth()!==b.getMonth())+' à '+f(b,!mesmo))});
+    var t=ps.length>1?ps.slice(0,-1).join(', ')+' e '+ps[ps.length-1]:ps[0];
+    if(mesmo)t+=' de '+MES[d[0].getMonth()];
+    if(hmin)t+=(hmax&&hmax!==hmin?', das '+hmin+' às '+hmax:', às '+hmin);
+    return t;
   }
   function texto(chave,v){var el=$$('[data-bd="'+chave+'"]',raiz)[0]; if(el&&E(v).trim())el.textContent=E(v).trim()}
   function aplica(r){
     if(!r)return;
-    var iv=intervalo(r.dias); if(iv)texto('datas',iv);
+    var iv=intervalo(r.dias,r.hora_min,r.hora_max); if(iv)texto('datas',iv);
     if(r.valor!==undefined&&r.valor!==''&&r.valor!==null){var n=Number(String(r.valor).replace(',','.')); texto('valor',isNaN(n)?E(r.valor):(n%1?n.toFixed(2).replace('.',','):n)+'€')}
     if(r.local)texto('local',r.local);
     // textos livres opcionais (se os Bastidores os enviarem): r.textos = {datas,det1..det4,local,valor,iva}

@@ -366,6 +366,11 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .sfb{display:flex;gap:8px}#ob .chp{padding:8px 14px;border-radius:99px;border:1px solid var(--sf);background:#fff;font-size:13px;color:var(--mt)}#ob .chp.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #ob .sesd{margin:18px 0 6px}#ob .sesd>.lb::first-letter{text-transform:uppercase}
 #ob .sesh{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#ob .calh{display:flex;align-items:center;justify-content:space-between;margin:14px 0 8px}#ob .calh b{font-size:16px;text-transform:capitalize}
+#ob .calw,#ob .calg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}#ob .calw span{text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mt)}
+#ob .cald{aspect-ratio:1;border:1px solid var(--sf);background:#fff;border-radius:50%;font:inherit;font-size:14px;cursor:pointer;color:var(--ink);padding:0}
+#ob .cald.ja{border-color:var(--ol);box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px var(--ol)}#ob .cald.on{background:var(--ol);color:#fff;border-color:var(--ol)}#ob .cald:disabled{opacity:.3;cursor:default}
+#ob .shtxt{font-size:18px;margin:4px 0 0;padding:12px 14px;background:#fff;border:1px solid var(--sf);border-radius:10px}
 #ob .hc{display:inline-flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;border:1px solid var(--sf);background:#fff;border-radius:10px;font-size:14px}
 #ob .hc b{font-weight:600}#ob .hc i{font-style:normal;font-size:11px;color:var(--mt)}#ob .hc small{font-size:12px;color:var(--mt);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ob .hc.ch{background:#e3ead8;border-color:#e3ead8}#ob .hc.pc{background:#f4e6c6;border-color:#f4e6c6}
@@ -1065,8 +1070,8 @@ function vSesV() {
   var dl = Object.keys(dias).sort(), pas = dl.filter(function (d) { return d <= TODAY; }), fut = dl.filter(function (d) { return d > TODAY; });
   var dia = function (d) { var hs = dias[d].sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
     return '<div class="sesd"><p class="lb">' + E(dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })) + '</p><div class="sesh">' + hs.map(function (h) { var q = oc[h.data + '|' + h.hora] || [], v = +h.vagas || 1, cheio = q.length >= v;
-      return '<span class="hc' + (cheio ? ' ch' : q.length ? ' pc' : '') + '"><b>' + E(h.hora) + '</b>' + (v > 1 ? '<i>' + q.length + '/' + v + '</i>' : '') + (q.length ? '<small>' + E(q.map(function (p) { return String(p.nome).split(' ')[0]; }).join(', ')) + '</small>' : '') +
-        (!q.length && d > TODAY ? '<button data-a="sesHx" data-id="' + E(h.id) + '" aria-label="Apagar ' + E(h.hora) + '" title="Apagar este horário">×</button>' : '') + '</span>'; }).join('') + '</div></div>'; };
+      return '<span class="hc' + (cheio ? ' ch' : q.length ? ' pc' : '') + '"><b>' + (h.hora ? E(h.hora) : 'Dia') + '</b>' + (v > 1 ? '<i>' + q.length + '/' + v + '</i>' : '') + (q.length ? '<small>' + E(q.map(function (p) { return String(p.nome).split(' ')[0]; }).join(', ')) + '</small>' : '') +
+        (!q.length && d > TODAY ? '<button data-a="sesHx" data-id="' + E(h.id) + '" aria-label="Apagar ' + E(h.hora || 'dia') + '" title="Apagar este horário">×</button>' : '') + '</span>'; }).join('') + '</div></div>'; };
   var url = x.link_da_pagina || '';
   return '<div class="w1"><p class="lb"><button class="lnk" data-a="go" data-v="ses">← Sessões</button></p><h1 class="h1" style="margin-top:6px">' + E(x.nome) + '</h1>' +
     '<p style="margin:10px 0 0">' + (x.ativa === 'Sim' ? tg('Marcações abertas', 'gr') : tg('Fechada', 'gy')) + ' ' + tg(x.tipo || 'Família', 'bl') + '</p>' +
@@ -1091,18 +1096,71 @@ function sesEditar(id) {
   form(x ? 'Editar sessão' : 'Nova sessão', [['Sessão', [['nome', 'Nome (aparece no e-mail e no WhatsApp)', 'text'], ['codigo', 'Código (o mesmo que está na página do Elementor)', 'text'], ['tipo', 'Tipo de ensaio', 'sel', SEL.sub.Ensaio], ['valor', 'Valor (€)', 'number'], ['local', 'Local', 'text'], ['link', 'Link da página no site', 'url'], ['ativa', 'Marcações abertas no site', 'chk'], ['mostrar_horarios', 'Mostrar os horários na página (desligado: o cliente só vê os dias)', 'chk'], ['notas', 'Notas (só para vocês)', 'area']]], ['Textos da página (vazio = fica o texto original)', [['intro', 'Convite (uma linha por linha na página)', 'area'], ['datas', 'Datas (opcional; vazio = calculado pelos dias)', 'text'], ['det1', 'Detalhe 1', 'text'], ['det2', 'Detalhe 2', 'text'], ['det3', 'Detalhe 3', 'text'], ['det4', 'Detalhe 4', 'text'], ['iva', 'Texto do IVA', 'text']]]], v,
     function (val) { val.textos = { datas: val.datas, det1: val.det1, det2: val.det2, det3: val.det3, det4: val.det4, iva: val.iva }; run(rpc('api_ses_guardar', id, val), 'Sessão guardada').then(function (r) { if (r && r.id) { SESID = r.id; view = 'sesv'; render(); } }); });
 }
+/* calendário para escolher os dias (e, se quiser, os horários) de uma sessão */
+var SES_MES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+function sesDatasTxt(iso, hmin, hmax) { // o mesmo texto que a página do Natal mostra em «Datas»
+  var d = iso.slice().sort().filter(function (x, i, a) { return !i || x !== a[i - 1]; }).map(function (x) { return new Date(+x.slice(0, 4), +x.slice(5, 7) - 1, +x.slice(8, 10), 12); });
+  if (!d.length) return '';
+  var runs = [], c = [d[0]], i;
+  for (i = 1; i < d.length; i++) { if (Math.round((d[i] - d[i - 1]) / 864e5) === 1) c.push(d[i]); else { runs.push(c); c = [d[i]]; } } runs.push(c);
+  var mesmo = d.every(function (x) { return x.getMonth() === d[0].getMonth() && x.getFullYear() === d[0].getFullYear(); });
+  var f = function (x, m) { return x.getDate() + (m ? ' de ' + SES_MES[x.getMonth()] : ''); };
+  var ps = [];
+  runs.forEach(function (r) { var a = r[0], b = r[r.length - 1];
+    if (r.length <= 2) r.forEach(function (x) { ps.push(f(x, !mesmo)); });
+    else ps.push(f(a, !mesmo && a.getMonth() !== b.getMonth()) + ' à ' + f(b, !mesmo)); });
+  var t = ps.length > 1 ? ps.slice(0, -1).join(', ') + ' e ' + ps[ps.length - 1] : ps[0];
+  if (mesmo) t += ' de ' + SES_MES[d[0].getMonth()];
+  if (hmin) t += (hmax && hmax !== hmin ? ', das ' + hmin + ' às ' + hmax : ', às ' + hmin);
+  return t;
+}
 function sesHorarios(id) {
   if (!id) return;
-  var v = { data: '', de: '10:00', ate: '13:00', cada: '30', vagas: 1 };
-  form('Adicionar horários', [['Dia e horários', [['data', 'Dia', 'date'], ['de', 'Primeiro horário', 'time'], ['ate', 'Último horário', 'time'], ['cada', 'De quanto em quanto tempo', 'sel', [['20', '20 minutos'], ['30', '30 minutos'], ['40', '40 minutos'], ['45', '45 minutos'], ['60', '1 hora'], ['90', '1 h 30'], ['120', '2 horas']]], ['vagas', 'Famílias por horário', 'number']]]], v,
-    function (val) {
-      var m = function (h) { var p = String(h || '').split(':'); return p.length === 2 ? +p[0] * 60 + +p[1] : NaN; }, a = m(val.de), b = m(val.ate), c = +val.cada || 30, l = [];
-      if (!/^\d{4}-\d\d-\d\d$/.test(val.data || '')) return toast('Escolha o dia.', 1);
-      if (val.data <= TODAY) return toast('Escolha um dia a partir de amanhã.', 1);
-      if (!(a >= 0) || !(b >= a)) return toast('O último horário tem de ser depois do primeiro.', 1);
-      for (var t = a; t <= b && l.length < 60; t += c) l.push({ data: val.data, hora: String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'), vagas: Math.max(1, Math.min(50, Math.floor(+val.vagas) || 1)) });
-      run(rpc('api_ses_horarios', id, l, []), pl(l.length, 'horário juntado', 'horários juntados') + ' a ' + fd(val.data));
-    }, 'Juntar horários');
+  var jaDias = {}, jaHoras = [];
+  SESD().h.filter(function (h) { return h.id_sessao === id && h.data > TODAY; }).forEach(function (h) { jaDias[h.data] = 1; if (h.hora) jaHoras.push(String(h.hora)); });
+  jaHoras.sort();
+  var sel = {}, mes = new Date(); mes = new Date(mes.getFullYear(), mes.getMonth(), 1);
+  var iso = function (y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); };
+  var horas = function () { // horários escolhidos (vazio = só os dias, sem horas)
+    var m = function (h) { var p = String(h || '').split(':'); return p.length === 2 && p[0] !== '' ? +p[0] * 60 + +p[1] : NaN; };
+    var a = m($('#shDe').value), b = m($('#shAte').value), c = +$('#shCada').value || 30, l = [];
+    if (!(a >= 0)) return l; if (!(b >= a)) b = a;
+    for (var t = a; t <= b && l.length < 60; t += c) l.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'));
+    return l;
+  };
+  var desenha = function () {
+    var y = mes.getFullYear(), m = mes.getMonth(), p1 = (new Date(y, m, 1).getDay() + 6) % 7, nd = new Date(y, m + 1, 0).getDate(), h = '';
+    for (var i = 0; i < p1; i++) h += '<span></span>';
+    for (var d = 1; d <= nd; d++) { var k = iso(y, m, d), pas = k <= TODAY;
+      h += '<button type="button" class="cald' + (sel[k] ? ' on' : '') + (jaDias[k] ? ' ja' : '') + '"' + (pas ? ' disabled' : '') + ' data-d="' + k + '">' + d + '</button>'; }
+    $('#shCal').innerHTML = h; $('#shMes').textContent = SES_MES[m] + ' ' + y;
+    $$('#shCal .cald').forEach(function (b) { b.onclick = function () { var k = b.getAttribute('data-d'); if (sel[k]) delete sel[k]; else sel[k] = 1; b.classList.toggle('on'); atualiza(); }; });
+  };
+  var atualiza = function () {
+    var ks = Object.keys(sel), hs = horas(), todos = Object.keys(jaDias).concat(ks), hh = jaHoras.concat(hs).sort();
+    $('#shTxt').textContent = todos.length ? sesDatasTxt(todos, hh[0], hh[hh.length - 1]) : 'Ainda sem datas';
+    $('#shN').textContent = ks.length ? pl(ks.length, 'dia escolhido', 'dias escolhidos') + (hs.length ? ' · ' + pl(hs.length, 'horário', 'horários') + ' por dia' : ' · sem horários') : 'Toque nos dias para os escolher.';
+  };
+  openM('<h2 class="mt">Datas e horários</h2><p class="sm">Escolha os dias no calendário. Os horários são opcionais: se os deixar vazios, a página mostra só as datas.</p>' +
+    '<div class="calh"><button type="button" class="bt" id="shP" aria-label="Mês anterior">‹</button><b id="shMes"></b><button type="button" class="bt" id="shS" aria-label="Mês seguinte">›</button></div>' +
+    '<div class="calw"><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span></div><div class="calg" id="shCal"></div>' +
+    '<p class="sm" id="shN" style="margin:8px 0 0"></p>' +
+    '<p class="lb gl" style="margin-top:16px">Horários (opcional)</p><div class="fm"><label><span>Primeiro horário</span><input id="shDe" type="time"></label><label><span>Último horário</span><input id="shAte" type="time"></label>' +
+    '<label><span>De quanto em quanto tempo</span><select id="shCada"><option value="20">20 minutos</option><option value="30" selected>30 minutos</option><option value="40">40 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 h 30</option><option value="120">2 horas</option></select></label>' +
+    '<label><span>Famílias por horário (ou por dia, sem horários)</span><input id="shV" type="number" value="1" min="1" max="50"></label></div>' +
+    '<p class="lb gl" style="margin-top:14px">Como fica na página</p><p id="shTxt" class="shtxt"></p>' +
+    '<div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="shOk">Juntar</button></div>');
+  $('#shP').onclick = function () { mes = new Date(mes.getFullYear(), mes.getMonth() - 1, 1); desenha(); };
+  $('#shS').onclick = function () { mes = new Date(mes.getFullYear(), mes.getMonth() + 1, 1); desenha(); };
+  ['shDe', 'shAte', 'shCada'].forEach(function (i) { $('#' + i).oninput = atualiza; $('#' + i).onchange = atualiza; });
+  desenha(); atualiza();
+  $('#shOk').onclick = function () {
+    var ks = Object.keys(sel).sort(), hs = horas(), v = Math.max(1, Math.min(50, Math.floor(+$('#shV').value) || 1)), l = [];
+    if (!ks.length) return toast('Escolha pelo menos um dia no calendário.', 1);
+    ks.forEach(function (k) { if (!hs.length) l.push({ data: k, hora: '', vagas: v }); else hs.forEach(function (hh) { l.push({ data: k, hora: hh, vagas: v }); }); });
+    if (l.length > 300) return toast('Demasiados horários de uma vez (máximo 300). Escolha menos dias.', 1);
+    closeM(); run(rpc('api_ses_horarios', id, l, []), pl(ks.length, 'dia juntado', 'dias juntados'));
+  };
 }
 function evRow(c) { var d = dias(c.data_do_evento); return '<div class="rw" data-a="f" data-id="' + E(c.id) + '"><span class="n">' + fds(c.data_do_evento) + '</span><div><b>' + E(nc(c.nome_do_casal)) + '</b>' + tg2(c) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '<small>' + fd(c.data_do_evento) + ' ' + E(c.hora) + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small></div><div class="rt"><small>' + (d >= 0 ? 'faltam ' + d + ' dias' : 'há ' + (-d) + ' dias') + '</small></div></div>'; }
 
