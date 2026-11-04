@@ -109,6 +109,28 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .ld{padding:80px 0;text-align:center;color:var(--mt)}
 #obq .sp{width:26px;height:26px;border:2px solid var(--ln);border-top-color:var(--ol);border-radius:50%;margin:0 auto 14px;animation:obqr .8s linear infinite}
 @keyframes obqr{to{transform:rotate(360deg)}}
+/* ecrã grande: a página deixa de ser uma coluna de telemóvel e passa a usar a largura (capa grande, secções em colunas) */
+@media (min-width:1000px){
+#obq.casa .cv{min-height:92vh;padding:120px 60px 60px}
+#obq.casa .cv .nms{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:.12em .3em}
+#obq.casa .cv .nms span{font-size:clamp(70px,9vw,150px)!important}
+#obq.casa .cv .nms .amp{font-size:clamp(80px,10vw,170px)!important;margin:0}
+#obq.casa .cv .sc{font-size:clamp(40px,3.4vw,64px)}
+#obq .cdn b{font-size:96px}#obq .cdn span,#obq .dtl{font-size:13px}
+#obq .snav{justify-content:center;gap:44px;padding:18px 40px}#obq .snav button{font-size:12px}
+#obq .sec{padding:96px 60px 104px}
+#obq section.sec .in{max-width:1080px}
+#obq section#s-doc .in,#obq section#s-q .in{max-width:680px}
+#obq .hd{margin-bottom:46px}#obq .hd .tt{font-size:clamp(40px,4.6vw,72px)}
+#obq .dcols{display:grid;grid-template-columns:1fr 1.15fr;gap:70px;align-items:start}
+#obq .dcols .pap{margin-top:0}#obq .dcols .kv2{gap:26px 28px}#obq .dcols .kv2 b{font-size:20px}
+#obq .cols2{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:start}
+#obq #s-pag .mon{margin-top:6px}
+#obq .tbg{display:grid;grid-template-columns:repeat(3,1fr);gap:44px;margin-top:30px}
+#obq .tbg .tb{margin:0}
+#obq .w{max-width:760px}
+}
+@media (min-width:1000px) and (max-width:1250px){#obq .tbg{grid-template-columns:1fr 1fr}}
 @media (max-width:520px){#obq .g2{grid-template-columns:1fr}#obq h1{font-size:26px}}
 #obq{--cr:#fff4cf;--dk:#2b2a07;--olt:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-textura-oliva.jpg);--pap:url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-papel.jpg)}
 #obq.casa header{position:absolute;left:0;right:0;top:0;z-index:3;max-width:none}
@@ -495,19 +517,19 @@ function casa() {
   var chip = function (e) { return '<span class="chip' + (e === 'Paga' ? ' ok' : e === 'Em atraso' ? ' at' : '') + '">' + E(X(e)) + '</span>'; };
   var dts = function (x) { return dt(x, { day: 'numeric', month: 'short', year: 'numeric' }); };
   var tr = (I.trabalho || []).length ? '<section class="sec @C" id="s-trab"><div class="in"><div class="hd"><h2 class="tt">' + X('trabTit') + '</h2><p class="sc">' + X('trabSc') + '</p></div><p class="em2">' + X('trabTx') + '</p>' + (DEMO ? '<p class="em2" style="color:#a4572d"><b>' + (L === 'en' ? 'Example: click the track to change the stage.' : 'Exemplo: clique no trilho para mudar a etapa.') + '</b></p>' : '') +
-    I.trabalho.map(function (t, ti) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
+    '<div class="tbg">' + I.trabalho.map(function (t, ti) { var ok = t.etapa === 'Entregue', st = ''; for (var i = 1; i < t.passos; i++) st += '<i class="' + (i <= t.passo ? 'on' : '') + '"></i>';
       if (t.antes) { var st0 = ''; for (var j = 1; j < (t.passos || 4); j++) st0 += '<i></i>'; return '<div class="tb"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="0"><i></i><i></i></span><div class="stp">' + st0 + '</div></div><p class="et"><b>' + X('comeca') + '</b><span></span></p></div>'; }
-      return '<div class="tb' + (ok ? ' ok' : '') + (DEMO ? ' dm' : '') + '" data-i="' + ti + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="' + (ok ? 1 : Math.max(0, t.passo) / Math.max(1, t.passos - 1)) + '"><i></i><i></i></span><div class="stp">' + st + '</div></div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></section>' : '';
+      return '<div class="tb' + (ok ? ' ok' : '') + (DEMO ? ' dm' : '') + '" data-i="' + ti + '"><p class="sc">' + X('p_' + t.parte) + '</p><div class="trilho" aria-hidden="true"><span class="bts" data-fr="' + (ok ? 1 : Math.max(0, t.passo) / Math.max(1, t.passos - 1)) + '"><i></i><i></i></span><div class="stp">' + st + '</div></div><p class="et"><b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && t.passo > 0 ? X('fase') + ' ' + t.passo + '/' + (t.passos - 2) : '') + '</span></p>' + (t.prazo ? '<p class="pz">' + X('prevista') + ' ' + E(dt(t.prazo)) + '</p>' : '') + '</div>'; }).join('') + '</div></div></section>' : '';
   var dia = '<section class="sec @C" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
-    '<div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(servDe(I)), 1) + '</div>' +
+    '<div class="dcols"><div><div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(servDe(I)), 1) + '</div></div><div>' +
     (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + descExtra(I) + '</div>' : '') +
-    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></section>';
+    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></div></div></section>';
   var ent = I.forma === 'Entrada + parcelas' && I.entrada ? '<div class="rw2"><div>' + X('entrada') + '<small>' + I.entrada_pc + ' %</small></div><div class="v">' + eur(I.entrada) + '<br>' + chip(I.pago >= I.entrada - .005 ? 'Paga' : I.pago > 0 ? 'Parcial' : 'Pendente') + '</div></div>' : '';
   var pag = '<section class="sec @C" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
     '<div class="mon"><b>' + eur(I.pago) + '</b><small>' + X('pago') + ' ' + X('de2') + ' ' + eur(I.valor) + '</small></div><div class="pbar"><i style="width:' + pc + '%"></i></div>' +
     '<p class="em2">' + (I.falta > 0.005 ? X('emFalta') + ': <b>' + eur(I.falta) + '</b>' : X('tudoPago')) + '</p>' +
-    (ent || (I.parcelas || []).length ? '<p class="lbl" style="margin-top:34px">' + X('plano') + '</p>' + ent + (I.parcelas || []).map(function (x) { return '<div class="rw2"><div>' + X('parcela') + ' ' + x.n + '<small>' + X('vence') + ' ' + E(dts(x.vence)) + '</small></div><div class="v">' + eur(x.valor) + '<br>' + chip(x.estado) + '</div></div>'; }).join('') : '') +
-    '<p class="lbl" style="margin-top:34px">' + X('recebidos') + '</p>' + ((I.pagamentos || []).map(function (x) { return '<div class="rw2"><div>' + E(X(x.tipo === 'Parcela' ? 'Parcela_t' : x.tipo)) + (x.parcela ? ' ' + E(x.parcela) : '') + '<small>' + E(dts(x.data)) + '</small></div><div class="v">' + eur(x.valor) + '</div></div>'; }).join('') || '<p class="em2" style="text-align:left">' + X('nada') + '</p>') + '</div></section>';
+    '<div class="cols2"><div>' + (ent || (I.parcelas || []).length ? '<p class="lbl" style="margin-top:34px">' + X('plano') + '</p>' + ent + (I.parcelas || []).map(function (x) { return '<div class="rw2"><div>' + X('parcela') + ' ' + x.n + '<small>' + X('vence') + ' ' + E(dts(x.vence)) + '</small></div><div class="v">' + eur(x.valor) + '<br>' + chip(x.estado) + '</div></div>'; }).join('') : '') +
+    '</div><div><p class="lbl" style="margin-top:34px">' + X('recebidos') + '</p>' + ((I.pagamentos || []).map(function (x) { return '<div class="rw2"><div>' + E(X(x.tipo === 'Parcela' ? 'Parcela_t' : x.tipo)) + (x.parcela ? ' ' + E(x.parcela) : '') + '<small>' + E(dts(x.data)) + '</small></div><div class="v">' + eur(x.valor) + '</div></div>'; }).join('') || '<p class="em2" style="text-align:left">' + X('nada') + '</p>') + '</div></div></div></section>';
   var docs = '<section class="sec @C" id="s-doc"><div class="in"><div class="hd"><h2 class="tt">' + X('nDoc') + '</h2></div>' +
     '<div class="rw2"><div>' + X('contrato') + '</div><div class="v"><span class="chip' + (I.contrato === 'assinado' ? ' ok" style="background:#454205;color:#fff4cf;border-color:#454205' : '') + '">' + X(I.contrato === 'assinado' ? 'assinado' : 'porAssinar') + '</span></div></div>' +
     (I.resumo || I.contrato_pdf ? '<div class="bcs">' + (I.resumo ? '<button class="bc fill" data-a="doc" data-v="resumo">' + X('descarregar') + ' · ' + X('resumoC') + '</button>' : '') + (I.contrato_pdf ? '<button class="bc" data-a="doc" data-v="contrato">' + X('descarregar') + ' · ' + X('contratoPdf') + '</button>' : '') + '</div>' : '<p class="em2" style="margin-top:18px">' + X('semDocs') + '</p>') + '</div></section>';

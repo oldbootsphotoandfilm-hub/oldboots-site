@@ -10,6 +10,8 @@ body:has(.ob-sl),body.ob-on{background:var(--ob-dk)!important;margin:0}
 .elementor-editor-active .elementor-section.ob-cfg::before{content:"CÓDIGO DA PROPOSTA · NÃO APAGAR · ENDPOINT E IMAGENS DE FUNDO";display:block;padding:14px;font:600 11px/1.3 Montserrat,Arial,sans-serif;letter-spacing:.14em;color:#2b2a07;text-align:center}
 .elementor-section.ob-sl,.elementor-section.ob-exp{width:min(100vw,540px)!important;max-width:540px!important;margin:0 auto!important;padding:0!important;container-type:inline-size;position:relative;box-sizing:border-box;font-family:Montserrat,Arial,sans-serif;left:auto!important}
 .elementor-section.ob-sl{aspect-ratio:4/5;overflow:hidden}
+/* ecrã grande: a folha cresce (cabe inteira no ecrã) em vez de ficar uma coluna de telemóvel */
+@media (min-width:900px){.elementor-section.ob-sl,.elementor-section.ob-exp{width:min(100vw,820px,calc(80vh*.8 + 120px))!important;max-width:none!important}}
 /* cada página separada da seguinte, como as folhas do PDF */
 .elementor-section.ob-sl:not(:last-child){margin-bottom:max(10px,2.4cqw)!important}
 .ob-sl>.elementor-container,.ob-exp>.elementor-container{height:100%;max-width:none!important;width:100%!important}
