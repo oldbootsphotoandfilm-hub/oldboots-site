@@ -39,6 +39,13 @@
 
   function carregar(caixa) {
     var nome = caixa.getAttribute('data-ob');
+    // sessões de Natal: o widget antigo (data-ob="sessao" data-sessao="natal-…") passa a mostrar a página nova, sem mexer no Elementor
+    if (nome === 'sessao' && /^natal/.test(caixa.getAttribute('data-sessao') || '')) {
+      nome = 'natal'; caixa.setAttribute('data-ob', 'natal');
+      var st = document.createElement('style');
+      st.textContent = '.elementor-section[class*="ob-ln"]:not([class*="ob-ln-cfg"]){display:none!important}';
+      document.head.appendChild(st);
+    }
     caixa.setAttribute('data-ob-feito', '1');
     if (!NOMES.test(nome || '')) return Promise.resolve();
     return buscar(nome).then(function (html) {
