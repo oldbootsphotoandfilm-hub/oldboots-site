@@ -43,8 +43,10 @@
 .ob-nt .nt-c{left:0;right:0;text-align:center}
 .ob-nt .nt-par{position:absolute;left:0;right:0;top:calc(430*var(--u));text-align:center;color:#efc79a;font-family:var(--script);font-size:calc(60*var(--u));line-height:calc(53*var(--u));text-shadow:0 1px 3px rgba(0,0,0,.45)}
 .ob-nt .nt-par p{margin:0;white-space:nowrap}
-.ob-nt .nt-li{position:absolute;left:calc(211*var(--u));margin:0;font-family:var(--script);font-size:calc(var(--fs,54)*var(--u));line-height:1.1;color:var(--gold);white-space:nowrap;padding-left:calc(40*var(--u))}
-.ob-nt .nt-li::before{content:"";position:absolute;left:0;top:50%;width:calc(15*var(--u));height:calc(15*var(--u));margin-top:calc(-6*var(--u));border-radius:calc(3*var(--u));background:#e9cfb4}
+.ob-nt .nt-li{position:absolute;left:calc(205*var(--u));margin:0;font-family:var(--script);font-size:calc(var(--fs,54)*var(--u));line-height:1.1;color:var(--gold);white-space:nowrap;padding-left:calc(46*var(--u))}
+.ob-nt .nt-li::before{content:"";position:absolute;left:0;top:50%;width:calc(30*var(--u));height:calc(33*var(--u));margin-top:calc(-18*var(--u));background:url(https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/natal/marshmallow.webp) center/contain no-repeat;transform-origin:50% 100%;animation:ntpula 2.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*.23s)}
+@keyframes ntpula{0%,62%,100%{transform:translateY(0) scale(1,1)}10%{transform:translateY(0) scale(1.07,.9)}32%{transform:translateY(calc(-7*var(--u))) scale(.97,1.05)}50%{transform:translateY(0) scale(1.05,.93)}56%{transform:translateY(0) scale(.99,1.02)}}
+@media (prefers-reduced-motion:reduce){.ob-nt .nt-li::before{animation:none}}
 .ob-nt .nt-iva{font-size:calc(32*var(--u));margin-left:calc(22*var(--u));color:var(--gold);opacity:.95}
 .ob-nt .nt-dt{white-space:nowrap}
 .ob-nt .nt-wa{display:inline-flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;font-family:var(--script);line-height:1;cursor:pointer;transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s;-webkit-tap-highlight-color:transparent}
