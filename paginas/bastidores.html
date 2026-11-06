@@ -1117,6 +1117,7 @@ function sesGhLigar() {
 /* ---------- página de uma sessão: ensaios marcados, pedidos, calendário (menu), fotos ---------- */
 var SES_DUR = 40; // minutos de cada ensaio (marca-se de hora em hora)
 var SES_BASE = (function () { var l = []; for (var h = 5; h <= 21; h++) l.push(String(h).padStart(2, '0') + ':30'); return l; })(); // 05:30, 06:30 … 21:30
+var SES_PAD = ['17:30', '18:30', '19:30', '20:30']; // horas pré-definidas de cada dia
 var SESC = { m: '', dia: '', hora: '', aberto: false, edit: false, lista: false }; // calendário: mês (AAAA-MM), dia escolhido, menu aberto
 var sesFim = function (h) { var p = String(h).split(':'), t = +p[0] * 60 + +p[1] + SES_DUR; return String(Math.floor(t / 60) % 24).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
 var sesDiaLong = function (d) { var s = dt(d).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }); return s.charAt(0).toUpperCase() + s.slice(1); };
@@ -1181,7 +1182,7 @@ function sesDiaHtml(x, oc, sl) {
   var d = SESC.dia, ed = !!SESC.edit, edit = d >= TODAY, marc = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
   var by = {}; sl.forEach(function (h) { by[h.hora] = h; });
   var hid = SESD().h.filter(function (h) { return h.id_sessao === x.id && h.data === d && sesOcl(h); }), hidH = hid.map(function (h) { return h.hora; }).sort();
-  var horas = SES_BASE.filter(function (hh) { return hidH.indexOf(hh) < 0; }); sl.forEach(function (h) { if (h.hora && horas.indexOf(h.hora) < 0) horas.push(h.hora); }); marc.forEach(function (p) { if (horas.indexOf(p.hora) < 0) horas.push(p.hora); }); horas.sort();
+  var horas = SES_PAD.filter(function (hh) { return hidH.indexOf(hh) < 0; }); sl.forEach(function (h) { if (h.hora && horas.indexOf(h.hora) < 0) horas.push(h.hora); }); marc.forEach(function (p) { if (horas.indexOf(p.hora) < 0) horas.push(p.hora); }); horas.sort();
   var op = function (sel) { return SES_BASE.map(function (hh) { return '<option' + (hh === sel ? ' selected' : '') + '>' + hh + '</option>'; }).join(''); };
   var o = '<div class="scdia"><div class="sest"><div><p class="lb gl" style="margin:0">' + E(sesDiaLong(d)) + '</p></div><button class="bt" data-a="sesPdf" data-d="' + d + '"' + (marc.length ? '' : ' disabled') + '>Exportar PDF do dia</button></div>';
   o += marc.length ? '<div class="scmk">' + marc.map(function (p) { return '<div class="rw"><span class="n">' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b><small>' + E(p.hora) + ' às ' + sesFim(p.hora) + (p.telemovel ? ' · ' + E(p.telemovel) : '') + (p.notas && !/^Marcado por WhatsApp$/.test(p.notas) ? ' · ' + E(p.notas) : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(String(p.telemovel || '')) + '</span></div></div>'; }).join('') + '</div>' : '<p class="em">Sem clientes marcados neste dia.</p>';
