@@ -378,7 +378,24 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .sescal>summary{display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:pointer;padding:6px 0;list-style:none}#ob .sescal>summary::-webkit-details-marker{display:none}
 #ob .sescal>summary .sctt{white-space:nowrap;font-size:11.5px;letter-spacing:.12em;margin:0}#ob .sescal>summary .scab{margin:0;display:inline-flex;align-items:center;gap:8px}#ob .sescal>summary .sctx{text-decoration:underline;text-underline-offset:3px}#ob .scic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #ob .scd{position:relative;aspect-ratio:1;min-width:0;border:1px solid var(--sf);background:#fff;border-radius:10px;font:inherit;color:var(--ink);padding:5px 0 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px}
-#ob .scd b{font-weight:500;font-size:14px}#ob .scd.pas{opacity:.55}#ob .scd.hj{border-color:var(--ink)}#ob .scd.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+#ob .scd b{font-weight:500;font-size:14px}#ob .scd.pas{opacity:.55}
+#ob .calan .scd{animation:scdIn var(--t,2s) linear both;animation-delay:var(--dl,0ms)}
+#ob .calan .scd b,#ob .calan .scd i{position:relative;z-index:3;animation:scdTx var(--t,2s) linear both;animation-delay:var(--dl,0ms)}
+#ob .calan .scd::before{content:"";position:absolute;left:8%;right:8%;top:6%;bottom:6%;z-index:4;pointer-events:none;background:url(https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/natal/marshmallow.webp) center/contain no-repeat;transform-origin:50% 100%;animation:scdMmA var(--t,2s) cubic-bezier(.33,.66,.45,1) both;animation-delay:var(--dl,0ms)}
+#ob .calan .scd.mmB::before{animation-name:scdMmB}#ob .calan .scd.mmC::before{animation-name:scdMmC}
+#ob .calan .scd::after{content:"";position:absolute;inset:-1px;z-index:1;pointer-events:none;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--sf);transform-origin:50% 92%;animation:scdBlob var(--t,2s) ease-out both;animation-delay:var(--dl,0ms)}
+#ob .calan .scd.on::after{background:var(--ink)}
+/* A: dois saltos */
+@keyframes scdMmA{0%{transform:translateY(-170%) scale(.7);opacity:0}7%{opacity:1}20%{transform:translateY(0) scale(calc(2 - var(--s)),var(--s))}30%{transform:translateY(calc(var(--h) * -1)) scale(.92,1.1) rotate(var(--r))}40%{transform:translateY(0) scale(1.1,.88) rotate(0deg)}48%{transform:translateY(calc(var(--h) * -.38)) scale(.97,1.04) rotate(calc(var(--r) * -.5))}55%{transform:translateY(0) scale(1.05,.95)}60%{transform:translateY(0) scale(1)}70%{transform:scale(1.12,1.02);opacity:1}82%{transform:scale(1.22,1.12);opacity:0}100%{transform:scale(1.22,1.12);opacity:0}}
+/* B: cai e treme como gelatina */
+@keyframes scdMmB{0%{transform:translateY(-190%) rotate(calc(var(--r) * 2));opacity:0}8%{opacity:1}24%{transform:translateY(0) scale(1.24,.74) rotate(0deg)}31%{transform:scale(.86,1.14) rotate(var(--r))}38%{transform:scale(1.1,.9) rotate(calc(var(--r) * -.8))}45%{transform:scale(.95,1.06) rotate(calc(var(--r) * .45))}52%{transform:scale(1.03,.97) rotate(calc(var(--r) * -.2))}60%{transform:scale(1) rotate(0deg)}70%{transform:scale(1.12,1.02);opacity:1}82%{transform:scale(1.22,1.12);opacity:0}100%{transform:scale(1.22,1.12);opacity:0}}
+/* C: chega aos pulinhos de lado */
+@keyframes scdMmC{0%{transform:translate(calc(var(--h) * -2.2),-120%) rotate(calc(var(--r) * -1.5));opacity:0}8%{opacity:1}18%{transform:translate(calc(var(--h) * -1.4),0) scale(1.12,.86)}27%{transform:translate(calc(var(--h) * -.9),calc(var(--h) * -.8)) rotate(var(--r))}36%{transform:translate(calc(var(--h) * -.4),0) scale(1.1,.88) rotate(0deg)}44%{transform:translate(calc(var(--h) * -.15),calc(var(--h) * -.35)) rotate(calc(var(--r) * -.4))}52%{transform:translate(0,0) scale(1.07,.93)}60%{transform:translate(0,0) scale(1)}70%{transform:scale(1.12,1.02);opacity:1}82%{transform:scale(1.22,1.12);opacity:0}100%{transform:scale(1.22,1.12);opacity:0}}
+/* o marshmallow estica e vira o quadrado */
+@keyframes scdBlob{0%,58%{transform:scale(.78,.8);border-radius:44% 44% 40% 40%/36% 36% 30% 30%;background:#f7e6d3;box-shadow:inset 0 0 0 1px transparent;opacity:0}63%{opacity:1;transform:scale(.8,.8)}74%{transform:scale(1.07,.93);border-radius:26%;background:#fbf2e8}84%{transform:scale(.97,1.04);border-radius:16%}92%{transform:scale(1.01,.99)}100%{transform:scale(1);opacity:1}}
+@keyframes scdIn{0%,99%{background:transparent;border-color:transparent}100%{}}
+@keyframes scdTx{0%,76%{opacity:0}100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){#ob .calan .scd,#ob .calan .scd b,#ob .calan .scd i,#ob .calan .scd::before{animation:none}#ob .calan .scd::before{display:none}}#ob .scd.hj{border-color:var(--ink)}#ob .scd.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #ob .scd i{display:flex;gap:3px;align-items:center;min-height:14px;font-style:normal}
 #ob u.lv{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ol);text-decoration:none}#ob .scd.on u.lv{background:#e3ead8}
 #ob u.scm{display:inline-block;min-width:15px;height:15px;line-height:15px;border-radius:8px;background:var(--gd);color:#fff;font-size:10px;font-weight:600;text-align:center;text-decoration:none;padding:0 3px;box-sizing:border-box}
@@ -1106,6 +1123,7 @@ var sesDiaLong = function (d) { var s = dt(d).toLocaleDateString('pt-PT', { week
 var sesTel = function (t) { return t ? '<a class="wab" href="' + E(wa(t)) + '" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">' + ICO.wa + '</a>' : ''; };
 // as marcações confirmadas com hora (ensaios fechados)
 function sesFechados(sid) { return SESD().p.filter(function (p) { return p.id_sessao === sid && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; }); }
+function sesAnim() { var g = $('.calg'); if (!g) return; g.classList.remove('calan'); void g.offsetWidth; g.classList.add('calan'); clearTimeout(sesAnim.t); sesAnim.t = setTimeout(function () { g.classList.remove('calan'); }, g.children.length * 120 + 3000); }
 function sesCalHtml(x) {
   var oc = sesOc(x.id), hs = SESD().h.filter(function (h) { return h.id_sessao === x.id; }), porDia = {};
   hs.forEach(function (h) { if (!sesOcl(h)) (porDia[h.data] = porDia[h.data] || []).push(h); });
@@ -1116,12 +1134,12 @@ function sesCalHtml(x) {
     var k = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'), sl = porDia[k] || [], liv = 0, mar = 0;
     var vis = {}; sl.forEach(function (h) { if (vis[h.hora]) return; vis[h.hora] = 1; liv += Math.max(0, (+h.vagas || 1) - (oc[h.data + '|' + h.hora] || []).length); });
     mar = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === k && p.situacao === 'Confirmado' && p.hora; }).length;
-        g += '<button type="button" class="scd' + (k < TODAY ? ' pas' : '') + (k === TODAY ? ' hj' : '') + (k === SESC.dia ? ' on' : '') + (sl.length ? ' ab' : '') + '" data-a="sesDia" data-d="' + k + '" aria-label="' + E(sesDiaLong(k)) + '"><b>' + d + '</b>' +
+        var rr = function (n) { return ((d * 9301 + n * 49297) % 233280) / 233280; };
+    g += '<button type="button" style="--dl:' + ((d - 1) * 120) + 'ms;--t:' + (1.9 + rr(1) * .6).toFixed(2) + 's;--h:' + Math.round(32 + rr(2) * 34) + '%;--r:' + Math.round(-12 + rr(3) * 24) + 'deg;--s:' + (.74 + rr(4) * .12).toFixed(2) + '" class="scd mm' + 'ABC'.charAt(Math.floor(rr(5) * 3)) + (k < TODAY ? ' pas' : '') + (k === TODAY ? ' hj' : '') + (k === SESC.dia ? ' on' : '') + (sl.length ? ' ab' : '') + '" data-a="sesDia" data-d="' + k + '" aria-label="' + E(sesDiaLong(k)) + '"><b>' + d + '</b>' +
       '<i>' + (mar ? '<u class="scm">' + mar + '</u>' : '') + (liv ? '<u class="lv"></u>' : '') + '</i></button>';
   }
   var h = '<div class="calh"><button type="button" class="bt" data-a="sesMes" data-v="-1" aria-label="Mês anterior">‹</button><b>' + SES_MES[m] + ' ' + y + '</b><button type="button" class="bt" data-a="sesMes" data-v="1" aria-label="Mês seguinte">›</button></div>' +
-    '<div class="calw"><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span></div><div class="calg">' + g + '</div>' +
-    '<p class="sm scleg"><u class="lv"></u> tem horas livres &nbsp; <u class="scm">2</u> clientes marcados</p>';
+    '<div class="calw"><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span><span>dom</span></div><div class="calg">' + g + '</div>';
   return h + (SESC.dia ? sesDiaHtml(x, oc, porDia[SESC.dia] || []) : '<p class="em">Toque num dia para ver as marcações e escolher as horas.</p>');
 }
 function sesHoraHtml(d, slot, ocu) { // painel por baixo das horas: marcar um cliente, ou ver o cliente já marcado
@@ -2424,7 +2442,7 @@ var act = {
   sesA: function (d) { SESID = d.id; view = 'sesv'; render(); R.scrollTop = 0; },
   sesE: function (d) { sesEditar(d.id); },
   sesDia: function (d) { SESC.dia = d.d; SESC.hora = ''; SESC.edit = false; SESC.m = String(d.d).slice(0, 7); SESC.aberto = true; render(); var e = $('#sescal'); if (e) e.scrollIntoView({ block: 'start' }); },
-  sesMes: function (d) { var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1 + (+d.v); var n = new Date(y, m, 1); SESC.m = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0'); render(); },
+  sesMes: function (d) { setTimeout(sesAnim, 0); var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1 + (+d.v); var n = new Date(y, m, 1); SESC.m = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0'); render(); },
   sesHt: function (d) { SESC.hora = SESC.hora === d.h ? '' : d.h; render(); var i = $('#mkN'); if (i && !toque) try { i.focus({ preventScroll: true }); } catch (e) { } },
   sesHa: function (d) { var h = SESD().h.find(function (y) { return y.id_sessao === SESID && y.data === d.d && String(y.hora || '') === d.h; }); SESC.hora = '';
     if (d.h === '' && h) return sesOp([], [h.id]);
@@ -2462,6 +2480,7 @@ var act = {
   ed: function (d) { var x = D.doc.find(function (y) { return y.id_cliente === d.id; }) || {}; form('Documentos', [['Links', [['link_do_pdf_do_contrato', 'Link do PDF do contrato', 'url'], ['link_do_google_docs', 'Link do Google Docs', 'url'], ['notas', 'Notas', 'text']]]], Object.assign({}, x), function (v) { var o = {}; Object.keys(v).forEach(function (k) { if (k !== '_row' && k !== 'id_cliente') o[k] = v[k]; }); run(rpc('api_upd', 'Documentos', d.id, o), 'Guardado', function () { ficha(d.id, 'd'); }); }); },
   sn: function (d) { run(rpc('api_upd', 'Clientes', d.id, { observacoes: $('#nt').value }), 'Notas guardadas', function () { ficha(d.id, 'n'); }); }
 };
+document.addEventListener('click', function (e) { var sm = e.target.closest && e.target.closest('#sescal > summary'); if (sm && !sm.parentNode.open) setTimeout(sesAnim, 60); }, true);
 document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'sesfim') SESC.lista = e.target.open; if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sctx'); if (t) t.textContent = SESC.aberto ? 'fechar calendário' : 'abrir calendário'; } }, true);
 R.addEventListener('click', function (e) { if (e.target.closest('a')) return; var b = e.target.closest('[data-a]'); if (b && R.contains(b) && act[b.dataset.a]) { e.stopPropagation(); e.preventDefault(); act[b.dataset.a](b.dataset); } }, true);
 $('#ov').addEventListener('click', function (e) { if (e.target.id === 'ov') closeM(); });
