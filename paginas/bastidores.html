@@ -397,6 +397,16 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .schp .btns a.b1{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 #ob .sesfim>summary{list-style:none;cursor:pointer;text-align:center;padding:16px;display:block;border:1px solid var(--ink);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500}#ob .sesfim>summary::-webkit-details-marker{display:none}#ob .sesfl{margin-top:16px}
 #ob .hch.sel{outline:3px solid var(--gd);outline-offset:1px}#ob .schp{margin-top:14px;padding:14px;background:#fff;border:1px solid var(--sf);border-radius:12px}#ob .schp .btns{margin-top:12px}
+#ob .scadd{margin-top:18px;padding:16px;background:#fff;border:1px solid var(--sf);border-radius:14px;display:flex;flex-direction:column;gap:14px}
+#ob .scah{margin:0;display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}#ob .scah b{font-weight:600}
+#ob .scar{display:flex;align-items:flex-end;gap:10px}#ob .scar label{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt)}
+#ob .scar select,#ob .scar input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;letter-spacing:0;text-transform:none;padding:11px 10px;border:1px solid var(--sf);border-radius:10px;background:#f7f6f0;color:var(--ink)}
+#ob .scarr{padding-bottom:12px;color:var(--mt);font-style:normal}
+#ob .scb{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;padding:13px 16px;border:0;border-radius:10px;background:var(--ink);color:#fff;font:inherit;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+#ob .scb .scic{width:18px;height:18px}#ob .scar1 .scb{flex:1.2;width:auto}
+#ob .scb2{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+#ob .scsep{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mt)}#ob .scsep::before,#ob .scsep::after{content:"";flex:1;height:1px;background:var(--sf)}
+#ob .scundo{margin-top:14px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px dashed var(--mt);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:13px;cursor:pointer}#ob .scundo .scic{width:18px;height:18px}
 #ob .scrow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}#ob .scrow label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mt)}#ob .scrow select,#ob .scrow input{font:inherit;font-size:15px;padding:8px;border:1px solid var(--sf);border-radius:8px;background:#fff;color:var(--ink)}
 #ob .sesx{opacity:.55}#ob .sespas{margin-top:22px}#ob .sespas summary{cursor:pointer}
 #ob .qic{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}#ob .qic .ic{width:76px}#ob .qic .ic.on{color:#8a3b2e;border-color:#8a3b2e}
@@ -1005,7 +1015,7 @@ var SESD = function () { return D.ses || { s: [], h: [], p: [] }; };
 var sesOc = function (sid) { var o = {}; SESD().p.forEach(function (x) { if (x.id_sessao === sid && x.situacao !== 'Cancelado' && x.situacao !== 'Excluído') { var k = x.data + '|' + x.hora; (o[k] = o[k] || []).push(x); } }); return o; };
 var sesOcl = function (h) { return String(h.vagas) === '0'; }; // hora excluída desse dia
 var sesConta = function (sid) { var oc = sesOc(sid), hs = SESD().h.filter(function (h) { return h.id_sessao === sid && !sesOcl(h) && String(h.data) > TODAY; }), liv = 0;
-  hs.forEach(function (h) { liv += Math.max(0, (+h.vagas || 1) - ((oc[h.data + '|' + h.hora] || []).length)); });
+  var vis = {}; hs.forEach(function (h) { var kk = h.data + '|' + h.hora; if (vis[kk]) return; vis[kk] = 1; liv += Math.max(0, (+h.vagas || 1) - ((oc[kk] || []).length)); });
   return { livres: liv, pedidos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao !== 'Cancelado' && x.situacao !== 'Excluído'; }).length, novos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao === 'Novo'; }).length }; };
 var TGS = { 'Novo': 'oc', 'Confirmado': 'gr', 'Cancelado': 'gy' };
 function vSes() {
@@ -1104,9 +1114,9 @@ function sesCalHtml(x) {
   for (var i = 0; i < p1; i++) g += '<span></span>';
   for (var d = 1; d <= nd; d++) {
     var k = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'), sl = porDia[k] || [], liv = 0, mar = 0;
-    sl.forEach(function (h) { var q = (oc[h.data + '|' + h.hora] || []).length; mar += q; liv += Math.max(0, (+h.vagas || 1) - q); });
-    SESD().p.forEach(function (p) { if (p.id_sessao === x.id && p.data === k && p.situacao === 'Confirmado' && p.hora && !sl.some(function (h) { return h.hora === p.hora; })) mar++; });
-    g += '<button type="button" class="scd' + (k < TODAY ? ' pas' : '') + (k === TODAY ? ' hj' : '') + (k === SESC.dia ? ' on' : '') + (sl.length ? ' ab' : '') + '" data-a="sesDia" data-d="' + k + '" aria-label="' + E(sesDiaLong(k)) + '"><b>' + d + '</b>' +
+    var vis = {}; sl.forEach(function (h) { if (vis[h.hora]) return; vis[h.hora] = 1; liv += Math.max(0, (+h.vagas || 1) - (oc[h.data + '|' + h.hora] || []).length); });
+    mar = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === k && p.situacao === 'Confirmado' && p.hora; }).length;
+        g += '<button type="button" class="scd' + (k < TODAY ? ' pas' : '') + (k === TODAY ? ' hj' : '') + (k === SESC.dia ? ' on' : '') + (sl.length ? ' ab' : '') + '" data-a="sesDia" data-d="' + k + '" aria-label="' + E(sesDiaLong(k)) + '"><b>' + d + '</b>' +
       '<i>' + (mar ? '<u class="scm">' + mar + '</u>' : '') + (liv ? '<u class="lv"></u>' : '') + '</i></button>';
   }
   var h = '<div class="calh"><button type="button" class="bt" data-a="sesMes" data-v="-1" aria-label="Mês anterior">‹</button><b>' + SES_MES[m] + ' ' + y + '</b><button type="button" class="bt" data-a="sesMes" data-v="1" aria-label="Mês seguinte">›</button></div>' +
@@ -1124,6 +1134,31 @@ function sesHoraHtml(d, slot, ocu) { // painel por baixo das horas: marcar um cl
   return '<div class="schp"><p class="lb gl" style="margin:0 0 8px">' + E(h) + ' às ' + sesFim(h) + '</p><div class="fm"><label><span>Nome do cliente</span><input id="mkN" type="text" maxlength="120" autocomplete="off"></label><label><span>Telemóvel (opcional)</span><input id="mkT" type="tel" maxlength="20" autocomplete="off"></label><label><span>Observações (opcional)</span><input id="mkO" type="text" maxlength="300" autocomplete="off"></label></div>' +
     '<div class="btns"><button class="b2" data-a="sesHa" data-d="' + d + '" data-h="' + h + '">' + (slot ? 'Excluir esta hora' : 'Abrir esta hora (sem cliente)') + '</button><button class="b1" data-a="sesMk2" data-d="' + d + '" data-h="' + h + '">Marcar</button></div></div>';
 }
+/* horas: muda logo no ecrã e grava em lote (um só pedido ao servidor), para excluir várias horas ser rápido */
+var SESQ = { set: {}, del: {}, tm: 0, voo: false, sid: '' };
+function sesAplica(set, del) {
+  var hs = D.ses.h;
+  Object.keys(set).forEach(function (k) { var o = set[k], ach = false;
+    hs.forEach(function (h) { if (h.id_sessao === o.sid && h.data === o.data && String(h.hora || '') === o.hora) { h.vagas = String(o.vagas); ach = true; } });
+    if (!ach) hs.push({ id: 'tmp' + k, id_sessao: o.sid, data: o.data, hora: o.hora, vagas: String(o.vagas) }); });
+  D.ses.h = hs.filter(function (h) { return !del[h.id]; });
+}
+function sesOp(set, del) {
+  var s1 = {}, d1 = {};
+  set.forEach(function (o) { var k = SESID + '|' + o.data + '|' + o.hora; s1[k] = { sid: SESID, data: o.data, hora: o.hora, vagas: o.vagas }; SESQ.set[k] = s1[k]; });
+  del.forEach(function (id) { d1[id] = 1; if (/^tmp/.test(id)) { delete SESQ.set[id.slice(3)]; } else SESQ.del[id] = 1; });
+  sesAplica(s1, d1); SESQ.sid = SESID; render();
+  clearTimeout(SESQ.tm); SESQ.tm = setTimeout(sesEnvia, 500);
+}
+function sesEnvia() {
+  if (SESQ.voo) { SESQ.tm = setTimeout(sesEnvia, 300); return; }
+  var ks = Object.keys(SESQ.set), ds = Object.keys(SESQ.del); if (!ks.length && !ds.length) return;
+  var sets = ks.map(function (k) { var o = SESQ.set[k]; return { data: o.data, hora: o.hora, vagas: o.vagas }; }), sid = SESQ.sid; SESQ.set = {}; SESQ.del = {}; SESQ.voo = true; nGrav++; sv();
+  rpc('api_ses_horarios', sid, sets, ds).then(function (r) { if (r && r.parcial) { D.ses = r.parcial.ses; sesAplica(SESQ.set, SESQ.del); guardaCopia(); render(); } })
+    .catch(function (e) { if (e && e.auth) return; toast('Não foi gravado. ' + ((e && e.message) || ''), 1); setTimeout(function () { atualizar(true); }, 50); })
+    .finally(function () { SESQ.voo = false; nGrav--; sv(); });
+}
+var SVG_CLK = '<svg class="scic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>', SVG_PLUS = '<svg class="scic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>', SVG_UND = '<svg class="scic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4.5 11.5 9 16"/><path d="M5 11.5h9.5a5 5 0 0 1 0 10H11"/></svg>';
 function sesDiaHtml(x, oc, sl) {
   var d = SESC.dia, ed = !!SESC.edit, edit = d >= TODAY, marc = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.data === d && p.situacao === 'Confirmado' && p.hora; }).sort(function (a, b) { return a.hora < b.hora ? -1 : 1; });
   var by = {}; sl.forEach(function (h) { by[h.hora] = h; });
@@ -1138,9 +1173,12 @@ function sesDiaHtml(x, oc, sl) {
       horas.map(function (hh) { var s = by[hh], q = s ? (oc[d + '|' + hh] || []) : marc.filter(function (p) { return p.hora === hh; }), ocup = q.length >= (s ? Math.max(1, +s.vagas || 1) : 1) && q.length, est = ocup ? 'bk' : s ? 'fr' : 'off', xx = '';
         if (ed && est === 'bk') xx = '<button type="button" class="xx" data-a="sesXc" data-id="' + E(q[0].id) + '" aria-label="Excluir marcação">×</button>';
         else if (ed) xx = '<button type="button" class="xx" data-a="sesHide" data-d="' + d + '" data-h="' + hh + '" aria-label="Excluir hora">×</button>';
-        return '<div class="hw' + (xx ? ' jg' : '') + '"><button type="button" class="hch ' + est + (SESC.hora === hh && !ed ? ' sel' : '') + '"' + (ed ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (ocup ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>' + xx + '</div>'; }).join('') + '</div>' + (ed && hid.length ? '<button class="bt scall" data-a="sesRep" data-d="' + d + '">Repor horas excluídas (' + E(hidH.join(', ')) + ')</button>' : '') + sesHoraHtml(d, by[SESC.hora], SESC.hora ? (oc[d + '|' + SESC.hora] || marc.filter(function (p) { return p.hora === SESC.hora; })) : null) +
-      (ed ? '' : '<div class="scrow"><label><span>Abrir de hora em hora, das</span><select id="scDe">' + op('09:30') + '</select></label><label><span>às</span><select id="scAte">' + op('17:30') + '</select></label><button class="bt" data-a="sesHr" data-d="' + d + '">Abrir</button></div>' +
-      '<div class="scrow"><label><span>Outra hora</span><input id="scOut" type="time"></label><button class="bt" data-a="sesHo" data-d="' + d + '">Adicionar</button></div>');
+        return '<div class="hw' + (xx ? ' jg' : '') + '"><button type="button" class="hch ' + est + (SESC.hora === hh && !ed ? ' sel' : '') + '"' + (ed ? ' disabled' : ' data-a="sesHt" data-d="' + d + '" data-h="' + hh + '"') + '>' + hh + (ocup ? '<small>' + E(String(q[0].nome).split(' ')[0]) + '</small>' : s ? '<small>livre</small>' : '') + '</button>' + xx + '</div>'; }).join('') + '</div>' + (ed && hid.length ? '<button class="scundo" data-a="sesRep" data-d="' + d + '">' + SVG_UND + 'Repor horas excluídas (' + E(hidH.join(', ')) + ')</button>' : '') + sesHoraHtml(d, by[SESC.hora], SESC.hora ? (oc[d + '|' + SESC.hora] || marc.filter(function (p) { return p.hora === SESC.hora; })) : null) +
+      (ed ? '<div class="scadd"><p class="scah">' + SVG_CLK + '<b>Abrir novas horas</b></p>' +
+        '<div class="scar"><label><span>Das</span><select id="scDe">' + op('09:30') + '</select></label><i class="scarr" aria-hidden="true">→</i><label><span>Às</span><select id="scAte">' + op('17:30') + '</select></label></div>' +
+        '<button class="scb" data-a="sesHr" data-d="' + d + '">' + SVG_PLUS + 'Abrir de hora em hora</button>' +
+        '<div class="scsep"><span>ou uma hora avulsa</span></div>' +
+        '<div class="scar scar1"><label><span>Hora</span><input id="scOut" type="time"></label><button class="scb scb2" data-a="sesHo" data-d="' + d + '">' + SVG_PLUS + 'Adicionar</button></div></div>' : '');
   } else o += '<p class="sm">Este dia já passou.</p>';
   return o + '</div>';
 }
@@ -2389,19 +2427,19 @@ var act = {
   sesMes: function (d) { var y = +SESC.m.slice(0, 4), m = +SESC.m.slice(5, 7) - 1 + (+d.v); var n = new Date(y, m, 1); SESC.m = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0'); render(); },
   sesHt: function (d) { SESC.hora = SESC.hora === d.h ? '' : d.h; render(); var i = $('#mkN'); if (i && !toque) try { i.focus({ preventScroll: true }); } catch (e) { } },
   sesHa: function (d) { var h = SESD().h.find(function (y) { return y.id_sessao === SESID && y.data === d.d && String(y.hora || '') === d.h; }); SESC.hora = '';
-    if (d.h === '' && h) return run(rpc('api_ses_horarios', SESID, [], [h.id]), 'Dia inteiro tirado');
-    if (h && !sesOcl(h)) run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: d.h, vagas: 0 }], []), 'Hora excluída'); else run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: d.h, vagas: 1 }], []), 'Hora aberta'); },
-  sesHide: function (d) { run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: d.h, vagas: 0 }], []), 'Hora excluída deste dia'); },
-  sesRep: function (d) { var ids = SESD().h.filter(function (h) { return h.id_sessao === SESID && h.data === d.d && sesOcl(h); }).map(function (h) { return h.id; }); if (ids.length) run(rpc('api_ses_horarios', SESID, [], ids), 'Horas repostas'); },
+    if (d.h === '' && h) return sesOp([], [h.id]);
+    sesOp([{ data: d.d, hora: d.h, vagas: h && !sesOcl(h) ? 0 : 1 }], []); },
+  sesHide: function (d) { sesOp([{ data: d.d, hora: d.h, vagas: 0 }], []); },
+  sesRep: function (d) { var ids = SESD().h.filter(function (h) { return h.id_sessao === SESID && h.data === d.d && sesOcl(h); }).map(function (h) { return h.id; }); if (ids.length) sesOp([], ids); },
   sesMk2: function (d) { var n = ($('#mkN').value || '').trim(); if (n.length < 2) { toast('Escreva o nome do cliente.', 1); return; } var t = $('#mkT').value; SESC.hora = '';
     run(rpc('api_ses_marcar', SESID, d.d, d.h, n, t, ($('#mkO').value || '').trim()), n + ' marcado(a) às ' + d.h); },
   sesEd: function () { SESC.edit = !SESC.edit; SESC.hora = ''; render(); },
-  sesHdel: function (d) { run(rpc('api_ses_horarios', SESID, [], [d.id]), 'Hora excluída'); },
+  sesHdel: function (d) { sesOp([], [d.id]); },
   sesXc: function (d) { var p = SESD().p.find(function (y) { return y.id === d.id; }); if (!p) return;
     ask('Excluir a marcação de ' + E(p.nome) + ' (' + fd(p.data) + (p.hora ? ' às ' + E(p.hora) : '') + ')?', function () { SESC.hora = ''; run(rpc('api_ses_excluir', d.id), 'Marcação excluída'); }, 'Excluir marcação', '<p class="sm">Fica guardada na folha «Ensaios excluídos» da planilha e o horário volta a ficar livre.</p>'); },
   sesHr: function (d) { var a = $('#scDe').value, b = $('#scAte').value; if (!(a <= b)) return toast('A primeira hora tem de ser antes da última.', 1);
-    var l = SES_BASE.filter(function (h) { return h >= a && h <= b; }).map(function (h) { return { data: d.d, hora: h, vagas: 1 }; }); run(rpc('api_ses_horarios', SESID, l, []), 'Horas abertas'); },
-  sesHo: function (d) { var v = $('#scOut').value; if (!/^\d\d:\d\d$/.test(v)) return toast('Escolha a hora.', 1); run(rpc('api_ses_horarios', SESID, [{ data: d.d, hora: v, vagas: 1 }], []), 'Hora aberta'); },
+    var l = SES_BASE.filter(function (h) { return h >= a && h <= b; }).map(function (h) { return { data: d.d, hora: h, vagas: 1 }; }); sesOp(l, []); },
+  sesHo: function (d) { var v = $('#scOut').value; if (!/^\d\d:\d\d$/.test(v)) return toast('Escolha a hora.', 1); sesOp([{ data: d.d, hora: v, vagas: 1 }], []); },
   sesPdf: function (d) { sesPdfDia(d.d); },
   sesAt: function (d) { var x = SESD().s.find(function (y) { return y.id === d.id; }); if (!x) return; var abrir = x.ativa !== 'Sim';
     ask(abrir ? 'Abrir as marcações de «' + E(x.nome) + '»?' : 'Fechar as marcações de «' + E(x.nome) + '»?', function () { run(rpc('api_ses_guardar', x.id, { nome: x.nome, codigo: x.codigo, ativa: abrir ? 'Sim' : 'Não', tipo: x.tipo, valor: x.valor, local: x.local, link: x.link_da_pagina, notas: x.notas }), abrir ? 'Marcações abertas' : 'Marcações fechadas'); }, abrir ? 'Abrir' : 'Fechar',
