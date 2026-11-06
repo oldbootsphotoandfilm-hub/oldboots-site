@@ -1002,11 +1002,11 @@ function blocoLembretes() {
 /* ---------- Sessões esporádicas (ex.: Natal em família): página própria no site, horários com vagas ---------- */
 var SESID = '';
 var SESD = function () { return D.ses || { s: [], h: [], p: [] }; };
-var sesOc = function (sid) { var o = {}; SESD().p.forEach(function (x) { if (x.id_sessao === sid && x.situacao !== 'Cancelado') { var k = x.data + '|' + x.hora; (o[k] = o[k] || []).push(x); } }); return o; };
+var sesOc = function (sid) { var o = {}; SESD().p.forEach(function (x) { if (x.id_sessao === sid && x.situacao !== 'Cancelado' && x.situacao !== 'Excluído') { var k = x.data + '|' + x.hora; (o[k] = o[k] || []).push(x); } }); return o; };
 var sesOcl = function (h) { return String(h.vagas) === '0'; }; // hora excluída desse dia
 var sesConta = function (sid) { var oc = sesOc(sid), hs = SESD().h.filter(function (h) { return h.id_sessao === sid && !sesOcl(h) && String(h.data) > TODAY; }), liv = 0;
   hs.forEach(function (h) { liv += Math.max(0, (+h.vagas || 1) - ((oc[h.data + '|' + h.hora] || []).length)); });
-  return { livres: liv, pedidos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao !== 'Cancelado'; }).length, novos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao === 'Novo'; }).length }; };
+  return { livres: liv, pedidos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao !== 'Cancelado' && x.situacao !== 'Excluído'; }).length, novos: SESD().p.filter(function (x) { return x.id_sessao === sid && x.situacao === 'Novo'; }).length }; };
 var TGS = { 'Novo': 'oc', 'Confirmado': 'gr', 'Cancelado': 'gy' };
 function vSes() {
   var L = SESD().s;
@@ -1146,7 +1146,7 @@ function sesDiaHtml(x, oc, sl) {
 }
 function vSesV() {
   var x = SESD().s.find(function (y) { return y.id === SESID; }); if (!x) { view = 'ses'; return vSes(); }
-  var n = sesConta(x.id), todos = SESD().p.filter(function (p) { return p.id_sessao === x.id; }), fe = sesFechados(x.id), ps = todos.filter(function (p) { return !(p.situacao === 'Confirmado' && p.hora); }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; });
+  var n = sesConta(x.id), todos = SESD().p.filter(function (p) { return p.id_sessao === x.id && p.situacao !== 'Excluído'; }), fe = sesFechados(x.id), ps = todos.filter(function (p) { return !(p.situacao === 'Confirmado' && p.hora); }).sort(function (a, b) { return (a.data + a.hora) < (b.data + b.hora) ? -1 : 1; });
   var fut = fe.filter(function (p) { return p.data >= TODAY; }), pas = fe.filter(function (p) { return p.data < TODAY; }).reverse(), url = x.link_da_pagina || '', ult = '';
   var lin = function (p) { var c = p.data !== ult; ult = p.data; return (c ? '<p class="lb scdl">' + E(sesDiaLong(p.data)) + '</p>' : '') + '<div class="rw" data-a="sesDia" data-d="' + E(p.data) + '"><span class="n">' + E(p.hora) + '</span><div><b>' + E(p.nome) + '</b><small>' + E(p.hora) + ' às ' + sesFim(p.hora) + (p.telemovel ? ' · ' + E(p.telemovel) : '') + '</small></div><div class="rt"><span class="ac3">' + sesTel(String(p.telemovel || '')) + '</span></div></div>'; };
   var lista = '<p class="lb gl">Ensaios marcados · ' + fut.length + '</p>' + (fut.length ? fut.map(lin).join('') : '<p class="em">Ainda sem ensaios marcados.</p>') +
