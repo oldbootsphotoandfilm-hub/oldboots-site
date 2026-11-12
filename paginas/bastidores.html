@@ -2040,7 +2040,7 @@ function orcF(id) {
     '<div class="g2" style="margin-top:18px">' + ln('Data do evento', fdc(o.data_do_evento)) + ln('Valor orçado', o.valor_orcado ? eur(o.valor_orcado) : '') + ln('Serviço', E(o.tipo_de_servico)) + ln('Origem', E(o.origem)) + (o.status === 'Perdido' ? ln('Porque não fechou', E(o.motivo_da_perda || 'sem motivo indicado'), 1) : '') + ln('Local', E(o.local), 1) + ln('Notas', E(o.observacoes), 1) + '</div>' +
     caixaProp(o) + '<button class="xe" data-a="eo" data-id="' + E(id) + '">✎ Editar</button>' +
     (o.status === 'Convertido' ? '' : '<div class="btns dec">' + (o.status !== 'Perdido' ? '<button class="bo" data-a="perdeu" data-id="' + E(id) + '">Não fechou</button>' : '') + '<button class="b1" data-a="conv" data-id="' + E(id) + '">' + (o.status === 'Perdido' ? 'Afinal fechou ✓' : 'Fechou ✓') + '</button></div>') +
-    (dono() ? '<p style="margin-top:18px"><button class="lnk" data-a="arqo" data-id="' + E(id) + '" data-v="' + (arqd ? '0' : '1') + '">' + (arqd ? 'Restaurar este orçamento' : 'Arquivar este orçamento') + '</button></p>' : ''));
+    (dono() ? '<div class="btns" style="margin-top:12px"><button class="bo" data-a="arqo" data-id="' + E(id) + '" data-v="' + (arqd ? '0' : '1') + '">' + (arqd ? 'Restaurar orçamento' : 'Arquivar orçamento') + '</button></div>' : ''));
 }
 
 function ficha(id, tab, topo) { if (!todosCli().some(function (x) { return x.id === id; })) return; cat = cli(id).arquivado === 'Sim' ? 'arq' : cli(id).status === 'Concluído' ? 'conc' : ehCas(cli(id)) ? 'cas' : 'ee'; fid = id; ftab = tab || 'r'; view = 'ficha'; closeM(); render(); if (topo) R.scrollTop = 0; }
