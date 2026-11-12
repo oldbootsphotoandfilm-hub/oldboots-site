@@ -336,6 +336,11 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .fx select{width:100%;border:0;border-bottom:1px solid var(--sf);background:transparent;padding:5px 20px 5px 0;font-size:14px;background-image:linear-gradient(45deg,transparent 50%,var(--mt) 50%),linear-gradient(135deg,var(--mt) 50%,transparent 50%);background-position:calc(100% - 10px) 55%,calc(100% - 5px) 55%;background-size:5px 5px;background-repeat:no-repeat;text-overflow:ellipsis}
 #ob .fx select.on{border-color:var(--bt);color:var(--bt)}
 #ob .fbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px 24px;flex-wrap:wrap;margin:14px 0 2px}
+#ob .fbi{align-items:center;flex-wrap:wrap;gap:8px 10px;margin:16px 0 6px}#ob .fbi .seg{gap:4px;flex-wrap:nowrap}#ob .fbi .seg:first-child{background:rgba(74,68,41,.09);border-radius:999px;padding:2px}
+#ob .fbi .fbb{position:relative;display:inline-flex;align-items:center;gap:7px;height:32px;min-width:32px;padding:0 7px!important;box-sizing:border-box;justify-content:center;border-radius:999px;border:1px solid transparent;background:transparent;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;color:var(--ink)}
+#ob .fbi .fbb svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#ob .fbi .seg:last-child .fbb{border-color:var(--sf)}#ob .fbi .seg button.fbb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+#ob .fbn{position:absolute;top:-5px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--gd);color:#fff;font:600 10px/17px system-ui,sans-serif;text-align:center;font-style:normal;letter-spacing:0}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -721,6 +726,12 @@ var ICO = {
   cont: '<svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M19 8v6M22 11h-6"/></svg>',
   link: '<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>',
 pasta: '<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>',
+  prox: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M12 13v4M10 15l2 2 2-2"/></svg>',
+  pass: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  todos: '<svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+  filt: '<svg viewBox="0 0 24 24"><path d="M3 5h18l-7 8.5V20l-4-2v-4.5z"/></svg>',
+  limpa: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  exp: '<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>',
   gal: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
 };
 var icA = function (k, rot, href, ext) { return '<a class="ic ' + k + '" href="' + E(href) + '"' + (ext ? ' target="_blank" rel="noopener"' : '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '">' + ICO[k] + '<span>' + rot + '</span></a>'; };
@@ -1373,8 +1384,8 @@ function vCli() {
       fsel('pend', 'Pendente', TODOS([['ct', 'Contrato por assinar'], ['dp', 'Sem depósito'], ['gl', 'Galeria por entregar']])) +
       fsel('ord', 'Ordenar por', [['data', 'Data do evento'], ['data_d', 'Data (mais recentes)'], ['nome', 'Nome'], ['falta', 'Valor em falta']]) +
     '</div>' +
-    '<div class="fbar">' + (ehConc ? '<div class="seg"></div>' : '<div class="seg" role="group" aria-label="Quando">' + [['prox', 'Próximos'], ['pass', 'Já realizados'], ['todos', 'Todos']].map(function (x) { return '<button data-a="tempo" data-v="' + x[0] + '" class="' + (FX.tempo === x[0] ? 'on' : '') + '" aria-pressed="' + (FX.tempo === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>') +
-      '<div class="seg"><button data-a="fxab" aria-expanded="' + fxAb + '">' + (fxAb ? 'Esconder filtros' : 'Filtros' + (ativos ? ' (' + ativos + ')' : '')) + '</button>' + (ativos ? '<button data-a="limpafx">Limpar' + (fxAb ? ' filtros (' + ativos + ')' : '') + '</button>' : '') + '<button data-a="expcli">Exportar</button></div></div>' +
+    '<div class="fbar fbi">' + (ehConc ? '<div class="seg"></div>' : '<div class="seg" role="group" aria-label="Quando">' + [['prox', 'Próximos', 'prox'], ['pass', 'Já realizados', 'pass'], ['todos', 'Todos', 'todos']].map(function (x) { var on = FX.tempo === x[0]; return '<button data-a="tempo" data-v="' + x[0] + '" class="fbb' + (on ? ' on' : '') + '" aria-pressed="' + on + '" aria-label="' + x[1] + '" title="' + x[1] + '">' + ICO[x[2]] + (on ? '<span>' + (x[0] === 'pass' ? 'Realizados' : x[1]) + '</span>' : '') + '</button>'; }).join('') + '</div>') +
+      '<div class="seg"><button data-a="fxab" class="fbb' + (fxAb || ativos ? ' on' : '') + '" aria-expanded="' + fxAb + '" aria-label="' + (fxAb ? 'Esconder filtros' : 'Filtros') + '" title="' + (fxAb ? 'Esconder filtros' : 'Filtros') + '">' + ICO.filt + (ativos ? '<i class="fbn">' + ativos + '</i>' : '') + '</button>' + (ativos ? '<button data-a="limpafx" class="fbb" aria-label="Limpar filtros" title="Limpar filtros">' + ICO.limpa + '</button>' : '') + '<button data-a="expcli" class="fbb" aria-label="Exportar" title="Exportar">' + ICO.exp + '</button></div></div>' +
     '<input id="q" class="qs" type="search" placeholder="Pesquisar nome, telefone, local…" value="' + E(q) + '" aria-label="Pesquisar clientes" autocomplete="off">' +
     '<p class="sm" style="margin:-8px 0 6px">' + pl(l.length, 'resultado', 'resultados') + (r.Q && FX.tempo !== 'todos' ? ' · a pesquisa inclui os já realizados' : '') + (esc ? ' · ' + pl(esc, 'já realizado escondido', 'já realizados escondidos') : '') + '</p>' +
     (l.map(function (c) {
