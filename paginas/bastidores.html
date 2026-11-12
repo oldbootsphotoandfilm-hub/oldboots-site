@@ -375,6 +375,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .hc b{font-weight:600}#ob .hc i{font-style:normal;font-size:11px;color:var(--mt)}#ob .hc small{font-size:12px;color:var(--mt);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #ob .hc.ch{background:#e3ead8;border-color:#e3ead8}#ob .hc.pc{background:#f4e6c6;border-color:#f4e6c6}
 #ob .hc button{width:22px;height:22px;border-radius:50%;line-height:1;font-size:16px;color:var(--mt)}#ob .hc button:hover{background:rgba(74,68,41,.1);color:var(--rd)}
+#ob .orcarq>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;margin:0}#ob .orcarq>summary::-webkit-details-marker{display:none}#ob .orcarq>summary::after{content:'▾';font-size:12px;transition:transform .2s}#ob .orcarq[open]>summary::after{transform:rotate(180deg)}
 #ob .sescal>summary{display:flex;flex-direction:column;align-items:flex-start;gap:8px;cursor:pointer;padding:6px 0;list-style:none}#ob .sescal>summary::-webkit-details-marker{display:none}
 #ob .sescal>summary .sctt{white-space:nowrap;font-size:11.5px;letter-spacing:.12em;margin:0}#ob .sescal>summary .scab{margin:0;display:inline-flex;align-items:center;gap:8px}#ob .sescal>summary .sctx{text-decoration:underline;text-underline-offset:3px}#ob .scic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #ob .scd{position:relative;aspect-ratio:1;min-width:0;border:1px solid var(--sf);background:#fff;border-radius:10px;font:inherit;color:var(--ink);padding:5px 0 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px}
@@ -1288,6 +1289,7 @@ function evRow(c) { var d = dias(c.data_do_evento); return '<div class="rw" data
 
 var CORO = { 'Novo pedido': 'var(--gd)', 'Orçamento enviado': 'var(--ol)', 'Em negociação': 'var(--bl)', 'Convertido': 'var(--gr)', 'Perdido': 'var(--gy)' };
 var fdc = function (s) { s = String(s || ''); return s ? +s.slice(8, 10) + ' ' + MESES[+s.slice(5, 7) - 1] + ' ' + s.slice(0, 4) : ''; };
+var ORCARQ = false;
 function vOrc() {
   var o = D.orc, tot = o.length, cv = o.filter(function (x) { return x.status === 'Convertido'; }).length;
   var ord = function (a, b) { return (a.proximo_contacto || '9') < (b.proximo_contacto || '9') ? -1 : 1; };
@@ -1306,7 +1308,7 @@ function vOrc() {
   return '<div class="w1"><div class="pt"><div><p class="lb">Pedidos de orçamento</p><h1 class="h1">Orçamentos</h1></div><button class="b1" data-a="no">Novo orçamento</button></div>' +
     (tot ? (function () { var pr = o.filter(function (x) { return x.status !== 'Novo pedido'; }).length, b = function (rot, n) { return '<div><span>' + rot + '</span><i><b style="width:' + Math.max(2, Math.round(n / tot * 100)) + '%"></b></i><span>' + n + (n !== tot ? ' · ' + Math.round(n / tot * 100) + ' %' : '') + '</span></div>'; };
       return '<div class="funil" aria-label="Conversão">' + b('Pedidos', tot) + b('Com orçamento', pr) + b('Convertidos', cv) + '</div>'; })() : '<p class="lead2">Ainda sem pedidos.</p>') +
-    grp('Novo pedido', by('Novo pedido'), 'novo') + grp('Orçamento enviado', by('Orçamento enviado'), 'env') + grp('Em negociação', by('Em negociação'), 'neg') + grp('Outros', out, 'out', '', true) + grp('Encerrados', enc, 'enc', '', true) + (dono() ? grp('Arquivados', D.arqO || [], 'arq', '', true) : '') + '</div>';
+    grp('Novo pedido', by('Novo pedido'), 'novo') + grp('Orçamento enviado', by('Orçamento enviado'), 'env') + grp('Em negociação', by('Em negociação'), 'neg') + grp('Outros', out, 'out', '', true) + grp('Encerrados', enc, 'enc', '', true) + (dono() && (D.arqO || []).length ? '<hr class="st"><details class="orcarq" id="orcarq"' + (ORCARQ ? ' open' : '') + '><summary class="lb gl" id="g-arq">Arquivados · ' + D.arqO.length + '</summary>' + D.arqO.map(row(true)).join('') + '</details>' : '') + '</div>';
 }
 
 var atraso = function (id) { return D.par.some(function (p) { return p.id_cliente === id && p.estado === 'Em atraso'; }); };
@@ -2481,7 +2483,7 @@ var act = {
   sn: function (d) { run(rpc('api_upd', 'Clientes', d.id, { observacoes: $('#nt').value }), 'Notas guardadas', function () { ficha(d.id, 'n'); }); }
 };
 document.addEventListener('click', function (e) { var sm = e.target.closest && e.target.closest('#sescal > summary'); if (sm && !sm.parentNode.open) setTimeout(sesAnim, 60); }, true);
-document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'sesfim') SESC.lista = e.target.open; if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sctx'); if (t) t.textContent = SESC.aberto ? 'fechar calendário' : 'abrir calendário'; } }, true);
+document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'orcarq') ORCARQ = e.target.open; if (e.target && e.target.id === 'sesfim') SESC.lista = e.target.open; if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sctx'); if (t) t.textContent = SESC.aberto ? 'fechar calendário' : 'abrir calendário'; } }, true);
 R.addEventListener('click', function (e) { if (e.target.closest('a')) return; var b = e.target.closest('[data-a]'); if (b && R.contains(b) && act[b.dataset.a]) { e.stopPropagation(); e.preventDefault(); act[b.dataset.a](b.dataset); } }, true);
 $('#ov').addEventListener('click', function (e) { if (e.target.id === 'ov') closeM(); });
 R.addEventListener('change', function (e) { if (e.target.dataset && e.target.dataset.sesf) return sesEnviaFoto(e.target); var k = e.target.dataset && e.target.dataset.fx; if (k) { FX[k] = e.target.value; guardaFx(); render(); } });
