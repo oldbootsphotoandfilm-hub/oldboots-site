@@ -341,6 +341,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .fbi .fbb svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #ob .fbi .seg:last-child .fbb{border-color:var(--sf)}#ob .fbi .seg button.fbb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #ob .fbn{position:absolute;top:-5px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--gd);color:#fff;font:600 10px/17px system-ui,sans-serif;text-align:center;font-style:normal;letter-spacing:0}
+#ob .lnk.pdt{font:inherit;letter-spacing:0;text-transform:none;padding:0;border:0;background:none;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sf);cursor:pointer}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -2076,7 +2077,7 @@ function vFicha() {
     var ent = c.forma_de_pagamento === 'Entrada + parcelas' && vE > 0 ? '<div class="rw"><span class="n">Entrada</span><div><b>' + eur(vE) + '</b>' + tg(stE) + '<small>' + E(c.entrada) + ' % do valor final</small></div><div class="rt">' + (stE !== 'Paga' ? '<button class="bt" data-a="ent" data-id="' + E(id) + '">Registar</button>' : '') + '</div></div>' : '';
     h = '<div class="ph2"><span class="lb">Pago</span><span class="num">' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><p class="sm">' + pc + ' % pago · em falta <b>' + eur(c.em_falta) + '</b></p>' +
       '<p class="lb gl" style="margin-top:30px">Plano de pagamento</p>' + ent +
-      (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + fd(p.vencimento) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
+      (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + (p.estado !== 'Paga' && dono() ? '<button class="lnk pdt" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '" title="Alterar a data de pagamento">' + fd(p.vencimento) + ' ✎</button>' : fd(p.vencimento)) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
       '<p class="lb gl" style="margin-top:30px">Recebido</p>' +
       (Rr.map(function (p) { return '<div class="ln"><span>' + fd(p.data) + '</span><span>' + eur(p.valor) + ' · ' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' ' + fatCell(p) + '</span></div>'; }).join('') || '<p class="em">Ainda nada.</p>') +
       (dono() && D.lemb ? (function () { var sem = (D.lemb.sem || []).indexOf(id) >= 0; return '<p class="lb gl" style="margin-top:30px">Lembretes automáticos</p><div class="rw r2"><div><b>' + (!D.lemb.on ? 'Desligados para todos' : sem ? 'Desligados para este casal' : 'Ligados') + '</b><small>' + (sem ? 'Este casal não recebe lembretes por e-mail (ex.: renegociado ou pagou em mão).' : 'E-mail 3 dias antes de cada parcela e 2 dias depois, se não estiver paga.') + '</small></div><div class="rt"><button class="bt" data-a="lembSem" data-id="' + E(id) + '" data-v="' + (sem ? '' : '1') + '">' + (sem ? 'Voltar a ligar' : 'Desligar para este casal') + '</button></div></div>'; })() : '') +
@@ -2396,6 +2397,10 @@ var act = {
   quem: function (d) { mudarQuem(d.r); },
   abrirProp: function (d) { trocarApp('prop', 'prop', d.u); },
   x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); var t = $('.tabs .on'); if (t) t.parentNode.scrollLeft = Math.max(0, t.offsetLeft - t.parentNode.offsetLeft - 20); }, paga: function (d) { pagar(d.id, d.p); },
+  pdata: function (d) { var p = D.par.find(function (x) { return x.id_cliente === d.id && +x.parcela === +d.p; }); if (!p) return;
+    ask('Mudar a data da ' + E(p.parcela) + '.ª parcela', function () { var v = ($('#pdv') || {}).value || ''; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { toast('Escolha uma data.'); return; }
+      closeM(); run(rpc('api_parc_data', d.id, +d.p, v), 'Data da parcela alterada'); }, 'Guardar',
+      '<div class="fm" style="margin-top:14px"><label><span>Nova data de pagamento · ' + eur(p.valor) + '</span><input type="date" id="pdv" value="' + E(p.vencimento) + '"></label></div>'); },
   no: function () { novoOrc(); }, nc: function () { novoCli(); }, np: function (d) { novoPag(d.id); },
   eo: function (d) { novoOrc(D.orc.find(function (o) { return o.id === d.id; })); }, ec: function (d) { novoCli(cli(d.id)); },
   ctab: function (d) { cat = d.v === 'ee' || d.v === 'conc' || d.v === 'arq' ? d.v : 'cas'; FX.tp = ''; guardaFx(); render(); },
