@@ -342,6 +342,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .fbi .seg:last-child .fbb{border-color:var(--sf)}#ob .fbi .seg button.fbb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #ob .fbn{position:absolute;top:-5px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--gd);color:#fff;font:600 10px/17px system-ui,sans-serif;text-align:center;font-style:normal;letter-spacing:0}
 #ob .lnk.pdt{font:inherit;letter-spacing:0;text-transform:none;padding:0;border:0;background:none;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sf);cursor:pointer}
+#ob .hist{margin-top:30px}#ob .hist>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}#ob .hist>summary::-webkit-details-marker{display:none}#ob .hist>summary::after{content:'▾';font-size:12px;transition:transform .2s}#ob .hist[open]>summary::after{transform:rotate(180deg)}#ob .hrw small{display:block}#ob .b2.rdx{color:var(--rd);border-color:var(--rd)}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -1000,6 +1001,49 @@ function antesDe(o, x) { var a = {}; Object.keys(x).forEach(function (k) { if (k
 function novoOrc(o) { form(o ? 'Editar orçamento' : 'Novo orçamento', FO, o ? Object.assign({}, o) : { categoria: 'Casamento', origem: 'Instagram', status: 'Novo pedido', tipo_de_servico: 'Foto + Vídeo' }, function (v) { if (reqName(v)) return; var x = limpaCat(sem(v)); run(o ? rpc('api_upd', 'Orçamentos', o.id, x, antesDe(o, x)) : rpc('api_add', 'Orçamentos', Object.assign({}, x, { data_do_pedido: TODAY })), 'Orçamento guardado', function () { if (o) orcF(o.id); }); }); }
 function novoCli(c) { form(c ? 'Editar cliente' : 'Novo cliente', FC(c && c.id), c ? Object.assign({ ligado_a: '' }, c) : { categoria: cat === 'ee' ? 'Ensaio' : 'Casamento', ligado_a: '', status: 'Fechado', forma_de_pagamento: 'Entrada + parcelas', entrada: 40, contrato_previo: 'Não enviado', contrato_assinado: 'Não', tipo_de_servico: 'Foto + Vídeo', origem: 'Instagram' }, function (v) { if (reqName(v)) return; if (v.forma_de_pagamento === 'Entrada + parcelas' && !(+v.entrada > 0 && +v.entrada < 100)) return toast('Indique a percentagem da entrada (entre 1 e 99).', 1); var x = limpaCat(sem(v)); if (x.forma_de_pagamento !== 'Entrada + parcelas') x.entrada = ''; if (c) delete x.extras; else x.extras = ehCas(x) ? extrasLista(x.extras) : []; run(c ? rpc('api_upd', 'Clientes', c.id, x, antesDe(c, x)) : rpc('api_add', 'Clientes', x), 'Cliente guardado', function () { if (c) ficha(c.id, 'r'); }).then(depoisDeGravar); }); }
 function novoPag(id, tipo, valor) { if (!D.cli.length) return toast('Crie primeiro um cliente.', 1); form('Registar pagamento', [['Pagamento', [['id_cliente', 'Cliente', 'sel', D.cli.map(function (c) { return [c.id, c.nome_do_casal]; })], ['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['tipo', 'Tipo', 'sel', SEL.tp], ['metodo', 'Método', 'sel', SEL.mt], ['parcela', 'Nº da parcela (se for parcela)', 'number'], ['notas', 'Notas', 'text']].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk']])]], { recebido_por: '', parte_do_gabriel: 50, fatura_emitida: 'Não', id_cliente: id || D.cli[0].id, data: TODAY, tipo: tipo || 'Depósito', metodo: 'MB Way', valor: valor || '' }, function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; run(rpc('api_add', 'Pagamentos', v), 'Pagamento registado', function () { if (id) ficha(id, 'p'); }); }); }
+
+/* ---------- corrigir / excluir parcelas e pagamentos (com histórico) ---------- */
+var HIST = {}, HISTA = '';
+var motivoHtml = function () { return '<div class="fm" style="margin-top:12px"><label><span>Motivo (opcional)</span><input type="text" id="hmot" maxlength="300" placeholder="Ex.: combinado com o casal, valor errado…"></label></div>'; };
+var pagRef = function (p) { return { id_cliente: p.id_cliente, valor: p.valor, data: p.data }; };
+var vPT = function (n) { return n === '' || n == null ? '' : String(Math.round(+n * 100) / 100).replace('.', ','); };
+function parEd(id, n) {
+  var p = D.par.find(function (x) { return x.id_cliente === id && +x.parcela === n; }); if (!p) return;
+  openM('<p class="lb">Parcela ' + E(p.parcela) + '.ª</p><h3 class="h2 mh2">Corrigir parcela</h3><div class="fm">' +
+    '<label><span>Valor (€)</span><input type="text" inputmode="decimal" id="pev" autocomplete="off" value="' + E(vPT(p.valor)) + '"></label>' +
+    '<label><span>Data de pagamento</span><input type="date" id="ped" value="' + E(p.vencimento) + '"></label></div>' + motivoHtml() +
+    '<p class="sm" style="margin-top:6px">O valor final do cliente não muda. Se mudar o valor desta parcela, confirme se as outras ainda batem certo.</p>' +
+    '<div class="btns"><button class="b2 rdx" data-a="parExc" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Excluir</button><button class="b1" id="pes">Guardar</button></div>');
+  $('#pes').onclick = function () { var v = numPT($('#pev').value), dt = $('#ped').value;
+    if (!(v > 0)) { toast('Indique o valor (ex.: 324,70).', 1); return; } if (!/^\d{4}-\d{2}-\d{2}$/.test(dt)) { toast('Escolha a data.', 1); return; }
+    var m = $('#hmot').value; HIST = {}; run(rpc('api_par_editar', id, n, { valor: v, vencimento: dt }, m), 'Parcela corrigida'); };
+}
+function pagMenu(id, row) {
+  var p = D.pag.find(function (x) { return x._row === row; }); if (!p) return;
+  openM('<p class="lb">Pagamento recebido</p><h3 class="h2 mh2">' + eur(p.valor) + ' · ' + fd(p.data) + '</h3>' +
+    lines([['Tipo', E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '')], ['Método', E(p.metodo)], ['Recebido por', E(p.recebido_por || '')], ['Fatura', p.fatura_emitida === 'Sim' ? 'emitida' : p.fatura_emitida === 'Não' ? 'por emitir' : ''], ['Notas', E(p.notas || '')]]) +
+    '<div class="btns"><button class="b2 rdx" data-a="pagExc" data-r="' + E(p._row) + '">Excluir</button><button class="b1" data-a="pagEd2" data-r="' + E(p._row) + '">Corrigir</button></div>');
+}
+function pagForm(row) {
+  var p = D.pag.find(function (x) { return x._row === row; }); if (!p) return; var id = p.id_cliente;
+  var campos = [['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['tipo', 'Tipo', 'sel', SEL.tp], ['metodo', 'Método', 'sel', SEL.mt], ['parcela', 'Nº da parcela (se for parcela)', 'number'], ['notas', 'Notas', 'text']].concat(CAMPOS_REC)
+    .concat(hasF(p) ? [['fatura_emitida', 'Fatura já emitida', 'chk']] : []).concat([['motivo_correcao', 'Motivo da correção (opcional)', 'text']]);
+  var v0 = {}; ['data', 'valor', 'tipo', 'metodo', 'parcela', 'notas', 'recebido_por', 'parte_do_gabriel', 'fatura_emitida'].forEach(function (k) { if (k in p) v0[k] = p[k] == null ? '' : p[k]; });
+  if (v0.parte_do_gabriel === '' || v0.parte_do_gabriel == null) v0.parte_do_gabriel = 50; v0.motivo_correcao = '';
+  form('Corrigir pagamento', [['Pagamento', campos]], v0, function (v) {
+    if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return;
+    var m = v.motivo_correcao || ''; delete v.motivo_correcao; HIST = {};
+    run(rpc('api_pag_editar', row, pagRef(p), v, m), 'Pagamento corrigido', function () { ficha(id, 'p'); }); }, 'Guardar');
+}
+var histHtml = function (id) {
+  if (HISTA !== id) return '';
+  var l = HIST[id]; if (!l) { setTimeout(function () { histCarrega(id); }, 0); return '<p class="sm">A carregar…</p>'; } if (!l.length) return '<p class="em">Ainda sem alterações.</p>';
+  return l.map(function (h) { return '<div class="rw r2 hrw"><div><b>' + E(h.acao) + ' · ' + E(h.oque) + '</b><small>' + E(String(h.quando).split(' ').map(function (x, i) { return i ? x : fd(x); }).join(' ')) + (h.quem ? ' · ' + E(h.quem) : '') + '</small>' +
+    (h.antes ? '<small>' + (h.depois ? 'Antes: ' : '') + E(h.antes) + '</small>' : '') + (h.depois ? '<small>' + (h.antes ? 'Depois: ' : '') + E(h.depois) + '</small>' : '') + (h.motivo ? '<small><i>' + E(h.motivo) + '</i></small>' : '') + '</div>' +
+    '<div class="rt">' + (h.reposto ? tg('Reposto', 'gy') : h.repoe ? '<button class="bt sm" data-a="hRepor" data-id="' + E(id) + '" data-n="' + E(h.n) + '">' + (h.acao.indexOf('Exclu') === 0 ? 'Repor' : 'Desfazer') + '</button>' : '') + '</div></div>'; }).join('');
+};
+var HISTC = {};
+function histCarrega(id) { if (HIST[id] || HISTC[id]) return; HISTC[id] = 1; rpc('api_hist', id).then(function (l) { delete HISTC[id]; HIST[id] = l || []; var b = $('#histl'); if (b && $('#histp') && $('#histp').dataset.id === id) b.innerHTML = histHtml(id); }).catch(function (e) { delete HISTC[id]; var b = $('#histl'); if (b) b.innerHTML = '<p class="em">Não foi possível carregar o histórico.</p>'; }); }
 
 /* ---------- vistas ---------- */
 function vHoje() {
@@ -2082,9 +2126,10 @@ function vFicha() {
     var ent = c.forma_de_pagamento === 'Entrada + parcelas' && vE > 0 ? '<div class="rw"><span class="n">Entrada</span><div><b>' + eur(vE) + '</b>' + tg(stE) + '<small>' + E(c.entrada) + ' % do valor final</small></div><div class="rt">' + (stE !== 'Paga' ? '<button class="bt" data-a="ent" data-id="' + E(id) + '">Registar</button>' : '') + '</div></div>' : '';
     h = '<div class="ph2"><span class="lb">Pago</span><span class="num">' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><p class="sm">' + pc + ' % pago · em falta <b>' + eur(c.em_falta) + '</b></p>' +
       '<p class="lb gl" style="margin-top:30px">Plano de pagamento</p>' + ent +
-      (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + (p.estado !== 'Paga' && dono() ? '<button class="lnk pdt" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '" title="Alterar a data de pagamento">' + fd(p.vencimento) + ' ✎</button>' : fd(p.vencimento)) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
+      (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + (p.estado !== 'Paga' && dono() ? '<button class="lnk pdt" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '" title="Alterar a data de pagamento">' + fd(p.vencimento) + ' ✎</button>' : fd(p.vencimento)) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' + (dono() ? '<button class="bt sm" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Editar</button>' : '') : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
       '<p class="lb gl" style="margin-top:30px">Recebido</p>' +
-      (Rr.map(function (p) { return '<div class="ln"><span>' + fd(p.data) + '</span><span>' + eur(p.valor) + ' · ' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' ' + fatCell(p) + '</span></div>'; }).join('') || '<p class="em">Ainda nada.</p>') +
+      (Rr.map(function (p) { return '<div class="ln"><span>' + fd(p.data) + '</span><span>' + eur(p.valor) + ' · ' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' ' + fatCell(p) + (dono() ? ' <button class="bt sm" data-a="pagEd" data-id="' + E(id) + '" data-r="' + E(p._row) + '">Editar</button>' : '') + '</span></div>'; }).join('') || '<p class="em">Ainda nada.</p>') +
+      (dono() ? '<details class="hist" id="histp" data-id="' + E(id) + '"' + (HISTA === id ? ' open' : '') + '><summary class="lb gl">Histórico de alterações</summary><div id="histl">' + histHtml(id) + '</div></details>' : '') +
       (dono() && D.lemb ? (function () { var sem = (D.lemb.sem || []).indexOf(id) >= 0; return '<p class="lb gl" style="margin-top:30px">Lembretes automáticos</p><div class="rw r2"><div><b>' + (!D.lemb.on ? 'Desligados para todos' : sem ? 'Desligados para este casal' : 'Ligados') + '</b><small>' + (sem ? 'Este casal não recebe lembretes por e-mail (ex.: renegociado ou pagou em mão).' : 'E-mail 3 dias antes de cada parcela e 2 dias depois, se não estiver paga.') + '</small></div><div class="rt"><button class="bt" data-a="lembSem" data-id="' + E(id) + '" data-v="' + (sem ? '' : '1') + '">' + (sem ? 'Voltar a ligar' : 'Desligar para este casal') + '</button></div></div>'; })() : '') +
       '<div class="acts2"><button class="bt" data-a="plano" data-id="' + E(id) + '">Plano de pagamento</button><button class="bt" data-a="reneg" data-id="' + E(id) + '">Renegociar</button><button class="bt" data-a="extr" data-id="' + E(id) + '">Extrato PDF</button></div>' +
       '<div class="btns"><button class="b1" data-a="np" data-id="' + E(id) + '">Registar pagamento</button></div>';
@@ -2402,10 +2447,18 @@ var act = {
   quem: function (d) { mudarQuem(d.r); },
   abrirProp: function (d) { trocarApp('prop', 'prop', d.u); },
   x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); var t = $('.tabs .on'); if (t) t.parentNode.scrollLeft = Math.max(0, t.offsetLeft - t.parentNode.offsetLeft - 20); }, paga: function (d) { pagar(d.id, d.p); },
-  pdata: function (d) { var p = D.par.find(function (x) { return x.id_cliente === d.id && +x.parcela === +d.p; }); if (!p) return;
-    ask('Mudar a data da ' + E(p.parcela) + '.ª parcela', function () { var v = ($('#pdv') || {}).value || ''; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { toast('Escolha uma data.'); return; }
-      closeM(); run(rpc('api_parc_data', d.id, +d.p, v), 'Data da parcela alterada'); }, 'Guardar',
-      '<div class="fm" style="margin-top:14px"><label><span>Nova data de pagamento · ' + eur(p.valor) + '</span><input type="date" id="pdv" value="' + E(p.vencimento) + '"></label></div>'); },
+  pdata: function (d) { parEd(d.id, +d.p); },
+  parExc: function (d) { var p = D.par.find(function (x) { return x.id_cliente === d.id && +x.parcela === +d.p; }); if (!p) return;
+    ask('Excluir a ' + E(p.parcela) + '.ª parcela (' + eur(p.valor) + ')?', function () { var m = ($('#hmot') || {}).value || ''; closeM(); HIST = {}; run(rpc('api_par_excluir', d.id, +d.p, m), 'Parcela excluída · fica no histórico'); }, 'Excluir',
+      '<p class="sm" style="margin-top:10px">Fica guardada no histórico de alterações e pode ser reposta.</p>' + motivoHtml()); },
+  pagEd: function (d) { pagMenu(d.id, +d.r); },
+  pagExc: function (d) { var p = D.pag.find(function (x) { return x._row === +d.r; }); if (!p) return;
+    ask('Excluir o pagamento de ' + eur(p.valor) + ' (' + fd(p.data) + ')?', function () { var m = ($('#hmot') || {}).value || ''; closeM(); HIST = {}; run(rpc('api_pag_excluir', p._row, pagRef(p), m), 'Pagamento excluído · fica no histórico'); }, 'Excluir',
+      '<p class="sm" style="margin-top:10px">Deixa de contar nos totais. Fica guardado no histórico de alterações e pode ser reposto.</p>' + motivoHtml()); },
+  pagEd2: function (d) { pagForm(+d.r); },
+  hRepor: function (d) { var h = (HIST[d.id] || []).find(function (x) { return x.n === +d.n; }); if (!h) return;
+    ask((h.acao.indexOf('Exclu') === 0 ? 'Repor ' : 'Desfazer a correção de ') + E(h.oque.toLowerCase()) + '?', function () { closeM(); delete HIST[d.id]; run(rpc('api_hist_repor', +d.n), h.acao.indexOf('Exclu') === 0 ? 'Reposto' : 'Correção desfeita'); }, h.acao.indexOf('Exclu') === 0 ? 'Repor' : 'Desfazer',
+      '<p class="sm" style="margin-top:10px">' + (h.antes ? 'Volta a ficar: ' + E(h.antes) : '') + '</p>'); },
   no: function () { novoOrc(); }, nc: function () { novoCli(); }, np: function (d) { novoPag(d.id); },
   eo: function (d) { novoOrc(D.orc.find(function (o) { return o.id === d.id; })); }, ec: function (d) { novoCli(cli(d.id)); },
   ctab: function (d) { cat = d.v === 'ee' || d.v === 'conc' || d.v === 'arq' ? d.v : 'cas'; FX.tp = ''; guardaFx(); render(); },
@@ -2504,7 +2557,7 @@ var act = {
   sn: function (d) { run(rpc('api_upd', 'Clientes', d.id, { observacoes: $('#nt').value }), 'Notas guardadas', function () { ficha(d.id, 'n'); }); }
 };
 document.addEventListener('click', function (e) { var sm = e.target.closest && e.target.closest('#sescal > summary'); if (sm && !sm.parentNode.open) setTimeout(sesAnim, 60); }, true);
-document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'orcarq') ORCARQ = e.target.open; if (e.target && e.target.id === 'sesfim') SESC.lista = e.target.open; if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sctx'); if (t) t.textContent = SESC.aberto ? 'fechar calendário' : 'abrir calendário'; } }, true);
+document.addEventListener('toggle', function (e) { if (e.target && e.target.id === 'histp') { HISTA = e.target.open ? e.target.dataset.id : ''; if (HISTA) { $('#histl').innerHTML = histHtml(HISTA); histCarrega(HISTA); } } if (e.target && e.target.id === 'orcarq') ORCARQ = e.target.open; if (e.target && e.target.id === 'sesfim') SESC.lista = e.target.open; if (e.target && e.target.id === 'sescal') { SESC.aberto = e.target.open; var t = e.target.querySelector('summary .sctx'); if (t) t.textContent = SESC.aberto ? 'fechar calendário' : 'abrir calendário'; } }, true);
 R.addEventListener('click', function (e) { if (e.target.closest('a')) return; var b = e.target.closest('[data-a]'); if (b && R.contains(b) && act[b.dataset.a]) { e.stopPropagation(); e.preventDefault(); act[b.dataset.a](b.dataset); } }, true);
 $('#ov').addEventListener('click', function (e) { if (e.target.id === 'ov') closeM(); });
 R.addEventListener('change', function (e) { if (e.target.dataset && e.target.dataset.sesf) return sesEnviaFoto(e.target); var k = e.target.dataset && e.target.dataset.fx; if (k) { FX[k] = e.target.value; guardaFx(); render(); } });
