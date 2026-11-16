@@ -252,7 +252,8 @@ var R = document.getElementById('obq'), A = document.getElementById('obqApp');
 var $ = function (s) { return R.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(R.querySelectorAll(s)); };
 var E = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
-var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'); return { cod: h[0], q: h[1] === 'q' }; };
+// #<código> ou #<nome-do-casal>-<código> (o nome só serve para o link ficar pessoal); /q no fim abre o questionário
+var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'), m = /(q[a-f0-9]{40})$/.exec(h[0] || ''); return { cod: m ? m[1] : h[0], q: h[1] === 'q' }; };
 var COD = lerHash().cod, IR_Q = lerHash().q;
 var DEMO = COD === 'demo'; // página de exemplo para reuniões: dados fictícios, nada vai para o servidor
 var L = /^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en', L_MAO = false;
@@ -727,6 +728,7 @@ function splash(on) {
 function guardaCache(r) { var c = {}; Object.keys(r).forEach(function (k) { if (k !== 'v') c[k] = r[k]; }); c.casal_v = r.v && r.v.casal || ''; c._t = Date.now(); ls.set(CHC, JSON.stringify(c)); }
 function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 7 * 864e5 ? c : null; /* no máximo 7 dias neste aparelho */ } catch (e) { return null; } }
 function aplicar(r) {
+  try { var nm = r && r.v && r.v.casal || r && r.casal; if (nm) document.title = (L === 'en' ? 'Couple page' : 'Página do casal') + ' · ' + nm; } catch (e) { }
   var emForm = S && MODO !== 'casa' && !S._cache;
   if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
   S = r; S.v = r.v || {}; S.info = r.info || {}; MODO = 'casa'; if (!L_MAO) lingua(r.idioma);

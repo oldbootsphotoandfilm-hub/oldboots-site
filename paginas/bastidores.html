@@ -2107,11 +2107,14 @@ function avisosPos() {
 /* ---------- fichas ---------- */
 var lines = function (a) { return a.filter(function (x) { return x[1]; }).map(function (x) { return '<div class="ln"><span>' + x[0] + '</span><span>' + x[1] + '</span></div>'; }).join(''); };
 /* ---------- questionário do dia (página dos noivos): link e estado ---------- */
-var Q_URL = 'https://oldbootsphotoandfilm.com/questionario/#';
+var Q_URL = 'https://oldbootsphotoandfilm.com/pagina-do-casal/#';
+// nome do casal no link, antes do código: «André & Rita» → andre-e-rita (a página só usa o código; os links antigos /questionario/#q… continuam a funcionar)
+var slugCasal = function (n) { return String(n || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, ' e ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, ''); };
+var qLink = function (c, q, soQ) { var s = slugCasal(c && c.nome_do_casal); return Q_URL + (s ? s + '-' : '') + q.codigo + (soQ ? '/q' : ''); };
 var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
 var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
 var temQ = function (c) { return ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído'); };
-var qMsg = function (c, q, soQ) { var ab = qAbre(c); return soQ ? 'Olá! Aqui está o questionário do vosso casamento: ' + Q_URL + q.codigo + '/q' + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : '') : 'Olá! Aqui está a vossa página do casal na Old Boots, com o vosso dia, os pagamentos e os documentos: ' + Q_URL + q.codigo + (ab ? '\nO questionário do dia abre lá a ' + fdc(ab) + '.' : ''); };
+var qMsg = function (c, q, soQ) { var ab = qAbre(c); return soQ ? 'Questionário do casamento: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está o questionário do vosso casamento: ' + qLink(c, q, true) + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : '') : 'Página do casal: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está a vossa página do casal na Old Boots, com o vosso dia, os pagamentos e os documentos: ' + qLink(c, q, false) + (ab ? '\nO questionário do dia abre lá a ' + fdc(ab) + '.' : ''); };
 function qEstado(c, q) {
   if (!q) return tg('Sem link', 'ne'); var ab = qAbre(c);
   return q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
@@ -2122,7 +2125,7 @@ function qAcoes(c, q) {
     I = { cop: SV('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>'), abr: SV('<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>'),
       off: SV('<path d="M12 3v8"/><path d="M6.3 7.3a8 8 0 1 0 11.4 0"/>'), nov: SV('<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/>') };
   var bt = function (ic, rot, a, v, cls) { return '<button class="ic' + (cls ? ' ' + cls : '') + '" data-a="' + a + '" data-id="' + E(c.id) + '"' + (v != null ? ' data-v="' + v + '"' : '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '">' + ic + '<span>' + rot + '</span></button>'; };
-  var linha = function (rot, soQ) { var u = Q_URL + q.codigo + (soQ ? '/q' : '');
+  var linha = function (rot, soQ) { var u = qLink(c, q, soQ);
     return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="qic">' + bt(I.cop, 'Copiar', 'qcop', soQ ? 'q' : '') +
       (c.telefone ? '<a class="ic wa" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener" aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp">' + ICO.wa + '<span>WhatsApp</span></a>' : '') +
       '<a class="ic" href="' + E(u) + '" target="_blank" rel="noopener" aria-label="Abrir" title="Abrir">' + I.abr + '<span>Abrir</span></a></div>'; };
@@ -2637,7 +2640,7 @@ var act = {
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
     openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
-  qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = Q_URL + q.codigo + (d.v === 'q' ? '/q' : ''); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
+  qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = qLink(cli(d.id), q, d.v === 'q'); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
   fat: function (d) { var was = view === 'ficha' && fid === d.id; run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }); },
