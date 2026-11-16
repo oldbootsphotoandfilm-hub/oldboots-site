@@ -2602,11 +2602,12 @@ function plano(id) {
 }
 function converter(oid) {
   var o = D.orc.find(function (x) { return x.id === oid; }); if (!o) return;
-  var passos = (ehCas(o) ? [['Serviço fechado', CAMPOS_PAC.concat(CAMPOS_EXT)]] : []).concat([['Pagamento', CAMPOS_PLANO.concat([['contrato_assinado', 'Contrato assinado', 'sel', SEL.sn]])]]);
-  form('Fechou: ' + (o.nome_do_casal || ''), passos, { categoria: catDe(o), valor_final: o.valor_orcado, forma_de_pagamento: 'Entrada + parcelas', entrada: 40, total_de_parcelas: '', inicio_das_parcelas: proxMes(), contrato_assinado: 'Não', pacote: '', descricao_do_servico: '', deslocacao: '', extras: {} },
+  var LNG = [['idioma', 'Língua do cliente (página, PDFs e mensagens)', 'sel', [['Português', 'Português'], ['English', 'English']]]];
+  var passos = (ehCas(o) ? [['Serviço fechado', LNG.concat(CAMPOS_PAC, CAMPOS_EXT)]] : []).concat([['Pagamento', (ehCas(o) ? [] : LNG).concat(CAMPOS_PLANO, [['contrato_assinado', 'Contrato assinado', 'sel', SEL.sn]])]]);
+  form('Fechou: ' + (o.nome_do_casal || ''), passos, { idioma: lngSug(o), categoria: catDe(o), valor_final: o.valor_orcado, forma_de_pagamento: 'Entrada + parcelas', entrada: 40, total_de_parcelas: '', inicio_das_parcelas: proxMes(), contrato_assinado: 'Não', pacote: '', descricao_do_servico: '', deslocacao: '', extras: {} },
     function (v) {
       var m = planoVal(v); if (m) return toast(m, 1);
-      var ex = { contrato_assinado: v.contrato_assinado, plano: planoDe(v) };
+      var ex = { idioma: v.idioma === 'English' ? 'English' : 'Português', contrato_assinado: v.contrato_assinado, plano: planoDe(v) };
       if (ehCas(o)) { ex.pacote = v.pacote || ''; ex.descricao_do_servico = v.descricao_do_servico || ''; ex.deslocacao = v.deslocacao === '' || v.deslocacao == null ? '' : +v.deslocacao; ex.extras = extrasLista(v.extras); }
       run(rpc('api_converter', oid, ex), 'Cliente criado com o plano de pagamento').then(depoisDeGravar);
     }, 'Criar cliente');
