@@ -344,6 +344,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .lnk.pdt{font:inherit;letter-spacing:0;text-transform:none;padding:0;border:0;background:none;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sf);cursor:pointer}
 #ob .hist{margin-top:30px}#ob .hist>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}#ob .hist>summary::-webkit-details-marker{display:none}#ob .hist>summary::after{content:'▾';font-size:12px;transition:transform .2s}#ob .hist[open]>summary::after{transform:rotate(180deg)}#ob .hrw small{display:block}#ob .b2.rdx{color:var(--rd);border-color:var(--rd)}
 #ob .exr2{border-bottom:1px solid var(--sf);padding:6px 0}#ob .exr2 .exf{display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:4px 0 10px 30px}#ob .exr2.on .exf{display:grid}#ob .exr2 .exf label span{font-size:10.5px}
+#ob .recx{margin-top:34px;text-align:center}#ob .recx .lnk{font-size:12px;color:var(--mt)}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -756,6 +757,7 @@ var tel9 = function (t) { return String(t || '').replace(/\D/g, '').slice(-9); }
 var TG = { 'Novo pedido': 'oc', 'Orçamento enviado': 'ne', 'Em negociação': 'bl', 'Convertido': 'gr', 'Perdido': 'gy', 'Fechado': 'gr', 'Concluído': 'gr', 'Cancelado': 'gy', 'Paga': 'gr', 'Pendente': 'ne', 'Em atraso': 'rd', 'Pago': 'gr', 'Parcial': 'oc', 'Por pagar': 'oc' };
 var tg = function (t, c) { return t ? '<span class="tg ' + (c || TG[t] || 'ne') + '">' + E(t) + '</span>' : ''; };
 var openO = function (o) { return ['Novo pedido', 'Orçamento enviado', 'Em negociação'].indexOf(o.status) >= 0; };
+var RECX = [];
 var todosCli = function () { return D.cli.concat(D.arq || []); };
 var cli = function (id) { return todosCli().find(function (c) { return c.id === id; }) || {}; };
 var SEL = { cat: ['Casamento', 'Ensaio', 'Evento'], sub: { Ensaio: ['Noivado', 'Pré-casamento', 'Gestante', 'Família', 'Casal', 'Retrato', 'Outro'], Evento: ['Batizado', 'Aniversário', 'Pedido de casamento', 'Corporativo', 'Outro'] }, origem: ['Instagram', 'Indicação', 'TikTok', 'Google', 'Site', 'Outro'], serv: ['Foto', 'Vídeo', 'Foto + Vídeo'], orc: ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'], cs: ['Fechado', 'Concluído', 'Cancelado'], fp: ['À vista', 'Parcelado', 'Entrada + parcelas'], sn: ['Não', 'Sim'], cp: ['Não enviado', 'Enviado'], tp: ['Depósito', 'Parcela', 'Pagamento total', 'Extras', 'Outro'], mt: ['MB Way', 'Transferência', 'Dinheiro', 'Cartão', 'Outro'] };
@@ -920,7 +922,7 @@ function run(p, msg, after) {
     // o servidor devolve só as folhas que podem ter mudado (allp); versões antigas devolviam tudo (all)
     return (r && r.all ? Promise.resolve(r.all) : r && r.allp ? Promise.resolve(Object.assign({}, D, r.allp)) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
       if (!all.papel) { all.ses = D.ses; all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; all.lemb = D.lemb; all.quota = D.quota; }
-      D = all; ultimaCarga = Date.now(); guardaCopia(); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
+      var sigA = resSigs(); D = all; ultimaCarga = Date.now(); guardaCopia(); resAuto(sigA); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
       toast((r && r.aviso) || msg, !!(r && r.aviso)); if (after && mesmoSitio) after(); return r;
@@ -1482,7 +1484,7 @@ function vCli() {
   var esc = !r.Q && FX.tempo === 'prox' && cat !== 'conc' ? base.filter(function (c) { return passa(c, true) && c.data_do_evento && c.data_do_evento < TODAY; }).length : 0;
   var ee = cat === 'ee', ehConc = cat === 'conc';
   return '<div class="w1"><div class="pt"><div><p class="lb">' + pl(D.cli.length, 'cliente', 'clientes') + '</p><h1 class="h1">Clientes</h1></div>' + (ehConc || cat === 'arq' ? '' : '<button class="b1" data-a="nc">' + (ee ? 'Novo ensaio ou evento' : 'Novo casamento') + '</button>') + '</div>' +
-    '<div class="ctab" role="tablist">' + [['cas', 'Casamentos', nCas], ['ee', 'Ensaios e eventos', nEe], ['conc', 'Concluídos', nConc]].concat(dono() && (D.arq || []).length ? [['arq', 'Arquivados', D.arq.length]] : []).map(function (t) { return '<button role="tab" data-a="ctab" data-v="' + t[0] + '" class="' + (cat === t[0] ? 'on' : '') + '" aria-selected="' + (cat === t[0]) + '">' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</div>' +
+    '<div class="ctab" role="tablist">' + [['cas', 'Casamentos', nCas], ['ee', 'Ensaios e eventos', nEe], ['conc', 'Concluídos', nConc]].map(function (t) { return '<button role="tab" data-a="ctab" data-v="' + t[0] + '" class="' + (cat === t[0] ? 'on' : '') + '" aria-selected="' + (cat === t[0]) + '">' + t[1] + '<small>' + t[2] + '</small></button>'; }).join('') + '</div>' +
     (!dono() ? '' : '<div class="kpi"><div><span class="lb">' + (ehConc ? 'Concluídos de ' : 'Eventos em ') + E(Y) + '</span><span class="num">' + kEv + '</span></div><div><span class="lb">Recebido em ' + E(Y) + '</span><span class="num">' + eur(kRec) + '</span></div><div><span class="lb">' + (ehConc ? 'Por receber' : 'Em falta · fechados') + '</span><span class="num' + (kFal > 0 ? '' : '') + '">' + eur(kFal) + '</span></div></div>') +
     (fxAb ? '<div class="fx">' : '<div class="fx" hidden>') +
       fsel('ano', 'Ano', TODOS(anos)) +
@@ -1505,7 +1507,7 @@ function vCli() {
         '<small>' + fd(c.data_do_evento) + (d !== null && d >= 0 ? ' · faltam ' + d + ' dias' : '') + ' · ' + E(c.local_da_cerimonia || 'local por definir') + '</small>' +
         '<small class="mks">' + (c.contrato_assinado === 'Sim' ? '<span class="mk on">Contrato</span>' : '<button class="mk" data-a="assinar" data-id="' + E(c.id) + '" title="Marcar o contrato como assinado">Contrato</button>') + '<span class="mk' + (c.deposito_feito === 'Sim' ? ' on' : '') + '">Depósito</span><span class="mk' + (c.link_da_galeria ? ' on' : '') + '">Galeria</span></small></div>' +
         (dono() ? '' : '</div>') + (!dono() ? '' : '<div class="pgr"><div class="pgh">' + (tg(c.estado_do_pagamento) || '<span></span>') + '<span>' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><small>' + (+c.em_falta > 0 ? 'falta ' + eur(c.em_falta) : (+c.valor_final > 0 ? 'tudo pago' : 'valor por definir')) + '</small></div></div>');
-    }).join('') || '<p class="em">' + (base.length ? 'Nenhum cliente com estes filtros.' : (cat === 'arq' ? 'Não há clientes arquivados.' : ehConc ? 'Ainda não há clientes concluídos. Quando marcar um cliente como concluído, ele passa para aqui.' : ee ? 'Ainda sem ensaios nem eventos.' : 'Ainda sem casamentos.')) + '</p>') + '</div>';
+    }).join('') || '<p class="em">' + (base.length ? 'Nenhum cliente com estes filtros.' : (cat === 'arq' ? 'Não há clientes arquivados.' : ehConc ? 'Ainda não há clientes concluídos. Quando marcar um cliente como concluído, ele passa para aqui.' : ee ? 'Ainda sem ensaios nem eventos.' : 'Ainda sem casamentos.')) + '</p>') + (dono() ? '<p class="sm recx"><button class="lnk" data-a="recx">Recuperar excluídos</button></p>' : '') + '</div>';
 }
 
 function evs() { var m = {}; var add = function (d, x) { (m[d] = m[d] || []).push(x); }; D.cli.filter(function (c) { return c.status !== 'Cancelado' && c.data_do_evento; }).forEach(function (c) { add(c.data_do_evento, { t: 'c', e: !ehCas(c), id: c.id, n: nc(c.nome_do_casal), h: c.hora }); }); D.orc.filter(function (o) { return openO(o) && o.data_do_evento; }).forEach(function (o) { add(o.data_do_evento, { t: 'o', id: o.id, n: nc(o.nome_do_casal) }); }); return m; }
@@ -2205,7 +2207,7 @@ function vFicha() {
   if (tab === 'n') h = '<div class="fm" style="margin-top:20px"><label><span>Notas do casal</span><textarea id="nt" rows="7">' + E(c.observacoes) + '</textarea></label></div><div class="btns"><button class="b1" data-a="sn" data-id="' + E(id) + '">Guardar notas</button></div>';
   return '<div class="w"><div><button class="bk" data-a="go" data-v="cli">← Clientes</button>' +
     '<h1 class="h1 fh">' + E(c.nome_do_casal) + '</h1><p class="tgs">' + (c.arquivado === 'Sim' ? tg('Arquivado', 'gy') : '') + tg(c.status) + tg(c.estado_do_pagamento) + (c.aviso_de_data ? tg(av(c.aviso_de_data), 'rd') : '') + '</p>' +
-    (dono() ? '<p class="sm" style="margin:-4px 0 8px"><button class="lnk" data-a="arq" data-id="' + E(id) + '" data-v="' + (c.arquivado === 'Sim' ? '0' : '1') + '">' + (c.arquivado === 'Sim' ? 'Restaurar este cliente' : 'Arquivar este cliente') + '</button></p>' : '') +
+    (dono() ? '<p class="sm" style="margin:-4px 0 8px">' + (c.arquivado === 'Sim' ? '<button class="lnk" data-a="arq" data-id="' + E(id) + '" data-v="0">Restaurar este cliente</button>' : '<button class="lnk" data-a="excCli" data-id="' + E(id) + '">Excluir este cliente</button>') + '</p>' : '') +
     '<p class="meta">' + [ehCas(c) ? '' : E(catDe(c) + (c.subtipo ? ' · ' + c.subtipo : '')), fd(c.data_do_evento) + (d !== null && d >= 0 ? ' · faltam ' + d + ' dias' : ''), E(c.local_da_cerimonia), E(c.tipo_de_servico)].filter(Boolean).join(' · ') + '</p>' +
     contactos(c, icB('cont', 'Contacto', 'vcf', id) + (temQ(c) ? icB('link', 'Página do casal', 'pcasal', id) : '') + (c.pasta_no_drive ? icA('pasta', 'Drive', su(c.pasta_no_drive), 1) : '') + (c.link_da_galeria ? icA('gal', 'Galeria', su(c.link_da_galeria), 1) : '')) +
     '<div class="tabs" role="tablist">' + tb.map(function (t) { return '<button role="tab" aria-selected="' + (t[0] === tab) + '" data-a="tab" data-id="' + E(id) + '" data-v="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div><div class="tc" role="tabpanel">' + h + '</div></div>' +
@@ -2373,6 +2375,17 @@ function pdfResumo(c) {
     document.body.appendChild(f);
   });
 }
+// resumo do contrato sempre atualizado: se uma gravação muda o que o PDF mostra (valores, extras, parcelas, pagamentos…),
+// o PDF guardado é refeito sozinho (só para quem já tem resumo)
+var RES_OFF = 0, RES_FILA = [];
+function resSigs() { if (RES_OFF || !D || !D.cli || !dono()) return null; var m = {};
+  D.cli.forEach(function (c) { if (c.resumo_do_contrato && ehCas(c)) try { m[c.id] = resumoHtml(c); } catch (e) { } }); return m; }
+function resAuto(a) { if (!a) return; var b = resSigs() || {};
+  Object.keys(a).forEach(function (id) { if (b[id] !== undefined && b[id] !== a[id] && RES_FILA.indexOf(id) < 0) RES_FILA.push(id); });
+  if (RES_FILA.length === 1 || (RES_FILA.length && !RES_OFF)) resProx(); }
+function resProx() { if (RES_OFF || !RES_FILA.length) return; var id = RES_FILA[0], c = cli(id); if (!c.id) { RES_FILA.shift(); return resProx(); }
+  RES_OFF++; pdfResumo(c).then(function (uri) { return rpc('api_resumo_guardar', id, uri); }).then(function (r) { if (r && r.resumo) { var x = cli(id); if (x.id) x.resumo_do_contrato = r.resumo; guardaCopia(); } toast('Resumo do contrato atualizado'); }, function (e) { toast('O resumo em PDF não foi atualizado: ' + (e && e.message || '') + ' Use «Gerar resumo de novo» em Documentos.', 1); })
+    .then(function () { RES_OFF--; RES_FILA.shift(); resProx(); }); }
 function gerarResumo(id) {
   var c = cli(id); if (!c.id) return Promise.resolve();
   busy(1); toast('A criar o resumo do contrato em PDF…');
@@ -2534,6 +2547,15 @@ var act = {
     ask(sim ? 'Arquivar «' + E(nc(c.nome_do_casal)) + '»?' : 'Restaurar «' + E(nc(c.nome_do_casal)) + '»?', function () {
       run(rpc('api_arquivar', d.id, sim), sim ? 'Cliente arquivado' : 'Cliente restaurado').then(function () { cat = sim ? 'cas' : (cli(d.id).status === 'Concluído' ? 'conc' : ehCas(cli(d.id)) ? 'cas' : 'ee'); view = 'cli'; render(); });
     }, sim ? 'Arquivar' : 'Restaurar', '<p class="sm">' + (sim ? 'O cliente sai das listas, da agenda e do Hoje, mas nada se apaga: os dados, pagamentos e documentos ficam guardados. Pode restaurá-lo quando quiser, em Clientes › Arquivados.' : 'O cliente volta às listas, à agenda e ao Hoje.') + '</p>'); },
+  excCli: function (d) { var c = cli(d.id); if (!c.id) return;
+    ask('Excluir «' + E(nc(c.nome_do_casal)) + '»?', function () { closeM(); run(rpc('api_excluir_cliente', d.id), 'Cliente excluído').then(function () { view = 'cli'; fid = ''; render(); }); }, 'Excluir',
+      '<p class="sm">Sai dos Bastidores (listas, agenda, Hoje e números). Nada se perde: o cliente, os pagamentos, as parcelas, os extras e os documentos ficam na planilha, na aba «Clientes excluídos», e pode recuperá-lo em Clientes › Recuperar excluídos.</p>'); },
+  recx: function () { openM('<p class="lb">Clientes</p><h3 class="h2 mh2">Recuperar excluídos</h3><div id="recl"><p class="sm">A carregar…</p></div>');
+    rpc('api_excluidos').then(function (l) { var b = $('#recl'); if (!b) return; RECX = l || [];
+      b.innerHTML = RECX.length ? RECX.map(function (x, i) { return '<div class="rw r2"><div><b>' + E(x.nome || x.id) + '</b><small>' + (x.data ? fd(x.data) + ' · ' : '') + (x.tipo === 'arq' ? 'arquivado' : 'excluído ' + E(String(x.quando).split(' ').map(function (y, j) { return j ? y : fd(y); }).join(' ')) + (x.por ? ' por ' + E(x.por) : '')) + '</small></div><div class="rt"><button class="bt" data-a="recx1" data-i="' + i + '">Recuperar</button></div></div>'; }).join('') : '<p class="em">Não há clientes excluídos.</p>'; })
+      .catch(function (e) { var b = $('#recl'); if (b) b.innerHTML = '<p class="em">' + E(e.message || 'Não foi possível carregar.') + '</p>'; }); },
+  recx1: function (d) { var x = RECX[+d.i]; if (!x) return; closeM();
+    run(x.tipo === 'arq' ? rpc('api_arquivar', x.id, false) : rpc('api_recuperar_cliente', x.n), 'Cliente recuperado: ' + (x.nome || x.id)); },
   tempo: function (d) { FX.tempo = d.v; guardaFx(); render(); },
   fxab: function () { fxAb = !fxAb; render(); },
   limpafx: function () { var t = FX.tempo, o = FX.ord; FX = FX0(); FX.tempo = t; FX.ord = o; guardaFx(); render(); },
