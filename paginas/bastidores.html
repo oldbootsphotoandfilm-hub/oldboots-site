@@ -701,7 +701,9 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .omkv a{color:#d4b06a;text-decoration:none}
 #ob .omst{font-size:15px;color:var(--omt);margin-top:6px!important}
 #ob .omck{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer}
-#ob .omck input{width:22px;height:22px;flex:none;-webkit-appearance:auto!important;appearance:auto!important;accent-color:#d4b06a;margin:0}
+#ob .omck input,#ob.om .fm .chk input{width:22px;height:22px;flex:none;margin:0;border:1.5px solid #636366;border-radius:7px;background:transparent;display:grid;place-content:center;cursor:pointer}
+#ob .omck input:checked,#ob.om .fm .chk input:checked{background:#d4b06a;border-color:#d4b06a}
+#ob .omck input:checked::after,#ob.om .fm .chk input:checked::after{content:"";width:10px;height:5px;border:2.4px solid #000;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
 #ob .omdone{color:var(--omt);text-decoration:line-through;text-decoration-color:#48484a}
 #ob .omlk{display:block;width:100%;padding:13px 16px;color:#d4b06a;text-align:left}
 #ob .omlk.inl{display:inline;width:auto;padding:0}
@@ -1984,11 +1986,17 @@ var omPorRenovar = function (m) { return OMD().rec.filter(function (r) { return 
 var omChev = '<svg class="omch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 var omDia = function (s) { var d = new Date(s + 'T12:00'); return { w: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'][d.getDay()], d: d.getDate() }; };
 var omFd = function (s) { return s ? +String(s).slice(8, 10) + ' ' + ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][+String(s).slice(5, 7) - 1] : ''; };
-function omSalva(p, msg) { nGrav++; sv(); return p.then(function (r) { nGrav--; sv(); if (r && r.cli) { D.om = r; guardaCopia(); } closeM(); render(); toast(msg); return r; }, function (e) { nGrav--; sv(); toast(e && e.message || 'Não foi possível guardar.', 1); throw e; }); }
+var OMSV = 0;
+function omSalva(p, msg) { if (OMSV || !p) { toast('A guardar… aguarde um momento.'); return new Promise(function () { }); } OMSV = 1; var bt = $('#m #nx, #m #omRok, #m #qok'); if (bt) bt.disabled = true; nGrav++; sv();
+  return Promise.resolve(p).then(function (r) { OMSV = 0; nGrav--; sv(); if (r && r.cli) { D.om = r; guardaCopia(); } closeM(); render(); toast(msg); return r; }, function (e) { OMSV = 0; if (bt) bt.disabled = false; nGrav--; sv(); toast(e && e.message || 'Não foi possível guardar.', 1); throw e; }); }
+// toques repetidos: o pedido ao servidor só sai uma vez
+var omRpc = function () { if (OMSV) return null; return rpc.apply(null, arguments); };
 var omTop = function (t, sub, btn) { return '<div class="omhd"><div>' + (sub ? '<p class="omsub">' + sub + '</p>' : '') + '<h1 class="omt">' + t + '</h1></div>' + (btn || '') + '</div>'; };
 var omMais = function (a, rot, extra) { return '<button class="ompl" data-a="' + a + '"' + (extra || '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>'; };
 var omLinhaTr = function (t) { var k = omOk(t), e = omEstado(t), c = omCli(t.id_cliente);
   return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(c.nome || '') + ((t.captacoes || [])[0] ? ' · captação ' + omFd(t.captacoes[0].d) : '') + (t.entrega_ate ? ' · <span' + (e === 'Atrasado' ? ' class="omred"' : '') + '>entrega ' + omFd(t.entrega_ate) + '</span>' : '') + '</small></span>' + (k.n ? '<span class="omn">' + k.ok + '/' + k.n + '</span>' : '') + (e === 'Entregue' ? '<span class="omok">✓</span>' : '') + omChev + '</button>'; };
+var omFatTx = function (p) { return p.fatura_emitida === 'Sim' ? '<span class="omgr">fatura emitida</span>' : '<span style="color:#d4b06a">fatura por emitir</span>'; };
+var omLinhaPag = function (p, comTrab) { return '<button class="omrw" data-a="omPag" data-id="' + E(p.id) + '"><span class="omx"><b>' + (comTrab ? E(p.trabalho || '') : fd(p.data)) + '</b><small>' + (comTrab ? fd(p.data) + ' · ' : '') + E(p.recebido_por || 'quem recebe?') + ' · ' + omFatTx(p) + '</small></span><span class="omn">' + eur(p.valor) + '</span>' + omChev + '</button>'; };
 var omGrupo = function (titulo, linhas, vazio) { return '<p class="omgl">' + titulo + '</p><div class="omg">' + (linhas.join('') || '<p class="omem">' + vazio + '</p>') + '</div>'; };
 
 function vOmHoje() {
@@ -2019,7 +2027,7 @@ function vOmTrabF() {
       lin('Entrega até', t.entrega_ate ? omFd(t.entrega_ate) : '—', e === 'Atrasado' ? 'omred' : '') + lin('Quem faz', E(t.quem_faz || 'Gabriel')) + '</div>' +
     '<p class="omgl">Entregas' + (k.n ? ' · ' + k.ok + ' de ' + k.n : '') + '</p><div class="omg">' + ((t.entregas || []).map(function (x, i) { return '<label class="omck"><input type="checkbox" data-a="omEnt" data-id="' + E(t.id) + '" data-i="' + i + '"' + (x.ok ? ' checked' : '') + '><span' + (x.ok ? ' class="omdone"' : '') + '>' + E(x.t) + '</span></label>'; }).join('') || '<p class="omem">Sem entregas definidas. Use Editar para as acrescentar.</p>') + '</div>' +
     '<div class="omg" style="margin-top:22px">' + lin('Valor', t.valor === '' || t.valor == null ? '—' : eur(t.valor)) + lin('Pago', eur(omPago(t))) + (t.valor !== '' && t.valor != null ? lin('Falta', eur(falta), falta > 0 ? '' : 'omgr') : '') +
-      pg.map(function (p) { return '<div class="omkv"><span>' + fd(p.data) + ' · ' + eur(p.valor) + '</span><span>' + fatCell(omFinMap(p)) + '</span></div>'; }).join('') +
+      pg.map(omLinhaPag).join('') +
       '<button class="omlk" data-a="omNovoPag" data-id="' + E(t.id) + '">Registar pagamento</button></div>' +
     (t.notas ? '<p class="omgl">Notas</p><div class="omg"><p class="omem" style="font-style:normal;color:var(--omt)">' + E(t.notas) + '</p></div>' : '') +
     '<button class="omdel" data-a="omExc" data-t="trab" data-id="' + E(t.id) + '">Excluir trabalho</button>' +
@@ -2060,6 +2068,7 @@ function vOmFin() {
   return '<div class="omw">' + omTop('Finanças', 'Old Media') +
     '<div class="omhero"><small>Recebido em ' + ano + '</small><b>' + eur(sum(L, function (p) { return p.valor; })) + '</b></div>' +
     '<div class="omg">' + kv('Este mês', eur(sum(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; }), function (p) { return p.valor; })), 'omFinMes') + kv('Por receber', eur(sum(por, omFalta)), 'omFinPor') + kv('Faturas por emitir', fx.length ? '<span class="ombdg">' + fx.length + '</span>' : '0', 'omFinFat') + '</div>' +
+    omGrupo('Pagamentos em ' + ano, L.slice().sort(function (a, b) { return String(a.data) < String(b.data) ? 1 : -1; }).map(function (p) { return omLinhaPag(p, 1); }), 'Ainda sem pagamentos este ano.') +
     omGrupo('Por receber', por.map(function (t) { return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(omCli(t.id_cliente).nome || '') + ' · ' + E(t.quem_faz || 'Gabriel') + '</small></span><span class="omn">' + eur(omFalta(t)) + '</span>' + omChev + '</button>'; }), 'Nada por receber.') +
     '<p class="omft">Estes pagamentos também entram nas Finanças da Old Boots (filtro «Old Media» ou «Tudo») e nos resumos para o contabilista. <button class="omlk inl" data-a="omParaFin">Abrir nas Finanças</button></p></div>';
 }
@@ -2073,7 +2082,7 @@ var PF = function (m) { m = m || FMARCA; return m === 'om' ? omPagFin() : m === 
 function omCliForm(c) {
   form(c ? 'Editar cliente' : 'Novo cliente', [['Cliente', [['nome', 'Nome', 'text'], ['empresa', 'Empresa (opcional)', 'text'], ['tipo', 'Tipo', 'sel', [['Avulso', 'Avulso'], ['Recorrente', 'Recorrente']]], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['nif', 'NIF (para as faturas)', 'text'], ['notas', 'Notas', 'area']]]],
     c ? { nome: c.nome, empresa: c.empresa, tipo: c.tipo || 'Avulso', telefone: c.telefone, email: c.email, nif: c.nif, notas: c.notas } : { tipo: 'Avulso' },
-    function (v) { if (!String(v.nome || '').trim()) return toast('Escreva o nome.', 1); omSalva(rpc('api_om_guardar', 'cli', Object.assign({ id: c ? c.id : '' }, v)), c ? 'Cliente guardado' : 'Cliente criado').then(function (r) { if (!c && r) { var n = r.cli[r.cli.length - 1]; if (n) { OMID = n.id; view = 'omcf'; render(); } } }); }, c ? 'Guardar' : 'Criar');
+    function (v) { if (!String(v.nome || '').trim()) return toast('Escreva o nome.', 1); omSalva(omRpc('api_om_guardar', 'cli', Object.assign({ id: c ? c.id : '' }, v)), c ? 'Cliente guardado' : 'Cliente criado').then(function (r) { if (!c && r) { var n = r.cli[r.cli.length - 1]; if (n) { OMID = n.id; view = 'omcf'; render(); } } }); }, c ? 'Guardar' : 'Criar');
 }
 function omTrabForm(t, cid) {
   var cl = OMD().cli.map(function (c) { return [c.id, c.nome]; }); if (!cl.length) { toast('Crie primeiro um cliente.', 1); trocarApp('om', 'omc'); return; }
@@ -2086,20 +2095,28 @@ function omTrabForm(t, cid) {
     var caps = [[v.d1, v.h1], [v.d2, ''], [v.d3, '']].filter(function (x) { return x[0]; }).map(function (x) { return { d: x[0], h: x[1] || '' }; });
     var ant = (t && t.entregas) || [], ent = String(v.entregas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) { var a = ant.find(function (y) { return y.t === x; }); return { t: x, ok: a ? a.ok : 0 }; });
     var o = { id: t ? t.id : '', id_cliente: v.id_cliente, titulo: v.titulo, captacoes: caps, entrega_ate: v.entrega_ate || '', entregas: ent, quem_faz: v.quem_faz, valor: v.valor === '' ? '' : v.valor, notas: v.notas || '' };
-    omSalva(rpc('api_om_guardar', 'trab', o), t ? 'Trabalho guardado' : 'Trabalho criado').then(function (r) { if (!t && r) { var n = r.trab[r.trab.length - 1]; if (n) { OMID = n.id; view = 'omtf'; render(); } } }); }, t ? 'Guardar' : 'Criar');
+    omSalva(omRpc('api_om_guardar', 'trab', o), t ? 'Trabalho guardado' : 'Trabalho criado').then(function (r) { if (!t && r) { var n = r.trab[r.trab.length - 1]; if (n) { OMID = n.id; view = 'omtf'; render(); } } }); }, t ? 'Guardar' : 'Criar');
 }
 function omRecForm(r, cid) {
   var cl = OMD().cli.map(function (c) { return [c.id, c.nome]; }); if (!cl.length) { toast('Crie primeiro um cliente.', 1); trocarApp('om', 'omc'); return; }
   form(r ? 'Editar recorrente' : 'Novo recorrente', [['Recorrente', [['id_cliente', 'Cliente', 'sel', cl], ['titulo', 'Serviço (ex.: Podcast mensal)', 'text'], ['valor', 'Valor habitual por mês (€)', 'number'], ['dia_de_captacao', 'Dia habitual de captação (1 a 31)', 'number'], ['dias_para_entregar', 'Dias para entregar depois da captação', 'number'],
     ['entregas', 'Entregas de cada mês (uma por linha)', 'area'], ['quem_faz', 'Quem faz', 'sel', [['Gabriel', 'Gabriel'], ['Ylana', 'Ylana']]], ['ativo', 'Ativo (perguntar todos os meses)', 'chk']]]],
     r ? { id_cliente: r.id_cliente, titulo: r.titulo, valor: r.valor, dia_de_captacao: r.dia_de_captacao, dias_para_entregar: r.dias_para_entregar, entregas: r.entregas, quem_faz: r.quem_faz || 'Gabriel', ativo: r.ativo === 'Não' ? 'Não' : 'Sim' } : { id_cliente: cid || cl[0][0], dias_para_entregar: 7, quem_faz: 'Gabriel', ativo: 'Sim' },
-    function (v) { if (!String(v.titulo || '').trim()) return toast('Escreva o nome do serviço.', 1); omSalva(rpc('api_om_guardar', 'rec', Object.assign({ id: r ? r.id : '' }, v)), r ? 'Recorrente guardado' : 'Recorrente criado'); }, r ? 'Guardar' : 'Criar');
+    function (v) { if (!String(v.titulo || '').trim()) return toast('Escreva o nome do serviço.', 1); omSalva(omRpc('api_om_guardar', 'rec', Object.assign({ id: r ? r.id : '' }, v)), r ? 'Recorrente guardado' : 'Recorrente criado'); }, r ? 'Guardar' : 'Criar');
   if (r) { var b = $('#m .btns'); if (b) b.insertAdjacentHTML('afterbegin', '<button class="b2" data-a="omExc" data-t="rec" data-id="' + E(r.id) + '">Excluir</button>'); }
 }
-function omPagForm(t) {
-  form('Registar pagamento', [['Pagamento · ' + E(t.titulo), [['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['metodo', 'Método', 'sel', SEL.mt]].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk'], ['notas', 'Notas', 'text']])]],
-    { data: TODAY, valor: omFalta(t) || '', metodo: 'MB Way', recebido_por: t.quem_faz || 'Gabriel', parte_do_gabriel: 50, fatura_emitida: 'Não' },
-    function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; omSalva(rpc('api_om_guardar', 'pag', Object.assign({ id: '', id_trabalho: t.id }, v)), 'Pagamento registado'); }, 'Registar');
+function omPagForm(t, p) {
+  form(p ? 'Editar pagamento' : 'Registar pagamento', [['Pagamento · ' + E(t ? t.titulo : p.trabalho || ''), [['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['metodo', 'Método', 'sel', SEL.mt]].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk'], ['notas', 'Notas', 'text']])]],
+    p ? { data: p.data, valor: p.valor, metodo: p.metodo || 'MB Way', recebido_por: p.recebido_por || '', parte_do_gabriel: p.parte_do_gabriel === '' ? 50 : p.parte_do_gabriel, fatura_emitida: p.fatura_emitida === 'Sim' ? 'Sim' : 'Não', notas: p.notas || '' }
+      : { data: TODAY, valor: omFalta(t) || '', metodo: 'MB Way', recebido_por: t.quem_faz || 'Gabriel', parte_do_gabriel: 50, fatura_emitida: 'Não' },
+    function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; var q = omRpc('api_om_guardar', 'pag', p ? Object.assign({ id: p.id }, v) : Object.assign({ id: '', id_trabalho: t.id }, v)); if (q) omSalva(q, p ? 'Pagamento guardado' : 'Pagamento registado'); }, p ? 'Guardar' : 'Registar');
+}
+function omPagMenu(id) {
+  var p = OMD().pag.find(function (x) { return x.id === id; }); if (!p) return;
+  var kv = function (a, b) { return '<div class="omkv"><span>' + a + '</span><span>' + b + '</span></div>'; };
+  openM('<p class="lb">Pagamento · Old Media</p><h3 class="h2 mh2">' + eur(p.valor) + ' · ' + fd(p.data) + '</h3><div class="omg" style="margin-top:16px">' + kv('Trabalho', E(p.trabalho || '')) + kv('Cliente', E(p.cliente || '')) + kv('Método', E(p.metodo || '—')) + kv('Quem recebe', E(quemTxt(p) || 'não definido')) + kv('Fatura', p.fatura_emitida === 'Sim' ? 'Emitida' : 'Por emitir') + (p.notas ? kv('Notas', E(p.notas)) : '') + '</div>' +
+    '<div class="omg" style="margin-top:16px"><button class="omlk" data-a="omfat" data-id="' + E(p.id) + '" data-f="' + (p.fatura_emitida === 'Sim' ? 'Não' : 'Sim') + '">' + (p.fatura_emitida === 'Sim' ? 'Desfazer «fatura emitida» (foi emitida por engano)' : 'Marcar fatura como emitida') + '</button><button class="omlk" data-a="omPagEd" data-id="' + E(p.id) + '">Editar pagamento</button><button class="omlk" style="color:#ff6961" data-a="omExc" data-t="pag" data-id="' + E(p.id) + '">Excluir pagamento</button></div>' +
+    '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>');
 }
 function omRenovar(m) {
   var l = omPorRenovar(m); if (!l.length) return toast('Nada por renovar em ' + omMesNome(m) + '.');
@@ -2113,7 +2130,7 @@ function omRenovar(m) {
     '</div><div class="btns"><button class="b2" data-a="x">Depois</button><button class="b1" id="omRok">Confirmar ' + omMesNome(m) + '</button></div>');
   $('#omRok').onclick = function () { var out = [], erro = '';
     $$('#omrl .omrn').forEach(function (x) { var v = numPT(x.querySelector('.omr-v').value); if (v === null) erro = 'Valor inválido.'; out.push({ id: x.dataset.id, renovar: x.querySelector('.omr-on').checked, valor: v === null ? '' : v, captacao: x.querySelector('.omr-d').value || '' }); });
-    if (erro) return toast(erro, 1); omSalva(rpc('api_om_renovar', m, out), omMesNome(m).replace(/^./, function (c) { return c.toUpperCase(); }) + ' renovado'); };
+    if (erro) return toast(erro, 1); omSalva(omRpc('api_om_renovar', m, out), omMesNome(m).replace(/^./, function (c) { return c.toUpperCase(); }) + ' renovado'); };
 }
 
 /* ---------- finanças: vistas ---------- */
@@ -2988,17 +3005,19 @@ var act = {
   omEdRec: function (d) { var r = OMD().rec.find(function (x) { return x.id === d.id; }); if (r) omRecForm(r); },
   omNovoPag: function (d) { var t = omTr(d.id); if (t) omPagForm(t); },
   omRen: function (d) { omRenovar(d.v); },
+  omPag: function (d) { omPagMenu(d.id); },
+  omPagEd: function (d) { var p = OMD().pag.find(function (x) { return x.id === d.id; }); if (p) omPagForm(omTr(p.id_trabalho), p); },
   omParaFin: function () { FMARCA = 'om'; trocarApp('fin', 'fres'); },
   omFinMes: function () { var m = TODAY.slice(0, 7); finDet('Old Media · recebido este mês', omPagFin().filter(function (p) { return String(p.data).slice(0, 7) === m; }), { pes: 'emp', sub: 'Old Media' }); },
   omFinFat: function () { var k = function () { return omPagFin().filter(function (p) { return p.fatura_emitida !== 'Sim'; }); }; finDet('Faturas por emitir', k(), { pes: 'emp', sub: 'Old Media', k: k }); },
   omFinPor: function () { var l = OMD().trab.filter(function (t) { return omFalta(t) > 0; }); openM('<p class="lb">Old Media</p><h3 class="h2 mh2">Por receber · ' + eur(sum(l, omFalta)) + '</h3><div class="omg" style="margin-top:16px">' + (l.map(function (t) { return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(omCli(t.id_cliente).nome || '') + '</small></span><span class="omn">' + eur(omFalta(t)) + '</span>' + omChev + '</button>'; }).join('') || '<p class="omem">Nada por receber.</p>') + '</div><div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
-  omEnt: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x, i) { return { t: x.t, ok: String(i) === String(d.i) ? (x.ok ? 0 : 1) : x.ok }; }); t.entregas = l; render(); omSalva(rpc('api_om_guardar', 'trab', { id: t.id, entregas: l }), 'Guardado').catch(function () { render(); }); },
-  omTudo: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x) { return { t: x.t, ok: 1 }; }); omSalva(rpc('api_om_guardar', 'trab', { id: t.id, entregas: l }), 'Tudo entregue'); },
-  omExc: function (d) { var nome = d.t === 'cli' ? 'este cliente' : d.t === 'rec' ? 'este recorrente' : 'este trabalho'; ask('Excluir ' + nome + '?', function () { omSalva(rpc('api_om_excluir', d.t, d.id), 'Excluído').then(function () { view = d.t === 'cli' ? 'omc' : d.t === 'rec' ? 'omr' : 'omt'; render(); }); }, 'Excluir', '<p class="sm">Deixa de aparecer na app. A linha fica guardada na planilha (coluna «Excluído»), nada se apaga.</p>'); },
-  omfat: function (d) { var det = !!($('#fdet') && FDET); omSalva(rpc('api_om_guardar', 'pag', { id: d.id, fatura_emitida: d.f }), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir').then(function () { if (det) finDetReabre(); }); },
+  omEnt: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x, i) { return { t: x.t, ok: String(i) === String(d.i) ? (x.ok ? 0 : 1) : x.ok }; }); t.entregas = l; render(); nGrav++; sv(); rpc('api_om_guardar', 'trab', { id: t.id, entregas: l }).then(function (r) { nGrav--; sv(); if (r && r.cli) { var at = omTr(t.id); D.om = r; var nv = omTr(t.id); if (nv && at) nv.entregas = at.entregas; guardaCopia(); } }, function (e) { nGrav--; sv(); toast(e && e.message || 'Não foi possível guardar.', 1); }); },
+  omTudo: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x) { return { t: x.t, ok: 1 }; }); omSalva(omRpc('api_om_guardar', 'trab', { id: t.id, entregas: l }), 'Tudo entregue'); },
+  omExc: function (d) { var nome = d.t === 'cli' ? 'este cliente' : d.t === 'rec' ? 'este recorrente' : d.t === 'pag' ? 'este pagamento' : 'este trabalho'; ask('Excluir ' + nome + '?', function () { omSalva(omRpc('api_om_excluir', d.t, d.id), 'Excluído').then(function () { if (d.t !== 'pag') view = d.t === 'cli' ? 'omc' : d.t === 'rec' ? 'omr' : 'omt'; render(); }); }, 'Excluir', '<p class="sm">' + (d.t === 'pag' ? 'Sai das finanças e das faturas por emitir. ' : d.t === 'trab' ? 'Os pagamentos deste trabalho também saem das finanças. ' : d.t === 'cli' ? 'Os trabalhos, recorrentes e pagamentos deste cliente também deixam de aparecer. ' : '') + 'A linha fica guardada na planilha (coluna «Excluído»), nada se apaga.</p>'); },
+  omfat: function (d) { var det = !!($('#fdet') && FDET); omSalva(omRpc('api_om_guardar', 'pag', { id: d.id, fatura_emitida: d.f }), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir').then(function () { if (det) finDetReabre(); }); },
   omquem: function (d) { var p = OMD().pag.find(function (x) { return x.id === d.id; }); if (!p) return;
     openM('<p class="lb">Pagamento · ' + E(p.cliente) + ' · Old Media</p><h3 class="h2 mh2">' + eur(p.valor) + ' · ' + fd(p.data) + '</h3><p class="sm">Indique quem recebe este valor. É essa pessoa que emite a fatura.</p><div class="fm" style="margin-top:16px">' + recHtml(p.recebido_por, p.parte_do_gabriel) + '</div><div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="qok">Guardar</button></div>');
-    recLigar(); $('#qok').onclick = function () { var v = recLer(); if (!v) return; omSalva(rpc('api_om_guardar', 'pag', { id: p.id, recebido_por: v.r, parte_do_gabriel: v.p }), 'Guardado'); }; },
+    recLigar(); $('#qok').onclick = function () { var v = recLer(); if (!v) return; omSalva(omRpc('api_om_guardar', 'pag', { id: p.id, recebido_por: v.r, parte_do_gabriel: v.p }), 'Guardado'); }; },
   fmarca: function (d) { FMARCA = d.v; render(); },
 
   fdet: function (d) { var ano = FANO, P = PES, L = PF().filter(function (p) { return String(p.data).slice(0, 4) === ano; }), mine = function (l) { return l.filter(function (p) { return P === 'emp' || parteDe(p, P) > 0; }); };
