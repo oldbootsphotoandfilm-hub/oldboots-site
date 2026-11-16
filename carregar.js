@@ -57,9 +57,26 @@
     });
   }
 
+  // páginas de ecrã inteiro (página do casal): tapa logo o WordPress com a cor do ecrã de abertura,
+  // para não aparecer primeiro a página branca com o título enquanto a página verdadeira carrega
+  var CAPAS = { questionario: '#454205' };
+  function capa() {
+    var cx = document.querySelector('[data-ob]'), nome = cx && cx.getAttribute('data-ob');
+    var cor = CAPAS[nome] || (/\/pagina-do-casal\/?$/.test(location.pathname) ? CAPAS.questionario : '');
+    if (!cor || document.getElementById('obCapa')) return null;
+    var st = document.createElement('style'); st.id = 'obCapaSt';
+    st.textContent = 'html,body{background:' + cor + '!important}#obCapa{position:fixed;inset:0;z-index:99998;background:' + cor + ' url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-textura-oliva.jpg) center/cover;transition:opacity .4s}';
+    (document.head || document.documentElement).appendChild(st);
+    var d = document.createElement('div'); d.id = 'obCapa'; d.setAttribute('aria-hidden', 'true');
+    (document.body || document.documentElement).appendChild(d);
+    return d;
+  }
+  var CAPA = null; try { CAPA = capa(); } catch (e) { }
+  function tiraCapa() { if (!CAPA) return; var d = CAPA; CAPA = null; setTimeout(function () { d.style.opacity = '0'; setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 450); }, 400); }
+
   function iniciar() {
     var caixas = Array.prototype.slice.call(document.querySelectorAll('[data-ob]:not([data-ob-feito])'));
-    Promise.all(caixas.map(carregar)).then(pronto, pronto);
+    Promise.all(caixas.map(carregar)).then(function () { pronto(); tiraCapa(); }, function () { pronto(); tiraCapa(); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
