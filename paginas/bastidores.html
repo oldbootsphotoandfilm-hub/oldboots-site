@@ -343,6 +343,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .fbn{position:absolute;top:-5px;right:-3px;min-width:17px;height:17px;border-radius:9px;background:var(--gd);color:#fff;font:600 10px/17px system-ui,sans-serif;text-align:center;font-style:normal;letter-spacing:0}
 #ob .lnk.pdt{font:inherit;letter-spacing:0;text-transform:none;padding:0;border:0;background:none;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sf);cursor:pointer}
 #ob .hist{margin-top:30px}#ob .hist>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}#ob .hist>summary::-webkit-details-marker{display:none}#ob .hist>summary::after{content:'▾';font-size:12px;transition:transform .2s}#ob .hist[open]>summary::after{transform:rotate(180deg)}#ob .hrw small{display:block}#ob .b2.rdx{color:var(--rd);border-color:var(--rd)}
+#ob .exr2{border-bottom:1px solid var(--sf);padding:6px 0}#ob .exr2 .exf{display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:4px 0 10px 30px}#ob .exr2.on .exf{display:grid}#ob .exr2 .exf label span{font-size:10.5px}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -934,6 +935,60 @@ function run(p, msg, after) {
   }).finally(function () { nGrav--; sv(); });
 }
 
+/* ---------- extras: catálogo, preço da Tabela de preços das propostas, editor ---------- */
+var PAGX = ['Nas parcelas', 'No dia do casamento'];
+var anoEv = function (d) { var a = +String(d || '').slice(0, 4); return a > 2000 ? a : +TODAY.slice(0, 4); };
+// preço da tabela para o ano do evento (ou o ano mais próximo que exista)
+var precoTab = function (nome, ano) { var P = D.pre || {}, anos = Object.keys(P).map(Number).sort(); if (!anos.length) return null;
+  var a = anos.indexOf(ano) >= 0 ? ano : anos.filter(function (y) { return y <= ano; }).pop() || anos[0]; var v = (P[a] || {})[nome]; return v === undefined || v === '' ? null : +v; };
+var ehPac = function (n) { return /^(Fotos|Filme|Fotos \+ Filme) · /.test(n); };
+var EXN = function () { var l = SRV().map(function (x) { return String(x.servico).trim(); }); Object.keys(D.pre || {}).forEach(function (a) { Object.keys(D.pre[a]).forEach(function (n) { if (!ehPac(n) && l.indexOf(n) < 0) l.push(n); }); }); return l; };
+var ehHoraN = function (n) { var sv = SRV().find(function (x) { return x.servico === n; }); return sv ? ehHora(sv) : /hora/i.test(n); };
+var vExtra = function (x) { return x.valor !== '' && x.valor != null && isFinite(+x.valor) ? +x.valor : (x.total !== '' && x.total != null ? +x.total : null); };
+var pagaX = function (x) { return x.pagamento === 'No dia do casamento' ? 'No dia do casamento' : 'Nas parcelas'; };
+var extrasDe = function (id) { return D.ext.filter(function (x) { return x.id_cliente === id && x.servico; }); };
+var extTot = function (id, modo) { return extrasDe(id).filter(function (x) { return !modo || pagaX(x) === modo; }).reduce(function (t, x) { return t + (vExtra(x) || 0); }, 0); };
+// sel: { nome: { q, v, p } }  → linhas do editor
+function extEditor(sel, ano) {
+  return '<div class="exs">' + (EXN().map(function (n, ix) { var e = sel[n], hr = ehHoraN(n), pt = precoTab(n, ano);
+    return '<div class="exr2' + (e ? ' on' : '') + '" data-exn="' + ix + '"><label class="chk"><input type="checkbox" data-ex="' + ix + '"' + (e ? ' checked' : '') + '><span>' + E(n) +
+      (pt != null ? ' <i style="color:var(--mt)">· tabela ' + ano + ': ' + eur(pt) + (hr ? ' / hora' : '') + '</i>' : '') + '</span></label>' +
+      '<div class="exf">' + (hr ? '<label><span>Horas</span><input type="text" inputmode="numeric" data-exq="' + ix + '" value="' + E(e ? e.q : 1) + '"></label>' : '') +
+      '<label><span>Valor (€)</span><input type="text" inputmode="decimal" autocomplete="off" data-exv="' + ix + '" data-auto="' + (e && e.v !== '' && e.v != null && e.v !== (pt != null ? pt * (e.q || 1) : null) ? '0' : '1') + '" value="' + E(e ? (e.v === '' || e.v == null ? '' : String(e.v).replace('.', ',')) : '') + '" placeholder="' + (pt != null ? E(String(pt).replace('.', ',')) : 'valor') + '"></label>' +
+      '<label><span>Pagamento</span><select data-exp="' + ix + '">' + PAGX.map(function (o) { return '<option' + (e && e.p === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></label></div></div>'; }).join('') || '<p class="sm">Sem extras na Tabela de preços nem na folha Serviços.</p>') + '</div>';
+}
+// liga os eventos do editor (marcar → preenche o valor da tabela; horas → recalcula se o valor não foi mexido)
+function extLiga(root, ano) {
+  var nomes = EXN();
+  root.querySelectorAll('[data-ex]').forEach(function (cb) { cb.addEventListener('change', function () { var ix = cb.dataset.ex, r = root.querySelector('[data-exn="' + ix + '"]'); r.classList.toggle('on', cb.checked);
+    var vi = root.querySelector('[data-exv="' + ix + '"]'); if (cb.checked && vi && vi.value === '' ) { var pt = precoTab(nomes[+ix], ano), qi = root.querySelector('[data-exq="' + ix + '"]'); if (pt != null) { vi.value = String(Math.round(pt * (qi ? Math.max(1, +qi.value || 1) : 1) * 100) / 100).replace('.', ','); vi.dataset.auto = '1'; } } }); });
+  root.querySelectorAll('[data-exv]').forEach(function (vi) { vi.addEventListener('input', function () { vi.dataset.auto = '0'; }); });
+  root.querySelectorAll('[data-exq]').forEach(function (qi) { qi.addEventListener('input', function () { var ix = qi.dataset.exq, vi = root.querySelector('[data-exv="' + ix + '"]'), pt = precoTab(nomes[+ix], ano);
+    if (vi && vi.dataset.auto === '1' && pt != null) vi.value = String(Math.round(pt * Math.max(1, Math.min(24, Math.floor(+qi.value) || 1)) * 100) / 100).replace('.', ','); }); });
+}
+// lê o editor → { sel, erro }
+function extLe(root) { var nomes = EXN(), sel = {}, erro = '';
+  root.querySelectorAll('[data-ex]').forEach(function (cb) { if (!cb.checked) return; var ix = cb.dataset.ex, n = nomes[+ix], qi = root.querySelector('[data-exq="' + ix + '"]'), vi = root.querySelector('[data-exv="' + ix + '"]'), pi = root.querySelector('[data-exp="' + ix + '"]');
+    var q = qi ? Math.floor(+qi.value) : 1; if (!(q >= 1 && q <= 24)) { erro = erro || 'Horas inválidas em ' + n + '.'; q = 1; }
+    var v = numPT(vi ? vi.value : ''); if (v === null || v < 0) { erro = erro || 'Valor inválido em ' + n + ' (ex.: 300 ou 80,50).'; v = ''; }
+    sel[n] = { q: q, v: v, p: pi ? pi.value : 'Nas parcelas' }; });
+  return { sel: sel, erro: erro }; }
+var extrasLista = function (o) { return Object.keys(o || {}).map(function (n) { var e = o[n]; return typeof e === 'object' ? { servico: n, quantidade: e.q, valor: e.v, pagamento: e.p } : { servico: n, quantidade: e }; }); };
+// editor na ficha do cliente
+function extEd(id) { var c = cli(id), ano = anoEv(c.data_do_evento), sel = {};
+  extrasDe(id).forEach(function (x) { if (!sel[x.servico]) sel[x.servico] = { q: +x.quantidade || 1, v: vExtra(x) == null ? '' : vExtra(x), p: pagaX(x) }; });
+  var antesP = extTot(id, 'Nas parcelas');
+  openM('<p class="lb">' + E(c.nome_do_casal) + '</p><h3 class="h2 mh2">Extras</h3><p class="sm">O valor vem da Tabela de preços das propostas (' + ano + ') e pode ser mudado. «Nas parcelas»: está incluído no valor final. «No dia do casamento»: paga-se à parte.</p>' +
+    '<div class="fm" id="exed">' + extEditor(sel, ano) + '</div><label class="chk" style="margin-top:14px"><input type="checkbox" id="exaj" checked><span id="exajt">Atualizar o valor final</span></label>' +
+    '<div class="btns"><button class="b1" id="exsv">Guardar</button></div>');
+  var root = $('#exed'); extLiga(root, ano);
+  var resumo = function () { var r = extLe(root), dp = 0; Object.keys(r.sel).forEach(function (n) { if (r.sel[n].p === 'Nas parcelas') dp += +r.sel[n].v || 0; }); var dif = Math.round((dp - antesP) * 100) / 100, t = $('#exajt');
+    if (t) t.textContent = dif ? 'Atualizar o valor final: ' + eur(c.valor_final) + ' → ' + eur((+c.valor_final || 0) + dif) + ' (' + (dif > 0 ? '+' : '') + eur(dif) + ' nos extras «nas parcelas»)' : 'O valor final não muda (' + eur(c.valor_final) + ')'; };
+  root.addEventListener('input', resumo); root.addEventListener('change', resumo); resumo();
+  $('#exsv').onclick = function () { var r = extLe(root); if (r.erro) { toast(r.erro, 1); return; }
+    var aj = $('#exaj').checked; run(rpc('api_extras', id, extrasLista(r.sel), aj), 'Extras guardados', function () { ficha(id, 'e'); }); };
+}
+
 /* ---------- formulários (passos curtos) ---------- */
 function form(title, steps, val, save, btn) {
   btn = btn || 'Guardar'; var s = 0;
@@ -941,26 +996,31 @@ function form(title, steps, val, save, btn) {
     var f = steps[s], fv = function (z) { return typeof z === 'function' ? z(val) : z; };
     var campos = f[1].filter(function (x) { return !x[4] || x[4](val); }).map(function (x) {
       var k = x[0], l = fv(x[1]), t = x[2], o = fv(x[3]);
-      if (t === 'ext') { var esc = val[k] || {}; return '<div class="exs"><span>' + l + '</span>' + (SRV().map(function (sv, ix) { var qn = esc[sv.servico], hr = ehHora(sv); return '<div class="exr"><label class="chk"><input type="checkbox" data-ex="' + ix + '"' + (qn ? ' checked' : '') + '><span>' + E(sv.servico) + (sv.preco !== '' && sv.preco != null ? ' <i style="color:var(--mt)">· ' + eur(sv.preco) + (hr ? ' / hora' : '') + '</i>' : '') + '</span></label>' + (hr ? '<label class="qh"><span>Horas</span><input type="number" inputmode="numeric" min="1" max="24" data-exq="' + ix + '" value="' + E(qn || 1) + '" aria-label="Quantidade de ' + E(sv.servico) + '"></label>' : '') + '</div>'; }).join('') || '<p class="sm">Sem serviços na folha Serviços.</p>') + '</div>'; }
+      if (t === 'ext') { var esc = {}; Object.keys(val[k] || {}).forEach(function (n) { var e = val[k][n]; esc[n] = typeof e === 'object' ? e : { q: e, v: '', p: 'Nas parcelas' }; }); return '<div class="exs"><span>' + l + '</span></div><div id="exform" data-ano="' + anoEv(val.data_do_evento) + '">' + extEditor(esc, anoEv(val.data_do_evento)) + '</div>'; }
       if (t === 'chk') return '<label class="chk"><input type="checkbox" data-k="' + k + '" ' + (val[k] === 'Sim' ? 'checked' : '') + '><span>' + l + '</span></label>';
       var ctl;
       if (t === 'sel') {
         var ops = (o.some(function (y) { return (Array.isArray(y) ? y[0] : y) === val[k]; }) || !val[k]) ? o : [val[k]].concat(o);
         ctl = '<select data-k="' + k + '">' + ops.map(function (y) { y = Array.isArray(y) ? y : [y, y]; return '<option value="' + E(y[0]) + '" ' + (val[k] === y[0] ? 'selected' : '') + '>' + E(y[1]) + '</option>'; }).join('') + '</select>';
       } else if (t === 'area') ctl = '<textarea data-k="' + k + '" rows="3">' + E(val[k]) + '</textarea>';
-      else ctl = '<input data-k="' + k + '" type="' + (t === 'number' ? 'text" data-num="1' : t) + '" ' + (t === 'number' ? 'inputmode="decimal" autocomplete="off"' : '') + ' value="' + E(t === 'number' && val[k] !== '' && val[k] != null && isFinite(+val[k]) ? String(val[k]).replace('.', ',') : val[k]) + '">' + (k === 'entrada' ? '<small class="hint" id="eh"></small>' : '');
+      else ctl = '<input data-k="' + k + '" type="' + (t === 'number' ? 'text" data-num="1' : t) + '" ' + (t === 'number' ? 'inputmode="decimal" autocomplete="off"' : '') + ' value="' + E(t === 'number' && val[k] !== '' && val[k] != null && isFinite(+val[k]) ? String(val[k]).replace('.', ',') : val[k]) + '">' + (k === 'entrada' ? '<small class="hint" id="eh"></small>' : '') + (k === 'valor_final' ? '<small class="hint" id="vfh"></small>' : '');
       return '<label><span>' + l + '</span>' + ctl + '</label>';
     }).join('');
     openM('<p class="lb">' + (steps.length > 1 ? 'Passo ' + (s + 1) + ' de ' + steps.length + ' · ' + fv(f[0]) : fv(f[0])) + '</p><h3 class="h2 mh2">' + title + '</h3>' +
       (steps.length > 1 ? '<div class="stp">' + steps.map(function (x, i) { return '<i class="' + (i <= s ? 'on' : '') + '"></i>'; }).join('') + '</div>' : '') +
       '<div class="fm">' + campos + '</div><div class="btns">' + (s ? '<button class="b2" id="bk2">Voltar</button>' : '') + '<button class="b1" id="nx">' + (s < steps.length - 1 ? 'Seguinte' : btn) + '</button></div>');
+    var exf0 = $('#exform'); if (exf0) extLiga(exf0, +exf0.dataset.ano);
     var numErr = '';
     var grab = function () { numErr = ''; $$('#m [data-k]').forEach(function (i) { if (i.dataset.num) { var n = numPT(i.value); if (n === null) { numErr = numErr || ((i.closest('label') || {}).textContent || '').replace(/\s+/g, ' ').trim(); val[i.dataset.k] = i.value; } else val[i.dataset.k] = n; return; } val[i.dataset.k] = i.type === 'checkbox' ? (i.checked ? 'Sim' : 'Não') : i.value; });
-      var exs = $$('#m [data-ex]'); if (exs.length) { var o = {}; exs.forEach(function (i) { if (!i.checked) return; var sv = SRV()[+i.dataset.ex], qi = $('#m [data-exq="' + i.dataset.ex + '"]'); if (sv) o[sv.servico] = qi ? Math.max(1, Math.min(24, Math.floor(+qi.value) || 1)) : 1; }); val.extras = o; } };
+      var exf = $('#exform'); if (exf) { var rx = extLe(exf); val.extras = rx.sel; if (rx.erro) numErr = numErr || rx.erro; } };
     var hint = function () { var e = $('#eh'); if (!e) return; var v = numPT(($('#m [data-k=valor_final]') || {}).value || ''), p = numPT($('#m [data-k=entrada]').value); e.textContent = v && p ? 'Entrada ' + eur(v * p / 100) + ' · restante ' + eur(v - v * p / 100) : ''; };
+    var vfh = $('#vfh'); if (vfh) { var ano = anoEv(val.data_do_evento), pp = val.pacote ? precoTab(val.pacote, ano) : null, xp = 0; Object.keys(val.extras || {}).forEach(function (n) { var e = val.extras[n]; if (typeof e === 'object' && e.p === 'Nas parcelas') xp += +e.v || 0; });
+      var dl = +val.deslocacao || 0, tot = Math.round(((pp || 0) + xp + dl) * 100) / 100;
+      if (pp != null || xp) { vfh.innerHTML = 'Tabela ' + ano + ': ' + (pp != null ? 'pacote ' + eur(pp) : 'pacote —') + (xp ? ' + extras nas parcelas ' + eur(xp) : '') + (dl ? ' + deslocação ' + eur(dl) : '') + ' = <b>' + eur(tot) + '</b> <button type="button" class="lnk" id="vfu">usar este valor</button>';
+        $('#vfu').onclick = function () { var i = $('#m [data-k=valor_final]'); i.value = String(tot).replace('.', ','); hint(); }; } }
     $$('#m input').forEach(function (i) { i.oninput = hint; }); hint();
     $$('#m select').forEach(function (el) { el.onchange = function () { if (el.dataset.k === 'pacote') { grab(); var pd = PACS[val.pacote]; if (pd && (!String(val.descricao_do_servico || '').trim() || PAC_TXT.indexOf(String(val.descricao_do_servico).trim()) >= 0)) val.descricao_do_servico = pd.join('\n'); draw(); return; } if (f[1].some(function (x) { return x[4] || typeof x[1] === 'function' || typeof x[3] === 'function'; })) { grab(); draw(); } }; });
-    $('#nx').onclick = function () { grab(); if (numErr) { toast('Número inválido em «' + numErr + '». Use, por exemplo, 1250 ou 324,70.', 1); return; } if (s < steps.length - 1) { s++; draw(); } else save(val); };
+    $('#nx').onclick = function () { grab(); if (numErr) { toast(/inválid/.test(numErr) ? numErr : 'Número inválido em «' + numErr + '». Use, por exemplo, 1250 ou 324,70.', 1); return; } if (s < steps.length - 1) { s++; draw(); } else save(val); };
     if (s) $('#bk2').onclick = function () { grab(); s--; draw(); };
   };
   draw();
@@ -982,7 +1042,6 @@ var CAMPOS_PAC = [['pacote', 'Pacote fechado', 'sel', PAC_OPTS, ehCas], ['descri
 var SRV = function () { return D.srv.filter(function (x) { return x.servico; }); };
 var ehHora = function (sv) { return /hora/i.test(String(sv.unidade || '') + ' ' + String(sv.servico || '')); };
 var CAMPOS_EXT = [['extras', 'Extras escolhidos pelo casal', 'ext', null, ehCas]];
-var extrasLista = function (o) { return Object.keys(o || {}).map(function (n) { return { servico: n, quantidade: o[n] }; }); };
 var CAMPOS_PLANO = [['valor_final', 'Valor final (€)', 'number'], ['forma_de_pagamento', 'Forma de pagamento escolhida pelo cliente', 'sel', SEL.fp],
   ['entrada', 'Entrada (% do valor final)', 'number', null, function (v) { return v.forma_de_pagamento === 'Entrada + parcelas'; }],
   ['total_de_parcelas', function (v) { return v.forma_de_pagamento === 'Entrada + parcelas' ? 'Nº de parcelas (depois da entrada)' : 'Nº de parcelas'; }, 'number', null, function (v) { return v.forma_de_pagamento !== 'À vista'; }],
@@ -2124,7 +2183,7 @@ function vFicha() {
       Rr = D.pag.filter(function (p) { return p.id_cliente === id; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; });
     var vE = +c.valor_da_entrada || 0, pgE = sum(Rr.filter(function (p) { return p.tipo === 'Depósito'; }), function (p) { return p.valor; }), stE = pgE >= vE - .005 ? 'Paga' : pgE > 0 ? 'Parcial' : 'Pendente';
     var ent = c.forma_de_pagamento === 'Entrada + parcelas' && vE > 0 ? '<div class="rw"><span class="n">Entrada</span><div><b>' + eur(vE) + '</b>' + tg(stE) + '<small>' + E(c.entrada) + ' % do valor final</small></div><div class="rt">' + (stE !== 'Paga' ? '<button class="bt" data-a="ent" data-id="' + E(id) + '">Registar</button>' : '') + '</div></div>' : '';
-    h = '<div class="ph2"><span class="lb">Pago</span><span class="num">' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><p class="sm">' + pc + ' % pago · em falta <b>' + eur(c.em_falta) + '</b></p>' +
+    h = '<div class="ph2"><span class="lb">Pago</span><span class="num">' + eur(c.total_pago) + ' <i>de ' + eur(c.valor_final) + '</i></span></div><div class="pb"><i style="width:' + pc + '%"></i></div><p class="sm">' + pc + ' % pago · em falta <b>' + eur(c.em_falta) + '</b></p>' + (extTot(id, 'No dia do casamento') ? '<p class="sm">+ <b>' + eur(extTot(id, 'No dia do casamento')) + '</b> de extras a pagar no dia do casamento (fora das parcelas)</p>' : '') +
       '<p class="lb gl" style="margin-top:30px">Plano de pagamento</p>' + ent +
       (P.map(function (p) { return '<div class="rw"><span class="n">' + E(p.parcela) + '.ª</span><div><b>' + eur(p.valor) + '</b>' + tg(p.estado) + '<small>vence ' + (p.estado !== 'Paga' && dono() ? '<button class="lnk pdt" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '" title="Alterar a data de pagamento">' + fd(p.vencimento) + ' ✎</button>' : fd(p.vencimento)) + '</small></div><div class="rt">' + (p.estado !== 'Paga' ? '<button class="bt" data-a="paga" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Marcar paga</button>' + (dono() ? '<button class="bt sm" data-a="pdata" data-id="' + E(id) + '" data-p="' + E(p.parcela) + '">Editar</button>' : '') : '') + '</div></div>'; }).join('') || (ent ? '' : '<p class="em">Sem parcelas.</p>')) +
       '<p class="lb gl" style="margin-top:30px">Recebido</p>' +
@@ -2134,7 +2193,10 @@ function vFicha() {
       '<div class="acts2"><button class="bt" data-a="plano" data-id="' + E(id) + '">Plano de pagamento</button><button class="bt" data-a="reneg" data-id="' + E(id) + '">Renegociar</button><button class="bt" data-a="extr" data-id="' + E(id) + '">Extrato PDF</button></div>' +
       '<div class="btns"><button class="b1" data-a="np" data-id="' + E(id) + '">Registar pagamento</button></div>';
   }
-  if (tab === 'e') { var X = D.ext.filter(function (x) { return x.id_cliente === id; }); h = (X.map(function (x) { return '<div class="ln"><span>' + E(x.servico) + ' × ' + E(x.quantidade) + '</span><span>' + (x.total !== '' ? eur(x.total) : 'sem preço') + '</span></div>'; }).join('') || '<p class="em">Sem extras.</p>') + '<div class="ln"><span>Total extras</span><span><b>' + eur(sum(X, function (x) { return x.total; })) + '</b></span></div><p class="sm" style="margin-top:14px">Os preços definem-se na folha Serviços.</p><div class="btns"><button class="b1" data-a="ne" data-id="' + E(id) + '">Adicionar extra</button></div>'; }
+  if (tab === 'e') { var X = extrasDe(id), nP = extTot(id, 'Nas parcelas'), nD = extTot(id, 'No dia do casamento');
+    h = (X.map(function (x) { var v = vExtra(x); return '<div class="ln"><span>' + E(x.servico) + (+x.quantidade > 1 ? ' × ' + E(x.quantidade) : '') + '</span><span>' + (v != null ? eur(v) : 'sem valor') + ' ' + tg(pagaX(x) === 'Nas parcelas' ? 'Nas parcelas' : 'No dia', pagaX(x) === 'Nas parcelas' ? 'gy' : 'oc') + '</span></div>'; }).join('') || '<p class="em">Sem extras.</p>') +
+      (X.length ? '<div class="ln"><span>Nas parcelas <i style="color:var(--mt)">(incluído no valor final)</i></span><span><b>' + eur(nP) + '</b></span></div><div class="ln"><span>No dia do casamento <i style="color:var(--mt)">(pago à parte)</i></span><span><b>' + eur(nD) + '</b></span></div>' : '') +
+      (dono() ? '<div class="btns"><button class="b1" data-a="exed" data-id="' + E(id) + '">' + (X.length ? 'Editar extras' : 'Adicionar extras') + '</button></div>' : ''); }
   if (tab === 'd') h = lines([['Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>'],
       ['Resumo do contrato', c.resumo_do_contrato ? '<a href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">abrir PDF</a>' : (ehCas(c) && c.contrato_assinado === 'Sim' ? 'ainda não criado' : '')], ['Contrato (PDF)', doc.link_do_pdf_do_contrato ? '<a href="' + E(su(doc.link_do_pdf_do_contrato)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Google Docs', doc.link_do_google_docs ? '<a href="' + E(su(doc.link_do_google_docs)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Notas', E(doc.notas)]]) + '<div class="btns">' + (ehCas(c) && c.contrato_assinado === 'Sim' && dono() ? '<button class="b2" data-a="resumo" data-id="' + E(id) + '">' + (c.resumo_do_contrato ? 'Gerar resumo de novo' : 'Gerar resumo do contrato') + '</button>' : '') + '<button class="b1" data-a="ed" data-id="' + E(id) + '">Editar links</button></div>';
   if (tab === 'q') h = qAba(c);
@@ -2255,13 +2317,15 @@ function resumoHtml(c) {
   h += caixa('Cobertura do Evento<br>' + dataCurta(c.data_do_evento) + (c.hora ? ' · ' + E(c.hora) : ''),
     (c.pacote ? '<b>' + E(c.pacote) + '</b>' : '') + (itens.length ? '<ol>' + itens.map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' : E(c.tipo_de_servico || '')) +
     (locais.length ? '<p class="lc">Local: ' + E(locais.join(' · ')) + '</p>' : ''));
-  if (ext.length) h += caixa('Extras', ext.map(function (x) { return E(x.servico) + (+x.quantidade > 1 ? ' × ' + E(x.quantidade) : '') + (x.total !== '' && x.total != null ? ': ' + eurR(x.total) : ''); }).join('<br>'), eurR(sum(ext, function (x) { return x.total; })));
+  ext = ext.filter(function (x) { return x.servico; }); var noDia = sum(ext.filter(function (x) { return pagaX(x) === 'No dia do casamento'; }), function (x) { return vExtra(x) || 0; });
+  if (ext.length) h += caixa('Extras', ext.map(function (x) { var vx = vExtra(x); return E(x.servico) + (+x.quantidade > 1 ? ' × ' + E(x.quantidade) : '') + (vx != null ? ': ' + eurR(vx) : '') + (pagaX(x) === 'No dia do casamento' ? ' <i>(a pagar no dia do casamento)</i>' : ' <i>(incluído nas parcelas)</i>'); }).join('<br>'), eurR(sum(ext, function (x) { return vExtra(x) || 0; })));
   if (+c.deslocacao > 0) h += caixa('Deslocação', 'Gasóleo e portagens', eurR(c.deslocacao));
   var cond = '<b>' + E(f || 'A definir') + '</b>';
   if (f === 'Entrada + parcelas' && vE) cond += '<br>Entrada de ' + E(c.entrada) + '% para reservar a data: ' + eurR(vE);
   if (par.length) cond += '<br>' + par.map(function (x) { return E(x.parcela) + '.ª parcela: ' + dataCurta(x.vencimento) + ', ' + eurR(x.valor) + (x.estado === 'Paga' ? ' (paga)' : ''); }).join('<br>');
-  cond += '<br><br>Pago até ' + dataCurta(TODAY) + ': ' + eurR(pago) + ' · Em falta: ' + eurR(Math.max(0, v - pago));
-  h += caixa('Valor do Contrato<br>Condições de pagamento', cond, '<b>' + eurR(v) + '</b>');
+  if (noDia) cond += '<br>Extras a pagar no dia do casamento: ' + eurR(noDia);
+  cond += '<br><br>Pago até ' + dataCurta(TODAY) + ': ' + eurR(pago) + ' · Em falta: ' + eurR(Math.max(0, v + noDia - pago));
+  h += caixa('Valor do Contrato<br>Condições de pagamento', cond, '<b>' + eurR(v + noDia) + '</b>');
   h += '<p class="nt">Documento emitido a ' + dataCurta(TODAY) + '. Resumo dos serviços contratados; não substitui o contrato nem a fatura.</p></main>' +
     '<footer><span><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z M4 6l8 7 8-7"/></svg>oldbootsphotoandfilm@gmail.com</span><span><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Leiria, Portugal</span><span><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+351 913 116 155</span></footer>';
   var css = '*{box-sizing:border-box;margin:0;padding:0}html,body{background:#fff}' +
@@ -2448,6 +2512,7 @@ var act = {
   abrirProp: function (d) { trocarApp('prop', 'prop', d.u); },
   x: closeM, f: function (d) { ficha(d.id, 'r', true); }, o: function (d) { orcF(d.id); }, tab: function (d) { ficha(d.id, d.v); var t = $('.tabs .on'); if (t) t.parentNode.scrollLeft = Math.max(0, t.offsetLeft - t.parentNode.offsetLeft - 20); }, paga: function (d) { pagar(d.id, d.p); },
   pdata: function (d) { parEd(d.id, +d.p); },
+  exed: function (d) { extEd(d.id); },
   parExc: function (d) { var p = D.par.find(function (x) { return x.id_cliente === d.id && +x.parcela === +d.p; }); if (!p) return;
     ask('Excluir a ' + E(p.parcela) + '.ª parcela (' + eur(p.valor) + ')?', function () { var m = ($('#hmot') || {}).value || ''; closeM(); HIST = {}; run(rpc('api_par_excluir', d.id, +d.p, m), 'Parcela excluída · fica no histórico'); }, 'Excluir',
       '<p class="sm" style="margin-top:10px">Fica guardada no histórico de alterações e pode ser reposta.</p>' + motivoHtml()); },
