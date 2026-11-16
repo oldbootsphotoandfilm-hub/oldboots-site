@@ -206,7 +206,7 @@ function doHash() {
   var ja = orc && D.propostas.find(function (p) { return p.orc === orc; });
   if (ja) { novo(ja); toast('Já existe a proposta ' + ja.id + ' para este pedido: aberta para editar.'); return; }
   novo();
-  F.casal = String(o.casal || '').slice(0, 120); F.data = /^\d{4}-\d{2}-\d{2}$/.test(o.data || '') ? o.data : ''; F.local = String(o.local || '').slice(0, 160); F.tel = String(o.tel || '').slice(0, 40); F.orc = orc;
+  F.casal = String(o.casal || '').slice(0, 120); F.data = /^\d{4}-\d{2}-\d{2}$/.test(o.data || '') ? o.data : ''; F.local = String(o.local || '').slice(0, 160); F.tel = String(o.tel || '').slice(0, 40); F.orc = orc; if (o.idioma === 'en' || o.idioma === 'pt') F.idioma = o.idioma; // língua do cliente escolhida nos Bastidores (pode mudar-se aqui)
   render(); if (F.casal) toast('Dados do pedido ' + (orc || '') + ' preenchidos.');
 }
 

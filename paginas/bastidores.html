@@ -345,6 +345,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .hist{margin-top:30px}#ob .hist>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}#ob .hist>summary::-webkit-details-marker{display:none}#ob .hist>summary::after{content:'▾';font-size:12px;transition:transform .2s}#ob .hist[open]>summary::after{transform:rotate(180deg)}#ob .hrw small{display:block}#ob .b2.rdx{color:var(--rd);border-color:var(--rd)}
 #ob .exr2{border-bottom:1px solid var(--sf);padding:6px 0}#ob .exr2 .exf{display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:4px 0 10px 30px}#ob .exr2.on .exf{display:grid}#ob .exr2 .exf label span{font-size:10.5px}
 #ob .recx{margin-top:34px;text-align:center}#ob .recx .lnk{font-size:12px;color:var(--mt)}
+#ob .qpr.qoff b{color:var(--mt);text-decoration:line-through}#ob .qpr .rt{gap:8px}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -1052,17 +1053,17 @@ var CAMPOS_PLANO = [['valor_final', 'Valor final (€)', 'number'], ['forma_de_p
   ['inicio_das_parcelas', function (v) { return v.forma_de_pagamento === 'À vista' ? 'Data do pagamento' : 'A 1.ª parcela vence em'; }, 'date']];
 var limpaCat = function (x) { if (ehCas(x)) { x.subtipo = ''; } if (x.categoria !== 'Ensaio' && 'ligado_a' in x) x.ligado_a = ''; return x; };
 var MOTIVOS = ['Achou caro', 'Já não tínhamos a data', 'Fechou com outro profissional', 'Deixou de responder', 'Casamento adiado ou cancelado', 'Procurava outro estilo', 'Só queria fotos ou só vídeo', 'Local longe (deslocação)'];
-var FO = [['Pedido', [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['origem', 'Origem do contacto', 'sel', SEL.origem], ['data_do_evento', 'Data do evento', 'date'], ['local', 'Local', 'text'], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['valor_orcado', 'Valor orçado (€)', 'number'], ['status', 'Status', 'sel', SEL.orc], ['motivo_da_perda', 'Porque não fechou', 'text', null, function (v) { return v.status === 'Perdido'; }], ['proximo_contacto', 'Próximo contacto', 'date'], ['observacoes', 'Observações', 'area']]]];
+var FO = [['Pedido', [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['idioma', 'Língua do cliente (página, PDFs e mensagens)', 'sel', [['Português', 'Português'], ['English', 'English']]], ['origem', 'Origem do contacto', 'sel', SEL.origem], ['data_do_evento', 'Data do evento', 'date'], ['local', 'Local', 'text'], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['valor_orcado', 'Valor orçado (€)', 'number'], ['status', 'Status', 'sel', SEL.orc], ['motivo_da_perda', 'Porque não fechou', 'text', null, function (v) { return v.status === 'Perdido'; }], ['proximo_contacto', 'Próximo contacto', 'date'], ['observacoes', 'Observações', 'area']]]];
 var FC = function (eu) { var casL = [['', '—']].concat(D.cli.filter(function (c) { return ehCas(c) && c.id !== eu; }).map(function (c) { return [c.id, c.nome_do_casal + (c.data_do_evento ? ' · ' + fd(c.data_do_evento) : '')]; }));
-return [[function (v) { return ehCas(v) ? 'Casal' : 'Cliente'; }, [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['nome_completo_contrato', 'Nome completo (para o contrato)', 'text'], ['nif', 'NIF', 'text'], ['email', 'Email', 'email'], ['telefone', 'Telefone', 'tel'], ['ligado_a', 'Casamento ligado (opcional)', 'sel', casL, function (v) { return v.categoria === 'Ensaio'; }]]],
+return [[function (v) { return ehCas(v) ? 'Casal' : 'Cliente'; }, [['categoria', 'Categoria', 'sel', SEL.cat], ['subtipo', 'Tipo', 'sel', subO, subC], ['nome_do_casal', nomeL, 'text'], ['nome_completo_contrato', 'Nome completo (para o contrato)', 'text'], ['nif', 'NIF', 'text'], ['email', 'Email', 'email'], ['idioma', 'Língua do cliente (página, PDFs e mensagens)', 'sel', [['Português', 'Português'], ['English', 'English']]], ['telefone', 'Telefone', 'tel'], ['ligado_a', 'Casamento ligado (opcional)', 'sel', casL, function (v) { return v.categoria === 'Ensaio'; }]]],
 ['Evento', [['data_do_evento', function (v) { return ehCas(v) ? 'Data do evento' : 'Data'; }, 'date'], ['hora', 'Hora', 'time'], ['local_da_cerimonia', function (v) { return ehCas(v) ? 'Local da cerimónia' : 'Local'; }, 'text'], ['local_da_rececao', 'Local da receção', 'text', null, ehCas], ['tipo_de_servico', 'Tipo de serviço', 'sel', SEL.serv], ['origem', 'Origem do contacto', 'sel', SEL.origem]].concat(CAMPOS_PAC).concat(eu ? [] : CAMPOS_EXT)],
 ['Valores', [['status', 'Status', 'sel', SEL.cs]].concat(CAMPOS_PLANO).concat([ ['contrato_previo', 'Contrato prévio', 'sel', SEL.cp], ['contrato_assinado', 'Contrato assinado', 'sel', SEL.sn], ['link_da_galeria', 'Link da galeria', 'url'], ['observacoes', 'Observações', 'area']])]]; };
 var reqName = function (v) { if (!String(v.nome_do_casal || '').trim()) { toast(ehCas(v) ? 'Preencha o nome do casal.' : 'Preencha o nome do cliente.', 1); return 1; } };
 var sem = function (v) { var x = {}; Object.keys(v).forEach(function (k) { if (k !== '_row') x[k] = v[k]; }); return x; };
 // valores que o registo tinha ao abrir o formulário (o servidor recusa se outra pessoa os mudou entretanto)
 function antesDe(o, x) { var a = {}; Object.keys(x).forEach(function (k) { if (k !== 'extras') a[k] = o[k] == null ? '' : o[k]; }); return a; }
-function novoOrc(o) { form(o ? 'Editar orçamento' : 'Novo orçamento', FO, o ? Object.assign({}, o) : { categoria: 'Casamento', origem: 'Instagram', status: 'Novo pedido', tipo_de_servico: 'Foto + Vídeo' }, function (v) { if (reqName(v)) return; var x = limpaCat(sem(v)); run(o ? rpc('api_upd', 'Orçamentos', o.id, x, antesDe(o, x)) : rpc('api_add', 'Orçamentos', Object.assign({}, x, { data_do_pedido: TODAY })), 'Orçamento guardado', function () { if (o) orcF(o.id); }); }); }
-function novoCli(c) { form(c ? 'Editar cliente' : 'Novo cliente', FC(c && c.id), c ? Object.assign({ ligado_a: '' }, c) : { categoria: cat === 'ee' ? 'Ensaio' : 'Casamento', ligado_a: '', status: 'Fechado', forma_de_pagamento: 'Entrada + parcelas', entrada: 40, contrato_previo: 'Não enviado', contrato_assinado: 'Não', tipo_de_servico: 'Foto + Vídeo', origem: 'Instagram' }, function (v) { if (reqName(v)) return; if (v.forma_de_pagamento === 'Entrada + parcelas' && !(+v.entrada > 0 && +v.entrada < 100)) return toast('Indique a percentagem da entrada (entre 1 e 99).', 1); var x = limpaCat(sem(v)); if (x.forma_de_pagamento !== 'Entrada + parcelas') x.entrada = ''; if (c) delete x.extras; else x.extras = ehCas(x) ? extrasLista(x.extras) : []; run(c ? rpc('api_upd', 'Clientes', c.id, x, antesDe(c, x)) : rpc('api_add', 'Clientes', x), 'Cliente guardado', function () { if (c) ficha(c.id, 'r'); }).then(depoisDeGravar); }); }
+function novoOrc(o) { form(o ? 'Editar orçamento' : 'Novo orçamento', FO, o ? Object.assign({}, o, { idioma: lngSug(o) }) : { idioma: 'Português', categoria: 'Casamento', origem: 'Instagram', status: 'Novo pedido', tipo_de_servico: 'Foto + Vídeo' }, function (v) { if (reqName(v)) return; var x = limpaCat(sem(v)); run(o ? rpc('api_upd', 'Orçamentos', o.id, x, antesDe(o, x)) : rpc('api_add', 'Orçamentos', Object.assign({}, x, { data_do_pedido: TODAY })), 'Orçamento guardado', function () { if (o) orcF(o.id); }); }); }
+function novoCli(c) { form(c ? 'Editar cliente' : 'Novo cliente', FC(c && c.id), c ? Object.assign({ ligado_a: '' }, c, { idioma: lngSug(c) }) : { idioma: 'Português', categoria: cat === 'ee' ? 'Ensaio' : 'Casamento', ligado_a: '', status: 'Fechado', forma_de_pagamento: 'Entrada + parcelas', entrada: 40, contrato_previo: 'Não enviado', contrato_assinado: 'Não', tipo_de_servico: 'Foto + Vídeo', origem: 'Instagram' }, function (v) { if (reqName(v)) return; if (v.forma_de_pagamento === 'Entrada + parcelas' && !(+v.entrada > 0 && +v.entrada < 100)) return toast('Indique a percentagem da entrada (entre 1 e 99).', 1); var x = limpaCat(sem(v)); if (x.forma_de_pagamento !== 'Entrada + parcelas') x.entrada = ''; if (c) delete x.extras; else x.extras = ehCas(x) ? extrasLista(x.extras) : []; run(c ? rpc('api_upd', 'Clientes', c.id, x, antesDe(c, x)) : rpc('api_add', 'Clientes', x), 'Cliente guardado', function () { if (c) ficha(c.id, 'r'); }).then(depoisDeGravar); }); }
 function novoPag(id, tipo, valor) { if (!D.cli.length) return toast('Crie primeiro um cliente.', 1); form('Registar pagamento', [['Pagamento', [['id_cliente', 'Cliente', 'sel', D.cli.map(function (c) { return [c.id, c.nome_do_casal]; })], ['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['tipo', 'Tipo', 'sel', SEL.tp], ['metodo', 'Método', 'sel', SEL.mt], ['parcela', 'Nº da parcela (se for parcela)', 'number'], ['notas', 'Notas', 'text']].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk']])]], { recebido_por: '', parte_do_gabriel: 50, fatura_emitida: 'Não', id_cliente: id || D.cli[0].id, data: TODAY, tipo: tipo || 'Depósito', metodo: 'MB Way', valor: valor || '' }, function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; run(rpc('api_add', 'Pagamentos', v), 'Pagamento registado', function () { if (id) ficha(id, 'p'); }); }); }
 
 /* ---------- corrigir / excluir parcelas e pagamentos (com histórico) ---------- */
@@ -1107,6 +1108,50 @@ var histHtml = function (id) {
 };
 var HISTC = {};
 function histCarrega(id) { if (HIST[id] || HISTC[id]) return; HISTC[id] = 1; rpc('api_hist', id).then(function (l) { delete HISTC[id]; HIST[id] = l || []; var b = $('#histl'); if (b && $('#histp') && $('#histp').dataset.id === id) b.innerHTML = histHtml(id); }).catch(function (e) { delete HISTC[id]; var b = $('#histl'); if (b) b.innerHTML = '<p class="em">Não foi possível carregar o histórico.</p>'; }); }
+
+/* ---------- questionários: respostas de todos os casais + perguntas editáveis ---------- */
+var QCFG = null, QCFGC = false, QTAB = 'resp';
+var QTIPOS = [['t', 'Resposta curta'], ['a', 'Resposta longa'], ['o', 'Escolha (opções)']];
+function qCfgCarrega(f) { if (QCFGC) return; QCFGC = true; rpc('api_q_cfg').then(function (r) { QCFG = r; QCFGC = false; if (view === 'quest') render(); if (f) f(); }, function (e) { QCFGC = false; if (e && e.auth) return; toast('Não foi possível carregar as perguntas: ' + (e && e.message || ''), 1); }); }
+function qCfgGrava(cfg, msg) { nGrav++; sv(); return rpc('api_q_cfg_guardar', cfg).then(function (r) { QCFG = r; nGrav--; sv(); toast(msg || 'Perguntas guardadas'); if (view === 'quest') render(); }, function (e) { nGrav--; sv(); toast(e && e.message || 'Não foi possível guardar.', 1); }); }
+var qCfgCopia = function () { var c = (QCFG && QCFG.cfg) || { ocultas: [], extra: [] }; return { ocultas: (c.ocultas || []).slice(), extra: (c.extra || []).filter(function (x) { return !x.off; }).map(function (x) { return JSON.parse(JSON.stringify(x)); }) }; };
+function vQuest() {
+  var tabs = '<div class="ctab" role="tablist">' + [['resp', 'Respostas'], ['perg', 'Perguntas']].map(function (t) { return '<button role="tab" data-a="qtab" data-v="' + t[0] + '" class="' + (QTAB === t[0] ? 'on' : '') + '" aria-selected="' + (QTAB === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>';
+  var h = '<div class="w1"><div class="pt"><div><p class="lb">Páginas dos casais</p><h1 class="h1">Questionários</h1></div></div>' + tabs;
+  if (QTAB === 'resp') {
+    var l = (D.q || []).map(function (q) { var c = (D.cli || []).find(function (x) { return x.id === q.id_cliente; }); return c ? { q: q, c: c } : null; }).filter(Boolean);
+    var resp = l.filter(function (x) { return x.q.estado === 'Enviado' || x.q.estado === 'A preencher'; }).sort(function (a, b) { return a.q.estado === b.q.estado ? String(a.c.data_do_evento || '9') < String(b.c.data_do_evento || '9') ? -1 : 1 : a.q.estado === 'Enviado' ? -1 : 1; });
+    var nao = l.filter(function (x) { return resp.indexOf(x) < 0; }).sort(function (a, b) { return String(a.c.data_do_evento || '9') < String(b.c.data_do_evento || '9') ? -1 : 1; });
+    var linha = function (x) { var q = x.q, c = x.c; return '<div class="rw r2"><div><b><button class="lnk" data-a="f" data-id="' + E(c.id) + '" style="font:inherit;font-style:normal">' + E(nc(c.nome_do_casal)) + '</button></b>' + qEstado(c, q) + '<small>' + (c.data_do_evento ? fd(c.data_do_evento) : 'sem data') + (q.enviado_em ? ' · enviado ' + E(q.enviado_em) : '') + '</small></div><div class="rt">' +
+      (q.pdf ? '<a class="bt" href="' + E(su(q.pdf)) + '" target="_blank" rel="noopener">PDF</a>' : '') + '<a class="bt" href="' + E(qLink(c, q, false) + '/adm') + '" target="_blank" rel="noopener">Ver (adm)</a></div></div>'; };
+    h += '<p class="lb gl" style="margin-top:22px">Responderam · ' + resp.length + '</p>' + (resp.map(linha).join('') || '<p class="em">Ainda nenhum casal respondeu.</p>') +
+      (nao.length ? '<details class="orcarq" style="margin-top:26px"><summary class="lb gl">Ainda sem respostas · ' + nao.length + '</summary>' + nao.map(linha).join('') + '</details>' : '') +
+      '<p class="sm" style="margin-top:22px">O PDF é criado quando o casal carrega em «Enviar». «Ver (adm)» mostra as respostas atuais, mesmo antes de enviarem (nada é gravado).</p>';
+    return h + '</div>';
+  }
+  if (!QCFG) { qCfgCarrega(); return h + '<p class="sm" style="margin-top:22px">A carregar as perguntas…</p></div>'; }
+  var cfg = QCFG.cfg || { ocultas: [], extra: [] }, oc = cfg.ocultas || [], ex = (cfg.extra || []).filter(function (x) { return !x.off; });
+  h += '<p class="sm" style="margin-top:18px">As mudanças valem para todos os casais e para a demonstração. Ocultar uma pergunta não apaga respostas já dadas; só deixa de aparecer.</p>';
+  h += (QCFG.base || []).map(function (s, i) {
+    return '<p class="lb gl" style="margin-top:28px">' + (i + 1) + ' · ' + E(s.passo) + '</p>' +
+      s.perguntas.map(function (p) { var o = oc.indexOf(p.k) >= 0; return '<div class="rw r2 qpr' + (o ? ' qoff' : '') + '"><div><b>' + E(p.l) + '</b>' + (o ? tg('Oculta', 'gy') : '') + '</div><div class="rt">' + (p.fixa ? '<small class="sm">fixa</small>' : '<button class="bt sm" data-a="qoc" data-k="' + E(p.k) + '">' + (o ? 'Mostrar' : 'Ocultar') + '</button>') + '</div></div>'; }).join('') +
+      ex.filter(function (x) { return +x.p === i; }).map(function (x) { return '<div class="rw r2 qpr qnova"><div><b>' + E(x.l[0]) + (x.r ? ' <span style="color:var(--rd)">*</span>' : '') + '</b>' + tg('Nova', 'bl') + '<small>' + E((QTIPOS.find(function (t) { return t[0] === x.t; }) || QTIPOS[0])[1]) + (x.t === 'o' ? ': ' + E(x.o.map(function (y) { return y[0]; }).join(' / ')) : '') + '</small></div><div class="rt"><button class="bt sm" data-a="qed" data-k="' + E(x.k) + '">Editar</button><button class="bt sm" data-a="qdel" data-k="' + E(x.k) + '">Remover</button></div></div>'; }).join('') +
+      '<p style="margin-top:8px"><button class="lnk" data-a="qnew" data-p="' + i + '">+ Acrescentar pergunta neste passo</button></p>';
+  }).join('');
+  return h + '</div>';
+}
+function qPergForm(k, p) {
+  if (!QCFG) return; var c = qCfgCopia(), x = k ? c.extra.find(function (y) { return y.k === k; }) : null, passos = (QCFG.base || []).map(function (s, i) { return [String(i), (i + 1) + ' · ' + s.passo]; });
+  var v0 = x ? { p: String(x.p), pt: x.l[0], en: x.l[1] || '', ajuda: (x.s || [])[0] || '', t: x.t, opcoes: (x.o || []).map(function (y) { return y[0] + (y[1] ? ' | ' + y[1] : ''); }).join('\n'), r: x.r ? 'Sim' : 'Não' } : { p: String(p || 0), pt: '', en: '', ajuda: '', t: 't', opcoes: '', r: 'Não' };
+  form(x ? 'Editar pergunta' : 'Nova pergunta', [['Pergunta', [['p', 'Passo do questionário', 'sel', passos], ['pt', 'Pergunta (português)', 'text'], ['en', 'Pergunta em inglês (para casais estrangeiros; opcional)', 'text'], ['ajuda', 'Explicação por baixo (opcional)', 'text'],
+    ['t', 'Tipo de resposta', 'sel', QTIPOS], ['opcoes', 'Opções (uma por linha; para inglês: «Sim | Yes»)', 'area', null, function (v) { return v.t === 'o'; }], ['r', 'Obrigatória', 'chk']]]], v0, function (v) {
+    var pt = String(v.pt || '').trim(); if (!pt) return toast('Escreva a pergunta.', 1);
+    var o = v.t === 'o' ? String(v.opcoes || '').split(/\n/).map(function (l) { var a = l.split('|'); return [String(a[0] || '').trim(), String(a[1] || '').trim()]; }).filter(function (a) { return a[0]; }) : [];
+    if (v.t === 'o' && o.length < 2) return toast('Escreva pelo menos 2 opções, uma por linha.', 1);
+    var n = { k: x ? x.k : 'x_' + Math.random().toString(36).slice(2, 10).replace(/[^a-z0-9]/g, 'a').padEnd(8, 'a'), p: +v.p || 0, t: v.t, l: [pt, String(v.en || '').trim()], s: [String(v.ajuda || '').trim(), ''], o: o, r: v.r === 'Sim' ? 1 : 0 };
+    if (x) c.extra = c.extra.map(function (y) { return y.k === x.k ? n : y; }); else c.extra.push(n);
+    closeM(); qCfgGrava(c, x ? 'Pergunta alterada' : 'Pergunta acrescentada'); }, x ? 'Guardar' : 'Acrescentar');
+}
 
 /* ---------- vistas ---------- */
 function vHoje() {
@@ -1556,7 +1601,7 @@ var ICN = { reu: '<rect x="3" y="7" width="12" height="10" rx="2"/><path d="M15 
   ffat: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', fdesp: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>', ses: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5.5-4.5-5.5-2S10 9 12 9zM12 9c1.5-3.5 5.5-4.5 5.5-2S14 9 12 9z"/>', mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
 /* ---------- Reunião: página de exemplo, roteiro em popup, mensagens do telemóvel e agenda ---------- */
 var REU = null, REUCARR = false, REUW = null, REUT = 0, REUDESDE = 0;
-var REU_DEMO = 'https://oldbootsphotoandfilm.com/questionario/#demo';
+var REU_DEMO = 'https://oldbootsphotoandfilm.com/pagina-do-casal/#demo';
 var REU_RAP = ['Mostrar a página de exemplo', 'Falar de valores e extras', 'Perguntar data e local', 'Dar prazo para decidirem', 'Ouvir mais, falar menos', 'Perguntar como se conheceram'];
 var REU_DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 function reuCarrega() {
@@ -1822,7 +1867,7 @@ function prePropostas() {
 }
 function abrirApps() {
   var m = $('#apm'); if (!m.hidden) return fecharApps();
-  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin' && x[0] !== 'prod'; })).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
+  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin' && x[0] !== 'prod'; })).concat(!dono() ? [] : [['qst', 'Questionários', 'Perguntas e respostas dos casais']]).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
   if (matchMedia('(max-width:820px)').matches) m.innerHTML += '<button role="menuitem" data-a="sair"><b>Sair</b><small>' + E(ME) + '</small></button>';
   m.hidden = false; $('.brand').setAttribute('aria-expanded', 'true');
 }
@@ -2114,7 +2159,10 @@ var qLink = function (c, q, soQ) { var s = slugCasal(c && c.nome_do_casal); retu
 var qDe = function (id) { return (D.q || []).find(function (x) { return x.id_cliente === id; }) || null; };
 var qAbre = function (c) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(String(c.data_do_evento || '')); if (!m) return ''; var d = new Date(+m[1], m[2] - 3, +m[3]); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
 var temQ = function (c) { return ehCas(c) && (c.status === 'Fechado' || c.status === 'Concluído'); };
-var qMsg = function (c, q, soQ) { var ab = qAbre(c); return soQ ? 'Questionário do casamento: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está o questionário do vosso casamento: ' + qLink(c, q, true) + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : '') : 'Página do casal: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está a vossa página do casal na Old Boots, com o vosso dia, os pagamentos e os documentos: ' + qLink(c, q, false) + (ab ? '\nO questionário do dia abre lá a ' + fdc(ab) + '.' : ''); };
+var qMsg = function (c, q, soQ) { var ab = qAbre(c);
+  if (ehEN(c)) return soQ ? 'Wedding questionnaire: ' + (c.nome_do_casal || '') + '\n\nHi! Here is the questionnaire for your wedding: ' + qLink(c, q, true) + (ab ? '\nIt opens on ' + fdc(ab) + ' (2 months before) and you can edit it until 7 days before the wedding.' : '')
+    : 'Couple page: ' + (c.nome_do_casal || '') + '\n\nHi! Here is your Old Boots couple page, with your day, payments and documents: ' + qLink(c, q, false) + (ab ? '\nThe wedding-day questionnaire opens there on ' + fdc(ab) + '.' : '');
+  return soQ ? 'Questionário do casamento: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está o questionário do vosso casamento: ' + qLink(c, q, true) + (ab ? '\nAbre a ' + fdc(ab) + ' (2 meses antes) e podem editá-lo até 7 dias antes do casamento.' : '') : 'Página do casal: ' + (c.nome_do_casal || '') + '\n\nOlá! Aqui está a vossa página do casal na Old Boots, com o vosso dia, os pagamentos e os documentos: ' + qLink(c, q, false) + (ab ? '\nO questionário do dia abre lá a ' + fdc(ab) + '.' : ''); };
 function qEstado(c, q) {
   if (!q) return tg('Sem link', 'ne'); var ab = qAbre(c);
   return q.estado === 'Enviado' ? (q.alterado ? tg('Alterado, por reenviar', 'oc') : tg(q.envios > 1 ? 'Enviado · correção ' + (q.envios - 1) : 'Enviado', 'gr')) : q.estado === 'A preencher' ? tg('A preencher', 'bl') : tg(ab && ab > TODAY ? 'Abre a ' + fdc(ab) : 'Por abrir', 'ne');
@@ -2128,7 +2176,8 @@ function qAcoes(c, q) {
   var linha = function (rot, soQ) { var u = qLink(c, q, soQ);
     return '<p class="lb" style="margin-top:22px">' + rot + '</p><div class="qic">' + bt(I.cop, 'Copiar', 'qcop', soQ ? 'q' : '') +
       (c.telefone ? '<a class="ic wa" href="' + E(wa(c.telefone)) + '?text=' + encodeURIComponent(qMsg(c, q, soQ)) + '" target="_blank" rel="noopener" aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp">' + ICO.wa + '<span>WhatsApp</span></a>' : '') +
-      '<a class="ic" href="' + E(u) + '" target="_blank" rel="noopener" aria-label="Abrir" title="Abrir">' + I.abr + '<span>Abrir</span></a></div>'; };
+      '<a class="ic" href="' + E(u) + '" target="_blank" rel="noopener" aria-label="Abrir" title="Abrir">' + I.abr + '<span>Abrir</span></a>' +
+      (soQ && dono() ? '<a class="ic" href="' + E(qLink(c, q, false) + '/adm') + '" target="_blank" rel="noopener" aria-label="Ver o questionário como adm (mesmo antes de abrir; nada é gravado)" title="Ver o questionário como adm (mesmo antes de abrir; nada é gravado)">' + I.abr + '<span>Ver (adm)</span></a>' : '') + '</div>'; };
   var exp = q.valido_ate && q.valido_ate < TODAY;
   return linha('Página do casal', false) + linha('Questionário', true) +
     (dono() ? '<p class="lb" style="margin-top:22px">Estado</p><p class="sm" style="margin:8px 0 10px">' + (q.desativada ? tg('Fora do ar', 'rd') : exp ? tg('Link expirado', 'rd') : tg('No ar', 'gr')) + ' ' +
@@ -2183,7 +2232,7 @@ function vFicha() {
   var c = todosCli().find(function (x) { return x.id === fid; }); if (!c) { view = 'cli'; return vCli(); }
   var id = fid, tab = ftab, d = c.data_do_evento ? dias(c.data_do_evento) : null, pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, doc = D.doc.find(function (x) { return x.id_cliente === id; }) || {};
   var tb = [['r', 'Resumo'], ['p', 'Pagamentos'], ['e', 'Extras'], ['d', 'Documentos'], ['q', 'Questionário'], ['n', 'Notas']].filter(function (t) { return (dono() || t[0] !== 'p') && (t[0] !== 'q' || temQ(c)); }), h = ''; if (tab === 'q' && !temQ(c)) tab = 'r'; if (!dono() && tab === 'p') tab = 'r';
-  if (tab === 'r') h = lines([['Cerimónia', E(c.local_da_cerimonia)], ['Receção', E(c.local_da_rececao)], ['Hora', E(c.hora)], ['Serviço', E(c.tipo_de_servico)], ['Pacote', E(c.pacote)], ['Origem', E(c.origem)], ['Pagamento', E(c.forma_de_pagamento) + (c.entrada ? ' · entrada ' + E(c.entrada) + ' % (' + eur(vEnt(c)) + ')' : '')], ['Contrato', E(c.contrato_previo) + ' · ' + (c.contrato_assinado === 'Sim' ? 'assinado' : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>')], ['Aviso', av(c.aviso_de_data) ? tg(av(c.aviso_de_data), 'rd') : ''], ['Ligado a', c.ligado_a && cli(c.ligado_a).id ? '<button class="lnk" data-a="f" data-id="' + E(c.ligado_a) + '">' + E(cli(c.ligado_a).nome_do_casal) + '</button> · casamento' : ''], ['Ensaios ligados', D.cli.filter(function (x) { return x.ligado_a === c.id; }).map(function (x) { return '<button class="lnk" data-a="f" data-id="' + E(x.id) + '">' + E(x.nome_do_casal) + '</button>' + (x.subtipo ? ' · ' + E(x.subtipo) : '') + ' · ' + fd(x.data_do_evento); }).join('<br>')]]) +
+  if (tab === 'r') h = lines([['Língua do cliente', E(lngSug(c)) + (c.idioma ? '' : ' <small style="color:var(--mt)">(sugerida; escolha em Editar)</small>')], ['Cerimónia', E(c.local_da_cerimonia)], ['Receção', E(c.local_da_rececao)], ['Hora', E(c.hora)], ['Serviço', E(c.tipo_de_servico)], ['Pacote', E(c.pacote)], ['Origem', E(c.origem)], ['Pagamento', E(c.forma_de_pagamento) + (c.entrada ? ' · entrada ' + E(c.entrada) + ' % (' + eur(vEnt(c)) + ')' : '')], ['Contrato', E(c.contrato_previo) + ' · ' + (c.contrato_assinado === 'Sim' ? 'assinado' : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>')], ['Aviso', av(c.aviso_de_data) ? tg(av(c.aviso_de_data), 'rd') : ''], ['Ligado a', c.ligado_a && cli(c.ligado_a).id ? '<button class="lnk" data-a="f" data-id="' + E(c.ligado_a) + '">' + E(cli(c.ligado_a).nome_do_casal) + '</button> · casamento' : ''], ['Ensaios ligados', D.cli.filter(function (x) { return x.ligado_a === c.id; }).map(function (x) { return '<button class="lnk" data-a="f" data-id="' + E(x.id) + '">' + E(x.nome_do_casal) + '</button>' + (x.subtipo ? ' · ' + E(x.subtipo) : '') + ' · ' + fd(x.data_do_evento); }).join('<br>')]]) +
     '<div class="btns">' + (c.sugestao ? '<button class="b2" data-a="ec" data-id="' + E(id) + '">Editar dados</button><button class="b1" data-a="concl" data-id="' + E(id) + '">' + E(c.sugestao) + '</button>' : '<button class="b1" data-a="ec" data-id="' + E(id) + '">Editar dados</button>') + '</div>';
   if (tab === 'p') {
     var P = D.par.filter(function (p) { return p.id_cliente === id; }).sort(function (a, b) { return a.parcela - b.parcela; }),
@@ -2228,7 +2277,7 @@ var pv = function (u) { return String(u || '').replace('#', '?pre=1#'); };
 var fdt = function (s) { s = String(s || ''); return s ? fd(s.slice(0, 10)) + (s.length > 11 ? ' às ' + s.slice(11, 16) : '') : ''; };
 function propsDe(o) { return PROP.filter(function (p) { return p.orc && p.orc === o.id; }).sort(function (a, b) { return a.criada < b.criada ? 1 : -1; }); }
 function linkNova(o) {
-  var a = [['nova', '1'], ['casal', o.nome_do_casal], ['data', o.data_do_evento], ['local', o.local], ['tel', o.telefone], ['orc', o.id]];
+  var a = [['nova', '1'], ['casal', o.nome_do_casal], ['data', o.data_do_evento], ['local', o.local], ['tel', o.telefone], ['orc', o.id], ['idioma', o.idioma === 'English' ? 'en' : o.idioma === 'Português' ? 'pt' : '']];
   return SITE + '/propostas/#' + a.filter(function (x) { return x[1] !== '' && x[1] != null; }).map(function (x) { return x[0] + '=' + encodeURIComponent(String(x[1])); }).join('&');
 }
 function caixaProp(o) {
@@ -2306,6 +2355,21 @@ function converter(oid) {
 
 /* ---------- resumo do contrato em PDF (design do orçamento Old Boots, A4) ---------- */
 var LOGO_RESUMO = 'https://oldbootsphotoandfilm-hub.github.io/oldboots-site/imagens/ob-logo-creme.png';
+var lngSug = function (x) { if (!x) return 'Português'; if (x.idioma === 'English' || x.idioma === 'Português') return x.idioma; var t = String(x.telefone || '').replace(/\D/g, '').slice(-9);
+  var p = t && (PROP || []).filter(function (y) { return y.tel === t; }).sort(function (a, b) { return a.criada < b.criada ? 1 : -1; })[0]; return p && p.idioma === 'en' ? 'English' : 'Português'; };
+var ehEN = function (c) { return lngSug(c) === 'English'; };
+var EN_TXT = { 'Foto': 'Photo', 'Vídeo': 'Video', 'Foto + Vídeo': 'Photo + Video', 'Fotos': 'Photos', 'Filme': 'Film',
+  'Fotos · meio dia': 'Photos · half day', 'Fotos · dia completo': 'Photos · full day', 'Filme · meio dia': 'Film · half day', 'Filme · dia completo': 'Film · full day',
+  'Fotos + Filme · meio dia': 'Photos + Film · half day', 'Fotos + Filme · dia completo': 'Photos + Film · full day',
+  'Duração: 5 horas de cobertura': 'Duration: 5 hours of coverage', 'Duração: 10 horas de cobertura': 'Duration: 10 hours of coverage',
+  'Cerimónia + almoço | jantar': 'Ceremony + lunch | dinner', 'Preparação dos noivos + cerimónia + almoço | jantar + festa': 'Getting ready + ceremony + lunch | dinner + party',
+  'Fotos ilimitadas editadas': 'Unlimited edited photos', '20 fotos editadas em 24 horas': '20 edited photos within 24 hours',
+  'Vídeo teaser de 30 segundos': '30-second teaser video', 'Vídeo teaser de 30 segundos em 48 horas': '30-second teaser video within 48 hours',
+  'Vídeo highlights de 2-3 minutos': '2–3 minute highlights video', 'Vídeo highlights de 1-2 minutos': '1–2 minute highlights video',
+  'Vídeo trailer completo de 8-10 minutos': 'Full 8–10 minute trailer film', 'Sessão pré-wedding (solteiros)': 'Pre-wedding session',
+  'Segundo fotógrafo': 'Second photographer', 'Segundo videógrafo': 'Second videographer', 'Vídeo cerimónia completa': 'Full ceremony video', 'Hora extra': 'Extra hour', 'Drone': 'Drone',
+  'Casamento': 'Wedding', 'Ensaio': 'Photo session', 'Evento': 'Event', 'Entrada + parcelas': 'Deposit + instalments', 'À vista': 'Single payment', 'Parcelado': 'Instalments' };
+var MESES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 var MESES_PT = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 var dataLonga = function (s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return 'a definir'; var p = s.split('-'); return (+p[2]) + ' de ' + MESES_PT[+p[1] - 1] + ' de ' + p[0]; };
 var dataCurta = function (s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return '—'; var p = s.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; };
@@ -2317,24 +2381,26 @@ function resumoHtml(c) {
   if (!itens.length && PACS[c.pacote]) itens = PACS[c.pacote].slice();
   var locais = [c.local_da_cerimonia, c.local_da_rececao].filter(Boolean);
   var f = c.forma_de_pagamento || '', vE = vEnt(c);
+  var en = ehEN(c), L = function (pt, eng) { return en ? eng : pt; }, TT = function (x) { x = String(x == null ? '' : x); return en && EN_TXT[x.trim()] ? EN_TXT[x.trim()] : x; };
+  var dLonga = function (s) { if (!en) return dataLonga(s); if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s || ''))) return 'to be confirmed'; var p = s.split('-'); return (+p[2]) + ' ' + MESES_EN[+p[1] - 1] + ' ' + p[0]; };
   var caixa = function (rotulo, corpo, valor) { return '<table class="cx"><tr><td class="r">' + rotulo + '</td><td class="c">' + corpo + '</td>' + (valor !== undefined ? '<td class="v">' + valor + '</td>' : '') + '</tr></table>'; };
-  var h = '<header><img class="logo" src="' + LOGO_RESUMO + '" alt="Old Boots" onerror="this.outerHTML=\'<b class=logot>Old Boots</b>\'"></header><h1>Resumo dos serviços contratados</h1>' +
-    '<main><p class="ac">A/C:</p><p class="cl">' + [E(c.nome_completo_contrato || c.nome_do_casal), c.nif ? 'NIF ' + E(c.nif) : '', E(c.email), E(c.telefone)].filter(Boolean).join('<br>') + '</p>' +
-    '<p class="dt">Data do Evento (' + E(catDe(c)) + ') ' + dataLonga(c.data_do_evento) + '</p>';
-  h += caixa('Cobertura do Evento<br>' + dataCurta(c.data_do_evento) + (c.hora ? ' · ' + E(c.hora) : ''),
-    (c.pacote ? '<b>' + E(c.pacote) + '</b>' : '') + (itens.length ? '<ol>' + itens.map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' : E(c.tipo_de_servico || '')) +
-    (locais.length ? '<p class="lc">Local: ' + E(locais.join(' · ')) + '</p>' : ''));
+  var h = '<header><img class="logo" src="' + LOGO_RESUMO + '" alt="Old Boots" onerror="this.outerHTML=\'<b class=logot>Old Boots</b>\'"></header><h1>' + L('Resumo dos serviços contratados', 'Summary of contracted services') + '</h1>' +
+    '<main><p class="ac">' + L('A/C:', 'To:') + '</p><p class="cl">' + [E(c.nome_completo_contrato || c.nome_do_casal), c.nif ? 'NIF ' + E(c.nif) : '', E(c.email), E(c.telefone)].filter(Boolean).join('<br>') + '</p>' +
+    '<p class="dt">' + L('Data do Evento', 'Event date') + ' (' + E(TT(catDe(c))) + ') ' + dLonga(c.data_do_evento) + '</p>';
+  h += caixa(L('Cobertura do Evento', 'Event coverage') + '<br>' + dataCurta(c.data_do_evento) + (c.hora ? ' · ' + E(c.hora) : ''),
+    (c.pacote ? '<b>' + E(TT(c.pacote)) + '</b>' : '') + (itens.length ? '<ol>' + itens.map(function (x) { return '<li>' + E(TT(x)) + '</li>'; }).join('') + '</ol>' : E(TT(c.tipo_de_servico || ''))) +
+    (locais.length ? '<p class="lc">' + L('Local: ', 'Venue: ') + E(locais.join(' · ')) + '</p>' : ''));
   ext = ext.filter(function (x) { return x.servico; }); var noDia = sum(ext.filter(function (x) { return pagaX(x) === 'No dia do casamento'; }), function (x) { return vExtra(x) || 0; });
-  if (ext.length) h += caixa('Extras', ext.map(function (x) { var vx = vExtra(x); return E(x.servico) + (+x.quantidade > 1 ? ' × ' + E(x.quantidade) : '') + (vx != null ? ': ' + eurR(vx) : '') + (pagaX(x) === 'No dia do casamento' ? ' <i>(a pagar no dia do casamento)</i>' : ' <i>(incluído na entrada e nas parcelas)</i>'); }).join('<br>'), eurR(sum(ext, function (x) { return vExtra(x) || 0; })));
-  if (+c.deslocacao > 0) h += caixa('Deslocação', 'Gasóleo e portagens', eurR(c.deslocacao));
-  var cond = '<b>' + E(f || 'A definir') + '</b>';
-  if (f === 'Entrada + parcelas' && vE) cond += '<br>Entrada de ' + E(c.entrada) + '% para reservar a data: ' + eurR(vE);
-  if (par.length) cond += '<br>' + par.map(function (x) { return E(x.parcela) + '.ª parcela: ' + dataCurta(x.vencimento) + ', ' + eurR(x.valor) + (x.estado === 'Paga' ? ' (paga)' : ''); }).join('<br>');
+  if (ext.length) h += caixa('Extras', ext.map(function (x) { var vx = vExtra(x); return E(TT(x.servico)) + (+x.quantidade > 1 ? ' × ' + E(x.quantidade) : '') + (vx != null ? ': ' + eurR(vx) : '') + (pagaX(x) === 'No dia do casamento' ? ' <i>' + L('(a pagar no dia do casamento)', '(to be paid on the wedding day)') + '</i>' : ' <i>' + L('(incluído na entrada e nas parcelas)', '(included in the deposit and instalments)') + '</i>'); }).join('<br>'), eurR(sum(ext, function (x) { return vExtra(x) || 0; })));
+  if (+c.deslocacao > 0) h += caixa(L('Deslocação', 'Travel'), L('Gasóleo e portagens', 'Fuel and tolls'), eurR(c.deslocacao));
+  var cond = '<b>' + E(f ? TT(f) : L('A definir', 'To be defined')) + '</b>';
+  if (f === 'Entrada + parcelas' && vE) cond += '<br>' + L('Entrada de ' + E(c.entrada) + '% para reservar a data: ', E(c.entrada) + '% deposit to secure the date: ') + eurR(vE);
+  if (par.length) cond += '<br>' + par.map(function (x) { return L(E(x.parcela) + '.ª parcela: ', 'Instalment ' + E(x.parcela) + ': ') + dataCurta(x.vencimento) + ', ' + eurR(x.valor) + (x.estado === 'Paga' ? L(' (paga)', ' (paid)') : ''); }).join('<br>');
   var exAll = sum(ext, function (x) { return vExtra(x) || 0; });
-  if (exAll) cond += '<br><br>Serviço contratado: ' + eurR(v - exAll) + ' · Extras: ' + eurR(exAll) + (noDia ? ' (dos quais ' + eurR(noDia) + ' a pagar no dia do casamento, fora da entrada e das parcelas)' : ' (incluídos na entrada e nas parcelas)');
-  cond += '<br><br>Pago até ' + dataCurta(TODAY) + ': ' + eurR(pago) + ' · Em falta: ' + eurR(Math.max(0, v - pago));
-  h += caixa('Valor do Contrato<br>Condições de pagamento', cond, '<b>' + eurR(v) + '</b>');
-  h += '<p class="nt">Documento emitido a ' + dataCurta(TODAY) + '. Resumo dos serviços contratados; não substitui o contrato nem a fatura.</p></main>' +
+  if (exAll) cond += '<br><br>' + L('Serviço contratado: ', 'Contracted service: ') + eurR(v - exAll) + ' · Extras: ' + eurR(exAll) + (noDia ? L(' (dos quais ' + eurR(noDia) + ' a pagar no dia do casamento, fora da entrada e das parcelas)', ' (of which ' + eurR(noDia) + ' to be paid on the wedding day, outside the deposit and instalments)') : L(' (incluídos na entrada e nas parcelas)', ' (included in the deposit and instalments)'));
+  cond += '<br><br>' + L('Pago até ', 'Paid as of ') + dataCurta(TODAY) + ': ' + eurR(pago) + ' · ' + L('Em falta: ', 'Outstanding: ') + eurR(Math.max(0, v - pago));
+  h += caixa(L('Valor do Contrato<br>Condições de pagamento', 'Contract value<br>Payment terms'), cond, '<b>' + eurR(v) + '</b>');
+  h += '<p class="nt">' + L('Documento emitido a ' + dataCurta(TODAY) + '. Resumo dos serviços contratados; não substitui o contrato nem a fatura.', 'Document issued on ' + dataCurta(TODAY) + '. Summary of contracted services; it does not replace the contract or the invoice.') + '</p></main>' +
     '<footer><span><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z M4 6l8 7 8-7"/></svg>oldbootsphotoandfilm@gmail.com</span><span><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Leiria, Portugal</span><span><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>+351 913 116 155</span></footer>';
   var css = '*{box-sizing:border-box;margin:0;padding:0}html,body{background:#fff}' +
     '#pg{position:relative;width:794px;min-height:1123px;background:#fff;color:#4a4a4a;font:400 13.3px/1.55 Montserrat,Arial,sans-serif;padding-bottom:110px}' +
@@ -2516,7 +2582,13 @@ var act = {
   corrigirMeu: function (d) { var x = (D.ped || []).find(function (p) { return p.id === d.id; }); if (!x) return; abrirPedido(x, function (payload) { return ['api_corrigir', [d.id, x.fn, x.fn === 'api_upd' ? [x.a[0], x.a[1], payload] : [x.a[0], payload]]]; }); },
   eqadd: function () { var e = $('#eqe').value.trim(), n = $('#eqn').value.trim(); if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e)) return toast('Escreva um e-mail válido.', 1); busy(1); rpcAgora('api_equipa_add', [e, n]).finally(function () { busy(0); }).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso dado a ' + e); }, function (x) { toast(x.message, 1); }); },
   eqdel: function (d) { ask('Retirar o acesso de ' + E(d.v) + '? A pessoa sai logo de todos os aparelhos.', function () { closeM(); busy(1); rpcAgora('api_equipa_del', [d.v]).finally(function () { busy(0); }).then(function (r) { EQ = Array.isArray(r) ? r : EQ; render(); toast('Acesso retirado'); }, function (x) { toast(x.message, 1); }); }, 'Retirar acesso'); },
-  app: function (d) { trocarApp(d.v); },
+  app: function (d) { if (d.v === 'qst') { trocarApp('bast', 'quest'); return; } trocarApp(d.v); },
+  qtab: function (d) { QTAB = d.v === 'perg' ? 'perg' : 'resp'; render(); },
+  qoc: function (d) { var c = qCfgCopia(), i = c.ocultas.indexOf(d.k); if (i >= 0) c.ocultas.splice(i, 1); else c.ocultas.push(d.k); qCfgGrava(c, i >= 0 ? 'A pergunta volta a aparecer' : 'Pergunta oculta'); },
+  qnew: function (d) { qPergForm('', +d.p); },
+  qed: function (d) { qPergForm(d.k); },
+  qdel: function (d) { var c = qCfgCopia(), x = c.extra.find(function (y) { return y.k === d.k; }); if (!x) return;
+    ask('Remover a pergunta «' + E(x.l[0]) + '»?', function () { closeM(); c.extra = c.extra.filter(function (y) { return y.k !== d.k; }); qCfgGrava(c, 'Pergunta removida'); }, 'Remover', '<p class="sm">Deixa de aparecer aos casais. As respostas que já deram ficam guardadas e continuam a sair no PDF.</p>'); },
   fin: function (d) { trocarApp('fin', d.v); },
   hojeIr: function (d) {
     if (d.v === 'pedidos') return verPedidos();
@@ -2691,12 +2763,12 @@ function render() {
   $('.nav').innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + (APP === 'bast' ? '<button class="pqm" data-a="pq">Pesquisar</button>' : '');
   var bn = $('.bnav'); if (bn) { bn.innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + (ICN[x[0]] || ICN.mais) + '</svg><span>' + x[1] + '</span></button>'; }).join('') + '<button data-a="apps" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICN.mais + '</svg><span>Mais</span></button>'; bn.hidden = APP === 'prop' && !nv.length ? false : false; }
   if (bn && TAPV) { var tb = bn.querySelector('[data-v="' + TAPV + '"]') || (TAPV === 'apps' && bn.querySelector('[data-a=apps]')); if (tb) tb.classList.add('tap'); TAPV = ''; }
-  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag' || view === 'sesv';
+  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag' || view === 'sesv' || view === 'quest';
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
   $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
   $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses') || (view === 'sesf' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFichaArq, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFichaArq, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, quest: vQuest, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }

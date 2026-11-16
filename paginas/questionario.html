@@ -192,6 +192,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #obq .em2{opacity:.8;font-size:15px;text-align:center}
 #obq .trilho{position:relative;margin-top:44px}
 #obq .trilho .stp{margin-top:0}
+#obq #obqAdm{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(52px + env(safe-area-inset-bottom,0px));z-index:51;background:#fff4cf;color:#2b2a26;border:1px solid #2b2a26;font:600 11px/1 system-ui,sans-serif;letter-spacing:.06em;padding:9px 13px;border-radius:99px;cursor:pointer}
 #obqDemo{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:50;background:#2b2a26;color:#fff4cf;font:600 11px/1 system-ui,sans-serif;letter-spacing:.08em;padding:8px 14px;border-radius:99px;opacity:.9;pointer-events:none;white-space:nowrap}
 #obq .tb.dm .trilho{cursor:pointer;position:relative}
 #obq .tb.dm .trilho::after{content:'';position:absolute;left:-6px;right:-6px;top:-18px;bottom:-18px}
@@ -253,8 +254,10 @@ var $ = function (s) { return R.querySelector(s); }, $$ = function (s) { return 
 var E = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
 // #<código> ou #<nome-do-casal>-<código> (o nome só serve para o link ficar pessoal); /q no fim abre o questionário
-var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'), m = /(q[a-f0-9]{40})$/.exec(h[0] || ''); return { cod: m ? m[1] : h[0], q: h[1] === 'q' }; };
+var lerHash = function () { var h = (location.hash || '').replace(/^#/, '').split('/'), m = /(q[a-f0-9]{40})$/.exec(h[0] || ''); return { cod: m ? m[1] : h[0], q: h[1] === 'q', adm: h.indexOf('adm') > 0 }; };
 var COD = lerHash().cod, IR_Q = lerHash().q;
+// modo adm (/adm no fim do link, aberto pelos Bastidores): mostra o questionário mesmo antes de abrir, com as respostas atuais; nada é gravado
+var ADM = lerHash().adm;
 var DEMO = COD === 'demo'; // página de exemplo para reuniões: dados fictícios, nada vai para o servidor
 var L = /^pt/i.test(navigator.language || 'pt') ? 'pt' : 'en', L_MAO = false;
 var lingua = function (srv) { var m = ls.get('ob_q_lang_' + COD); if (m === 'pt' || m === 'en') { L = m; L_MAO = true; } else if (srv === 'pt' || srv === 'en') L = srv; };
@@ -385,16 +388,35 @@ var PASSOS = [
     { k: 'ciente', t: 'ok', r: 1, l: ['Estamos cientes de que, como previsto no contrato, a Old Boots pode usar fotografias e vídeos do nosso casamento na divulgação do seu trabalho.', 'We are aware that, as set out in the contract, Old Boots may use photos and videos of our wedding to promote its work.'] },
     { t: 'resumo' }] }
 ];
-var CAMPOS = []; PASSOS.forEach(function (p, i) { p.c.forEach(function (c) { (c.g || [c]).forEach(function (x) { if (x.k) { x.p = i; CAMPOS.push(x); } }); }); });
+var CAMPOS = [];
+var PASSOS0 = PASSOS.map(function (p) { return Object.assign({}, p, { c: p.c.slice() }); });
+// perguntas mudadas nos Bastidores: ocultar perguntas de base e acrescentar perguntas novas (resposta curta, longa ou escolha)
+function aplicaCfg(cfg) {
+  cfg = cfg || {}; var oc = Array.isArray(cfg.ocultas) ? cfg.ocultas : [], ex = Array.isArray(cfg.extra) ? cfg.extra.filter(function (e) { return e && !e.off && /^x_/.test(e.k); }) : [];
+  var dois = function (a) { a = a || []; return a[0] ? [a[0], a[1] || a[0]] : null; };
+  PASSOS = PASSOS0.map(function (p0, i) { var c = [];
+    p0.c.forEach(function (x) { if (x.g) { var g = x.g.filter(function (y) { return oc.indexOf(y.k) < 0; }); if (g.length) c.push(Object.assign({}, x, { g: g })); } else if (!x.k || oc.indexOf(x.k) < 0) c.push(x); });
+    var add = ex.filter(function (e) { return +e.p === i; }).map(function (e) { var q = { k: e.k, t: e.t === 'a' || e.t === 'o' ? e.t : 't', l: dois(e.l) || [e.k, e.k] };
+      if (e.r) q.r = 1; var sb = dois(e.s); if (sb) q.s = sb; if (e.t === 'a') q.h = 90;
+      if (e.t === 'o') q.o = (e.o || []).map(function (o) { return [o[0], o[0], o[1] || o[0]]; }); return q; });
+    var ri = -1; c.forEach(function (x, j) { if (x.t === 'resumo') ri = j; });
+    if (ri >= 0) c.splice.apply(c, [ri, 0].concat(add)); else c = c.concat(add);
+    return Object.assign({}, p0, { c: c }); });
+  CAMPOS = []; PASSOS.forEach(function (p, i) { p.c.forEach(function (c) { (c.g || [c]).forEach(function (x) { if (x.k) { x.p = i; CAMPOS.push(x); } }); }); });
+}
+aplicaCfg({});
 var campoDe = function (k) { return CAMPOS.find(function (c) { return c.k === k; }); };
 
 /* ---------- servidor ---------- */
 function api(fn, a) {
-  if (DEMO) { // exemplo: não fala com o servidor; devolve respostas simuladas
+  if (DEMO || (ADM && fn !== 'q_ler')) { // exemplo / modo adm: não grava nada no servidor; devolve respostas simuladas
     if (fn === 'q_enviar') return Promise.resolve({ envios: (S.envios || 0) + 1, em: new Date().toLocaleDateString('pt-PT') + ' ' + new Date().toTimeString().slice(0, 5) });
     if (fn === 'q_ficheiro') return Promise.resolve({ id: 'demo' + Date.now(), n: String(a && a[2] || 'ficheiro') });
     return Promise.resolve({});
   }
+  return apiSrv(fn, a);
+}
+function apiSrv(fn, a) {
   var c = new AbortController(), to = setTimeout(function () { c.abort(); }, fn === 'q_ficheiro' || fn === 'q_enviar' ? 90000 : 30000);
   return fetch(ENDPOINT, { method: 'POST', body: JSON.stringify({ fn: fn, a: a }), signal: c.signal, credentials: 'omit' })
     .then(function (r) { return r.json(); })
@@ -406,7 +428,7 @@ function api(fn, a) {
 // S.v = respostas; PEND = campos mudados ainda por confirmar no servidor (também guardados neste aparelho: nada se perde sem rede)
 var S = null, P = 0, MODO = 'ler', PEND = {}, enviando = false, aSubir = 0, svT = 0, retry = 0, THUMB = {};
 var CH = 'ob_q_' + COD;
-function guardaLocal() { if (DEMO) return; ls.set(CH, JSON.stringify({ pend: PEND, p: P })); }
+function guardaLocal() { if (DEMO || ADM) return; ls.set(CH, JSON.stringify({ pend: PEND, p: P })); }
 function svTxt(t, off) { var x = $('#obqSv'); if (x) { x.textContent = t; x.className = 'sv' + (off ? ' off' : ''); } }
 // guarda uma cópia: o que segue para o servidor não muda por baixo enquanto a pessoa continua a escrever
 function mudou(k) { PEND[k] = JSON.parse(JSON.stringify(S.v[k] === undefined ? '' : S.v[k])); guardaLocal(); svTxt(X('aGuardar')); clearTimeout(svT); svT = setTimeout(flushSilencioso, 1200); }
@@ -483,7 +505,8 @@ function resumo() {
     return '<button data-ir="' + i + '"><span>' + (i + 1) + '. ' + E(T(p.t)) + '</span>' + (f ? '<span class="no">' + X('faltaN') + ' ' + f + '</span>' : n ? '<span class="ok">✓ ' + n + ' ' + (n > 1 ? X('resps') : X('resp')) + '</span>' : '<span class="op2">' + X('vazio') + '</span>') + '</button>'; }).join('') + '</div>';
 }
 function render() {
-  if (DEMO && !document.getElementById('obqDemo')) { var db = document.createElement('div'); db.id = 'obqDemo'; db.textContent = 'EXEMPLO · dados fictícios · nada é guardado'; R.appendChild(db); }
+  if ((DEMO || ADM) && !document.getElementById('obqDemo')) { var db = document.createElement('div'); db.id = 'obqDemo'; db.textContent = DEMO ? 'EXEMPLO · dados fictícios · nada é guardado' : 'MODO ADM · pré-visualização · nada é guardado'; R.appendChild(db); }
+  if ((DEMO || ADM) && S) { var ab = document.getElementById('obqAdm'); if (!ab) { ab = document.createElement('button'); ab.id = 'obqAdm'; ab.type = 'button'; ab.onclick = function () { if (MODO === 'casa') abrirQ(); else { flush().catch(function () { }); MODO = 'casa'; render(); } R.scrollTop = 0; }; R.appendChild(ab); } ab.textContent = MODO === 'casa' ? 'adm · ver questionário' : 'adm · voltar à página'; }
   R.setAttribute('lang', L === 'en' ? 'en' : 'pt-PT');
   $$('.lg button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === L); });
   R.classList.toggle('casa', !!S && MODO === 'casa');
@@ -492,7 +515,7 @@ function render() {
   topo();
   if (MODO === 'casa') return casa();
   if (S._cache) { A.innerHTML = '<div class="ld"><div class="sp"></div></div>'; return; } // à espera dos dados frescos
-  if (S.estado === 'bloqueado') return bloq();
+  if (S.estado === 'bloqueado' && !(ADM && MODO !== 'casa')) return bloq();
   if (MODO === 'ler') return lido();
   var p = PASSOS[P], n = PASSOS.length, d = Math.round((new Date(S.data + 'T12:00') - new Date()) / 864e5), corr = S.envios > 0;
   A.innerHTML = cabeca(E(dt(S.data)) + (d > 0 ? ' · ' + (L === 'en' ? d + ' ' + X('dias') : X('faltam') + ' ' + d + ' ' + X('dias')) : '')) +
@@ -585,8 +608,8 @@ function anima() {
 // questionário: abre o formulário (ou as respostas); se ainda não abriu, mostra o cartão dele na página do casal
 function abrirQ() {
   if (S && S._cache) { querQ = true; MODO = 'q'; topo(); A.innerHTML = '<div class="ld"><div class="sp"></div></div>'; return; }
-  if (S.estado === 'bloqueado') { MODO = 'casa'; render(); var el = document.getElementById('s-q'); if (el) setTimeout(function () { R.scrollTo({ top: el.offsetTop - ($('.snav') ? $('.snav').offsetHeight : 0) + 1 }); }, 50); return; }
-  MODO = S.estado === 'aberto' && (!S.envios || S.alterado) ? 'editar' : 'ler'; render();
+  if (S.estado === 'bloqueado' && !ADM) { MODO = 'casa'; render(); var el = document.getElementById('s-q'); if (el) setTimeout(function () { R.scrollTo({ top: el.offsetTop - ($('.snav') ? $('.snav').offsetHeight : 0) + 1 }); }, 50); return; }
+  MODO = (DEMO || ADM) || (S.estado === 'aberto' && (!S.envios || S.alterado)) ? 'editar' : 'ler'; render();
 }
 function bloq() {
   A.innerHTML = cabeca(E(dt(S.data))) + '<div class="lock w"><div class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>' +
@@ -728,6 +751,7 @@ function splash(on) {
 function guardaCache(r) { var c = {}; Object.keys(r).forEach(function (k) { if (k !== 'v') c[k] = r[k]; }); c.casal_v = r.v && r.v.casal || ''; c._t = Date.now(); ls.set(CHC, JSON.stringify(c)); }
 function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 7 * 864e5 ? c : null; /* no máximo 7 dias neste aparelho */ } catch (e) { return null; } }
 function aplicar(r) {
+  if (r && r.cfg) aplicaCfg(r.cfg);
   try { var nm = r && r.v && r.v.casal || r && r.casal; if (nm) document.title = (L === 'en' ? 'Couple page' : 'Página do casal') + ' · ' + nm; } catch (e) { }
   var emForm = S && MODO !== 'casa' && !S._cache;
   if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
@@ -765,11 +789,13 @@ function demoPasso(tb, ev) {
   var et = tb.querySelector('.et'); et.innerHTML = '<b>' + (ok ? '✓ ' : '') + E(X('e_' + t.etapa)) + '</b><span>' + (!ok && passo > 0 ? X('fase') + ' ' + passo + '/' + (t.passos - 2) : '') + '</span>';
 }
 function abrir() {
-  if (DEMO) { S = demoDados(); MODO = 'casa'; if (!L_MAO) lingua('pt'); render(); splash(false); if (IR_Q) { IR_Q = false; abrirQ(); } return; }
+  if (DEMO) { S = demoDados(); MODO = 'casa'; if (!L_MAO) lingua('pt'); render(); splash(false); if (IR_Q || ADM) { IR_Q = false; abrirQ(); }
+    apiSrv('q_cfg', []).then(function (cfg) { aplicaCfg(cfg); render(); }, function () { }); return; } // a demonstração mostra as perguntas atuais
+  if (ADM) IR_Q = true;
   if (!/^q[a-f0-9]{40}$/.test(COD)) { splash(false); A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
   CHC = 'ob_q_c_' + COD;
   var c = leCache(), sc = 0;
-  if (c) { sc = R.scrollTop; if (!L_MAO) lingua(c.idioma); S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
+  if (c) { sc = R.scrollTop; if (!L_MAO) lingua(c.idioma); if (c.cfg) aplicaCfg(c.cfg); S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
   else splash(true);
   if (IR_Q) { IR_Q = false; querQ = true; }
   api('q_ler', [COD]).then(function (r) {
