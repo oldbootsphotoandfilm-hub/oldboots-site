@@ -369,22 +369,22 @@ var PASSOS = [
   { t: ['Pessoas', 'People'], i: ['Família e amigos próximos. Uma foto ajuda-nos a reconhecê-los no dia, mas não é obrigatória.', 'Close family and friends. A photo helps us recognise them on the day, but it’s optional.'], c: [
     { k: 'pessoas', t: 'pes', l: ['Pessoas próximas', 'Close people'] },
     { k: 'sensivel', t: 'a', l: ['Há alguma situação a que devamos estar atentos?', 'Is there anything we should be mindful of?'], s: ['Pais separados, alguém que não deve ficar ao lado de outra pessoa, um familiar falecido que querem homenagear…', 'Divorced parents, people who shouldn’t stand together, a late relative you’d like to honour…'], ph: ['Fica só entre nós.', 'This stays between us.'] },
-    { k: 'grupos', t: 'a', l: ['Fotos de grupo que querem', 'Group photos you’d like'], ph: ['Ex.: noivos com os pais; noivos com os avós; amigos da faculdade…', 'E.g. couple with parents; with grandparents; university friends…'] },
-    { k: 'insp_fich', t: 'f', l: ['Inspirações (imagens)', 'Inspiration (images)'], ac: 'image/*', max: 10, img: 1 },
+    { k: 'grupos', t: 'a', l: ['Fotos de grupo que gostariam', 'Group photos you’d like'], ph: ['Ex.: noivos com os pais; noivos com os avós; amigos da faculdade…', 'E.g. couple with parents; with grandparents; university friends…'] },
+    { k: 'insp_fich', t: 'f', l: ['Inspirações (imagens)', 'Inspiration (images)'], ac: 'image/*', max: 50, img: 1 },
     { k: 'insp_links', t: 'a', l: ['Inspirações (links)', 'Inspiration (links)'], ph: ['Cole aqui links do Pinterest, Instagram…', 'Paste Pinterest, Instagram links…'], h: 70 }] },
   { t: ['Momentos', 'Moments'], i: ['O que vai acontecer e não podemos perder.', 'What’s going to happen that we can’t miss.'], c: [
     { k: 'votos', t: 'o', l: ['Vão ler votos escritos por vocês?', 'Will you read your own vows?'], o: SIM3 },
     { k: 'discursos', t: 't', l: ['Quem vai discursar?', 'Who will give speeches?'], ph: ['Ex.: padrinho, irmã da noiva', 'E.g. best man, bride’s sister'] },
     { k: 'tradicoes', t: 'a', l: ['Tradições culturais ou religiosas', 'Cultural or religious traditions'], ph: ['Ex.: dança tradicional, bênção, ritual de família', 'E.g. traditional dance, blessing, family ritual'], h: 70 },
-    { k: 'mom_outro', t: 'a', l: ['Outro', 'Other'], ph: ['Algum outro momento que queiram que registemos', 'Any other moment you’d like us to capture'], h: 70 }] },
-  { t: ['O filme', 'The film'], i: ['Para o filme ficar com a vossa cara.', 'So the film feels like you.'], c: [
-    { k: 'vibe', t: 'm', l: ['Que ambiente querem no filme?', 'What mood would you like for the film?'], r: 1, s: ['Podem escolher mais do que um.', 'You can choose more than one.'],
-      o: [['romantico', 'Romântico', 'Romantic'], ['elegante', 'Elegante', 'Elegant'], ['divertido', 'Divertido', 'Fun'], ['emotivo', 'Emotivo', 'Emotional'], ['descontraido', 'Descontraído', 'Relaxed'], ['outro', 'Outro', 'Other']] },
-    { k: 'vibe_outro', t: 't', l: ['Outro ambiente', 'Other mood'], se: ['vibe', 'outro'] },
-    { k: 'referencia', t: 'url', l: ['Um vídeo de que gostaram (link)', 'A video you love (link)'], ph: ['https://', 'https://'] },
+    { k: 'mom_outro', t: 'a', l: ['Outro', 'Other'], ph: ['Algum outro momento que queiram que registemos', 'Any other moment you’d like us to capture'], h: 70 },
+    { k: 'umamusica', t: 'o', l: ['Querem fazer «todas as fotos numa só música»?', 'Would you like to do “all photos in one song”?'], s: ['Durante uma música, os convidados vêm ter convosco para uma foto ou um vídeo, e assim todos aparecem nas fotos e no filme.', 'During one song, guests come up to you for a photo or video, so everyone is in the photos and the film.'], o: [['sim', 'Sim', 'Yes'], ['nao', 'Não', 'No']] }] },
+  { id: 'filme', t: ['O filme', 'The film'], i: ['Para o filme ficar com a vossa cara.', 'So the film feels like you.'], c: [
+    { k: 'referencia', t: 'a', l: ['Inspirações de vídeos', 'Video inspiration'], s: ['Links de vídeos de que gostaram (YouTube, Vimeo, Instagram…), um por linha.', 'Links to videos you love (YouTube, Vimeo, Instagram…), one per line.'], ph: ['https://', 'https://'], h: 90 },
     { k: 'importante', t: 'a', l: ['Que parte do dia é a mais importante para vocês?', 'Which part of the day matters most to you?'], h: 70 },
-    { k: 'musica', t: 'a', l: ['Há alguma música especial que gostariam de ter no filme?', 'Is there a special song you’d like in the film?'], h: 70 },
-    { k: 'umamusica', t: 'o', l: ['Querem fazer «todas as fotos numa só música»?', 'Would you like to do “all photos in one song”?'], s: ['Durante uma música, os convidados vêm ter convosco para uma foto ou um vídeo, e assim todos aparecem no filme.', 'During one song, guests come up to you for a photo or video, so everyone appears in the film.'], o: [['sim', 'Sim', 'Yes'], ['nao', 'Não', 'No']] }] },
+    { k: 'musica', t: 'a', l: ['Há alguma música especial que gostariam de ter no filme?', 'Is there a special song you’d like in the film?'], h: 70 }] },
+  { id: 'historia', t: ['A vossa história', 'Your story'], i: ['Cada um conta a sua versão: como se conheceram, o primeiro encontro, o pedido, o que vos faz rir… Escrevam à vontade, sem combinar um com o outro. Não há respostas certas.', 'Each of you tells your own version: how you met, the first date, the proposal, what makes you laugh… Write freely, without comparing notes. There are no right answers.'], c: [
+    { k: 'hist_noiva', t: 'a', r: 1, l: ['A história contada pela noiva', 'The story, as told by the bride'], h: 220 },
+    { k: 'hist_noivo', t: 'a', r: 1, l: ['A história contada pelo noivo', 'The story, as told by the groom'], h: 220 }] },
   { t: ['Finalizar', 'Finish'], c: [
     { t: 'nota', l: ['Lembrete para o dia', 'Reminder for the day'], x: ['Tenham à mão os convites, menus e restante papelaria, as alianças e os acessórios que querem ver registados (perfume, sapatos, joias…). Fotografamo-los durante os preparativos.', 'Please have your invitations, menus and other stationery, the rings and any accessories you’d like captured (perfume, shoes, jewellery…) at hand. We photograph them while you get ready.'] },
     { g: [{ k: 'ig_casal', t: 't', l: ['Instagram do casal (opcional)', 'Couple’s Instagram (optional)'], ph: ['@', '@'] }, { k: 'ig_outros', t: 't', l: ['Outras contas a marcar (opcional)', 'Other accounts to tag (optional)'], ph: ['@local, @planner…', '@venue, @planner…'] }] },
@@ -394,8 +394,9 @@ var PASSOS = [
 var CAMPOS = [];
 var PASSOS0 = PASSOS.map(function (p) { return Object.assign({}, p, { c: p.c.slice() }); });
 // perguntas mudadas nos Bastidores: ocultar perguntas de base e acrescentar perguntas novas (resposta curta, longa ou escolha)
-function aplicaCfg(cfg) {
-  cfg = cfg || {}; var oc = Array.isArray(cfg.ocultas) ? cfg.ocultas : [], ex = Array.isArray(cfg.extra) ? cfg.extra.filter(function (e) { return e && !e.off && /^x_/.test(e.k); }) : [];
+var SO_FOTO = false, CFG_ULT = {};
+function aplicaCfg(cfg, info) {
+  if (info) SO_FOTO = servDe(info) === 'Foto'; cfg = cfg || CFG_ULT || {}; CFG_ULT = cfg; var oc = Array.isArray(cfg.ocultas) ? cfg.ocultas : [], ex = Array.isArray(cfg.extra) ? cfg.extra.filter(function (e) { return e && !e.off && /^x_/.test(e.k); }) : [];
   var dois = function (a) { a = a || []; return a[0] ? [a[0], a[1] || a[0]] : null; };
   PASSOS = PASSOS0.map(function (p0, i) { var c = [];
     p0.c.forEach(function (x) { if (x.g) { var g = x.g.filter(function (y) { return oc.indexOf(y.k) < 0; }); if (g.length) c.push(Object.assign({}, x, { g: g })); } else if (!x.k || oc.indexOf(x.k) < 0) c.push(x); });
@@ -405,6 +406,7 @@ function aplicaCfg(cfg) {
     var ri = -1; c.forEach(function (x, j) { if (x.t === 'resumo') ri = j; });
     if (ri >= 0) c.splice.apply(c, [ri, 0].concat(add)); else c = c.concat(add);
     return Object.assign({}, p0, { c: c }); });
+  if (SO_FOTO) PASSOS = PASSOS.filter(function (p) { return p.id !== 'filme'; }); // só fotografia: sem o passo do filme
   CAMPOS = []; PASSOS.forEach(function (p, i) { p.c.forEach(function (c) { (c.g || [c]).forEach(function (x) { if (x.k) { x.p = i; CAMPOS.push(x); } }); }); });
 }
 aplicaCfg({});
@@ -754,7 +756,7 @@ function splash(on) {
 function guardaCache(r) { var c = {}; Object.keys(r).forEach(function (k) { if (k !== 'v') c[k] = r[k]; }); c.casal_v = r.v && r.v.casal || ''; c._t = Date.now(); ls.set(CHC, JSON.stringify(c)); }
 function leCache() { try { var c = JSON.parse(ls.get(CHC) || 'null'); return c && c._t && Date.now() - c._t < 7 * 864e5 ? c : null; /* no máximo 7 dias neste aparelho */ } catch (e) { return null; } }
 function aplicar(r) {
-  if (r && r.cfg) aplicaCfg(r.cfg);
+  if (r && (r.cfg || r.info)) aplicaCfg(r.cfg, r.info);
   try { var nm = r && r.v && r.v.casal || r && r.casal; if (nm) document.title = (L === 'en' ? 'Couple page' : 'Página do casal') + ' · ' + nm; } catch (e) { }
   var emForm = S && MODO !== 'casa' && !S._cache;
   if (emForm) { ['estado', 'abre', 'fecha', 'envios', 'enviado_em', 'alterado', 'info', 'data', 'casal'].forEach(function (k) { S[k] = r[k]; }); S.info = r.info || {}; return; }
@@ -798,7 +800,7 @@ function abrir() {
   if (!/^q[a-f0-9]{40}$/.test(COD)) { splash(false); A.innerHTML = '<div class="ld w"><p>' + X('linkMau') + '</p></div>'; render(); return; }
   CHC = 'ob_q_c_' + COD;
   var c = leCache(), sc = 0;
-  if (c) { sc = R.scrollTop; if (!L_MAO) lingua(c.idioma); if (c.cfg) aplicaCfg(c.cfg); S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
+  if (c) { sc = R.scrollTop; if (!L_MAO) lingua(c.idioma); if (c.cfg || c.info) aplicaCfg(c.cfg, c.info); S = c; S.v = { casal: c.casal_v }; S.info = c.info || {}; S._cache = true; MODO = 'casa'; if (!IR_Q) render(); splash(false); }
   else splash(true);
   if (IR_Q) { IR_Q = false; querQ = true; }
   api('q_ler', [COD]).then(function (r) {
