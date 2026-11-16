@@ -289,7 +289,7 @@ Object.assign(TX, {
   pag: ['a vossa página', 'your page'], diasPara: ['dias para o grande dia', 'days to the big day'], dia1: ['dia para o grande dia', 'day to the big day'], hoje: ['É hoje!', 'It’s today!'], depois: ['Obrigado por nos deixarem fazer parte', 'Thank you for having us'],
   nDia: ['O dia', 'The day'], nPag: ['Pagamentos', 'Payments'], nDoc: ['Documentos', 'Documents'], nQ: ['Questionário', 'Questionnaire'],
   oVosso: ['o vosso', 'your'], data: ['Data', 'Date'], hora: ['Hora', 'Time'], cer: ['Cerimónia', 'Ceremony'], rec: ['Receção', 'Reception'], serv: ['Serviço', 'Service'], porDef: ['por definir', 'to be confirmed'],
-  pacote: ['O vosso pacote', 'Your package'], extras: ['Extras', 'Extras'], desl: ['Deslocação', 'Travel'],
+  pacote: ['O vosso pacote', 'Your package'], extras: ['Extras', 'Extras'], desl: ['Deslocação', 'Travel'], exInc: ['O valor total inclui', 'The total includes'], deExt: ['de extras', 'in extras'], dosQ: ['dos quais', 'of which'], exDia: ['a pagar no dia do casamento', 'to be paid on the wedding day'], exPar: ['incluídos nas parcelas', 'included in the instalments'],
   pago: ['pago', 'paid'], de2: ['de', 'of'], emFalta: ['Em falta', 'Outstanding'], tudoPago: ['Tudo pago. Obrigado!', 'All paid. Thank you!'], plano: ['Plano de pagamento', 'Payment plan'], entrada: ['Entrada', 'Deposit'],
   parcela: ['Parcela', 'Instalment'], vence: ['vence a', 'due'], recebidos: ['Pagamentos recebidos', 'Payments received'], nada: ['Ainda sem pagamentos.', 'No payments yet.'],
   contrato: ['Contrato', 'Contract'], assinado: ['Assinado', 'Signed'], porAssinar: ['Por assinar', 'Not signed yet'], resumoC: ['Resumo do contrato', 'Contract summary'], contratoPdf: ['Contrato (PDF)', 'Contract (PDF)'], descarregar: ['Descarregar', 'Download'],
@@ -306,7 +306,7 @@ Object.assign(TX, {
   comeca: ['Começa depois do casamento', 'Starts after the wedding'],
   feito: ['Feito por', 'Made by'], falar: ['Falar connosco no WhatsApp', 'Message us on WhatsApp'],
   Paga: ['Paga', 'Paid'], Pendente: ['Pendente', 'Pending'], 'Em atraso': ['Em atraso', 'Overdue'], Parcial: ['Parcial', 'Partly paid'],
-  'Depósito': ['Entrada', 'Deposit'], 'Pagamento total': ['Pagamento total', 'Full payment'], 'Parcela_t': ['Parcela', 'Instalment']
+  'Depósito': ['Entrada', 'Deposit'], 'Extras': ['Extras', 'Extras'], 'Pagamento total': ['Pagamento total', 'Full payment'], 'Parcela_t': ['Parcela', 'Instalment']
 });
 var X = function (k) { return TX[k] ? T(TX[k]) : k; };
 var EN_TXT = { 'Foto': 'Photo', 'Vídeo': 'Video', 'Foto + Vídeo': 'Photo + Video', 'Fotos': 'Photos', 'Filme': 'Film',
@@ -523,11 +523,12 @@ function casa() {
   var dia = '<section class="sec @C" id="s-dia"><div class="in"><div class="hd"><h2 class="tt">' + X('nDia') + '</h2><p class="sc">' + X('oVosso') + '</p></div>' +
     '<div class="dcols"><div><div class="kv2">' + kv('data', dt(S.data)) + kv('hora', I.hora) + kv('cer', I.cerimonia, 1) + kv('rec', I.rececao, 1) + kv('serv', TR(servDe(I)), 1) + '</div></div><div>' +
     (I.pacote || (I.inclui || []).length ? '<div class="pap"><p class="sc">' + E(I.pacote ? TR(I.pacote) : X('pacote')) + '</p><ul>' + (I.inclui || []).map(function (x) { return '<li>' + E(TR(x)) + '</li>'; }).join('') + '</ul>' + descExtra(I) + '</div>' : '') +
-    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></div></div></section>';
+    ((I.extras || []).length || I.deslocacao ? '<p class="lbl" style="margin-top:30px">' + X('extras') + '</p>' + (I.extras || []).map(function (x) { return '<div class="xt"><span>' + E(TR(x.servico)) + (x.qt > 1 ? ' × ' + x.qt : '') + (x.dia ? ' <small>(' + X('exDia') + ')</small>' : '') + '</span><span>' + (x.total ? eur(x.total) : '') + '</span></div>'; }).join('') + (I.deslocacao ? '<div class="xt"><span>' + X('desl') + '</span><span>' + eur(I.deslocacao) + '</span></div>' : '') : '') + '</div></div></div></section>';
   var ent = I.forma === 'Entrada + parcelas' && I.entrada ? '<div class="rw2"><div>' + X('entrada') + '<small>' + I.entrada_pc + ' %</small></div><div class="v">' + eur(I.entrada) + '<br>' + chip(I.pago >= I.entrada - .005 ? 'Paga' : I.pago > 0 ? 'Parcial' : 'Pendente') + '</div></div>' : '';
   var pag = '<section class="sec @C" id="s-pag"><div class="in"><div class="hd"><h2 class="tt">' + X('nPag') + '</h2></div>' +
     '<div class="mon"><b>' + eur(I.pago) + '</b><small>' + X('pago') + ' ' + X('de2') + ' ' + eur(I.valor) + '</small></div><div class="pbar"><i style="width:' + pc + '%"></i></div>' +
     '<p class="em2">' + (I.falta > 0.005 ? X('emFalta') + ': <b>' + eur(I.falta) + '</b>' : X('tudoPago')) + '</p>' +
+    (I.extras_total ? '<p class="em2">' + X('exInc') + ' ' + eur(I.extras_total) + ' ' + X('deExt') + (I.extras_dia ? ', ' + X('dosQ') + ' ' + eur(I.extras_dia) + ' ' + X('exDia') : ' (' + X('exPar') + ')') + '.</p>' : '') +
     '<div class="cols2"><div>' + (ent || (I.parcelas || []).length ? '<p class="lbl" style="margin-top:34px">' + X('plano') + '</p>' + ent + (I.parcelas || []).map(function (x) { return '<div class="rw2"><div>' + X('parcela') + ' ' + x.n + '<small>' + X('vence') + ' ' + E(dts(x.vence)) + '</small></div><div class="v">' + eur(x.valor) + '<br>' + chip(x.estado) + '</div></div>'; }).join('') : '') +
     '</div><div><p class="lbl" style="margin-top:34px">' + X('recebidos') + '</p>' + ((I.pagamentos || []).map(function (x) { return '<div class="rw2"><div>' + E(X(x.tipo === 'Parcela' ? 'Parcela_t' : x.tipo)) + (x.parcela ? ' ' + E(x.parcela) : '') + '<small>' + E(dts(x.data)) + '</small></div><div class="v">' + eur(x.valor) + '</div></div>'; }).join('') || '<p class="em2" style="text-align:left">' + X('nada') + '</p>') + '</div></div></div></section>';
   var docs = '<section class="sec @C" id="s-doc"><div class="in"><div class="hd"><h2 class="tt">' + X('nDoc') + '</h2></div>' +
