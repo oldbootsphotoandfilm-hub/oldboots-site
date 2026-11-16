@@ -1728,10 +1728,10 @@ function vReu() {
     '<p class="sm">Casal fictício (Inês &amp; Tomás) com todas as abas, incluindo o questionário. Os trilhos de progresso mudam com um clique e nada é gravado.</p>' +
     '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuEx" data-v="abrir">Abrir a página de exemplo</button><button class="b2" data-a="reuEx" data-v="copiar">Copiar o link</button></div>' +
     '<hr class="st"><p class="lb gl">Roteiro da reunião</p>' +
-    '<p class="sm">Duas janelas separadas no computador, que pode arrastar para o outro ecrã: o roteiro e os avisos que enviar do telemóvel.</p>' +
-    '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuPop">Abrir roteiro (popup)</button><button class="b1" data-a="reuAv">Abrir avisos (popup)</button><button class="b2" data-a="reuRot">Editar roteiro</button></div>' +
+    '<p class="sm">Abre uma janela estreita encostada ao canto direito do ecrã, com o roteiro e os avisos que enviar do telemóvel.</p>' +
+    '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuPop">Abrir roteiro</button><button class="b2" data-a="reuRot">Editar roteiro</button></div>' +
     '<hr class="st"><p class="lb gl">Mensagem para o computador</p>' +
-    '<p class="sm">Escreva aqui (no telemóvel) e aparece no popup de avisos do computador, sem som. Esse popup tem de estar aberto.</p>' +
+    '<p class="sm">Escreva aqui (no telemóvel) e aparece no topo da janela do roteiro no computador, sem som. Essa janela tem de estar aberta.</p>' +
     '<div class="fm"><label><span>Lembrete</span><input id="rmT" type="text" maxlength="300" placeholder="Ex.: falar do prazo de entrega"></label></div>' +
     '<div class="btns" style="justify-content:flex-start"><button class="b1" data-a="reuEnv">Enviar para o computador</button></div>' +
     '<p class="sm" style="margin-top:14px">' + REU_RAP.map(function (t, i) { return '<button class="lnk" data-a="reuRap" data-i="' + i + '">' + E(t) + '</button>'; }).join(' · ') + '</p>' +
@@ -1747,28 +1747,42 @@ function reuEnviar(txt) {
 /* popups do computador: dois painéis separados, cada um na sua janela (roteiro e avisos do telemóvel) */
 var REUWA = null, REUTA = 0;
 function reuAbreJanela(nome, w, h, esq) {
-  var f = 'popup=yes,toolbar=no,location=no,menubar=no,status=no,scrollbars=yes,resizable=yes,width=' + w + ',height=' + h + ',left=' + Math.max(0, (screen.availWidth || 1200) - esq) + ',top=40';
+  var f = 'popup=yes,toolbar=no,location=no,menubar=no,status=no,scrollbars=yes,resizable=yes,width=' + w + ',height=' + h + ',left=' + ((screen.availLeft || 0) + Math.max(0, (screen.availWidth || 1200) - esq)) + ',top=' + ((screen.availTop || 0) + 40);
   var j = window.open('', nome, f);
   if (!j) { openM('<p class="lb">Popup bloqueado</p><h3 class="h2 mh2">O navegador bloqueou a janela</h3><p class="sm">Clique no ícone de popup bloqueado na barra de endereço (à direita) e escolha «Permitir sempre os pop-ups deste site». Depois toque outra vez no botão.</p>'); return null; }
+  try { j.resizeTo(w, h); j.moveTo((screen.availLeft || 0) + Math.max(0, (screen.availWidth || 1200) - esq), (screen.availTop || 0) + 40); } catch (e) { } // se já estava aberta, volta ao canto
   try { j.focus(); } catch (e) { }
   return j;
 }
-var REU_CSS = 'body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#f7f6f0;color:#2b2a26}header{position:sticky;top:0;background:#2b2a26;color:#fff4cf;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:3}header b{font-size:15px;letter-spacing:.06em}header small{opacity:.8}#st i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#7bbf6a;margin-right:6px}#st.off i{background:#c0553a}button{font:inherit;border:1px solid #cfc9b3;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}';
+var REU_CSS = ':root{color-scheme:light dark;--bg:rgba(246,246,246,.97);--tx:#1d1d1f;--mt:#86868b;--ln:rgba(0,0,0,.1);--hv:#0a7aff;--ck:#0a7aff;--al:#fff;--alb:rgba(0,0,0,.08)}' +
+  '@media(prefers-color-scheme:dark){:root{--bg:#262628;--tx:#f5f5f7;--mt:#98989d;--ln:rgba(255,255,255,.12);--hv:#0a84ff;--ck:#0a84ff;--al:#3a3a3c;--alb:rgba(255,255,255,.08)}}' +
+  '*{box-sizing:border-box}html,body{height:100%}body{margin:0;font:13px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased;user-select:none;display:flex;flex-direction:column}' +
+  'header{display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid var(--ln)}header b{font-size:13px;font-weight:600;flex:1}' +
+  '#st{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mt)}#st i{width:7px;height:7px;border-radius:50%;background:#30d158}#st.off i{background:#ff453a}' +
+  '#at{border:0;background:none;color:var(--mt);font-size:15px;width:24px;height:24px;border-radius:6px;cursor:pointer;line-height:1}#at:hover{background:var(--ln);color:var(--tx)}' +
+  'main{flex:1;overflow-y:auto;padding:4px 5px 10px}.sh{font-size:11px;font-weight:600;color:var(--mt);padding:10px 9px 3px}.sep{height:1px;background:var(--ln);margin:6px 9px}' +
+  '.it{display:flex;align-items:baseline;gap:6px;padding:4px 9px 4px 6px;border-radius:5px;cursor:default}.it:hover{background:var(--hv);color:#fff}.it:hover .k,.it:hover .ck{color:#fff}' +
+  '.ck{width:14px;flex:none;color:var(--ck);font-weight:600;text-align:center}.tx{flex:1;min-width:0}.k{color:var(--mt);font-size:12px;white-space:nowrap}' +
+  '.it.h .tx{font-weight:600}.it.s{padding-left:26px;color:var(--mt)}.it.s .ck{display:none}.it.s:hover{color:#fff}.it.d .tx{opacity:.45}.gap{height:6px}' +
+  '#al{padding:4px 7px 0}.a{background:var(--al);border:1px solid var(--alb);border-radius:10px;padding:9px 11px;margin:4px 0;box-shadow:0 2px 10px rgba(0,0,0,.12);cursor:pointer;animation:pi .35s cubic-bezier(.2,.8,.2,1)}' +
+  '.a b{display:block;font-size:14px;font-weight:600;line-height:1.3}.a small{display:block;color:var(--mt);font-size:11px;margin-top:3px}@keyframes pi{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}' +
+  '#vz{padding:2px 9px 4px;color:var(--mt);font-size:12px}footer{padding:7px 12px;border-top:1px solid var(--ln);font-size:11px;color:var(--mt)}';
+// uma só janela comprida e estreita, encostada à direita do ecrã: avisos do telemóvel em cima, roteiro em baixo (estilo menu do macOS)
 function reuPopHtml() {
-  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Roteiro da reunião</title><style>' + REU_CSS +
-    'main{padding:14px 16px 40px}main p{margin:0;padding:7px 10px;border-radius:8px;cursor:pointer}main p:hover{background:#ece9dc}main p.h{font-weight:700;margin-top:12px}main p.d{text-decoration:line-through;opacity:.45}main p.sp{height:8px;padding:0;cursor:default}footer{padding:0 16px 20px;font-size:12px;color:#7a7561}</style></head><body>' +
-    '<header><b>ROTEIRO DA REUNIÃO</b><button id="at">Atualizar</button></header><main id="rt"></main><footer>Clique numa linha para a riscar.</footer></body></html>';
-}
-function reuAvisosHtml() {
-  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Avisos da reunião</title><style>' + REU_CSS +
-    '#al .a{background:#a4572d;color:#fff;padding:16px;font-size:22px;line-height:1.3;font-weight:600;border-bottom:3px solid #fff4cf;cursor:pointer;animation:pi .35s}#al .a small{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:4px}@keyframes pi{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}' +
-    '#vz{padding:26px 18px;color:#7a7561;text-align:center;font-size:14px}</style></head><body>' +
-    '<header><b>AVISOS DO TELEMÓVEL</b><span id="st"><i></i><small>ligado</small></span></header><div id="al"></div><p id="vz">Os lembretes que enviar do telemóvel aparecem aqui, sem som. Clique num aviso para o fechar.</p></body></html>';
+  return '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Reunião</title><style>' + REU_CSS + '</style></head><body>' +
+    '<header><b>Reunião</b><span id="st"><i></i><small>ligado</small></span><button id="at" title="Atualizar o roteiro" aria-label="Atualizar o roteiro">↻</button></header>' +
+    '<main><p class="sh">Avisos do telemóvel</p><div id="al"></div><p id="vz">Os lembretes que enviar do telemóvel aparecem aqui, sem som.</p>' +
+    '<div class="sep"></div><p class="sh">Roteiro</p><div id="rt"></div></main><footer>Clique numa linha para a marcar · num aviso para o fechar</footer></body></html>';
 }
 function reuPopRot(w) {
   var rt = w.document.getElementById('rt'); if (!rt) return;
-  var linhas = String((REU && REU.roteiro) || '').split('\n');
-  rt.innerHTML = linhas.map(function (l) { var t = l.replace(/\s+$/, ''); if (!t.trim()) return '<p class="sp"></p>'; var h = /^\s*(\d+\.|[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9 ·\-:]{6,}$)/.test(t); return '<p class="' + (h ? 'h' : '') + '">' + E(t) + '</p>'; }).join('');
+  var feitas = {}; Array.prototype.forEach.call(rt.querySelectorAll('.it.d'), function (x) { feitas[x.dataset.t] = 1; }); // ao atualizar, mantém o que já estava marcado
+  rt.innerHTML = String((REU && REU.roteiro) || '').split('\n').map(function (l) {
+    var t = l.replace(/\s+$/, ''); if (!t.trim()) return '<div class="gap"></div>'; if (/^\s*roteiro( da reuni[ãa]o)?\s*:?\s*$/i.test(t)) return ''; // o título já está na janela
+    var h = /^\s*(\d+\.|[A-ZÁÉÍÓÚÂÊÔÃÕÇ0-9 ·\-:]{6,}$)/.test(t), sub = /^\s*[-–•]/.test(t), m = /\s*\(([^()]{1,14})\)\s*$/.exec(t), k = m ? m[1] : '';
+    var tx = (m ? t.slice(0, m.index) : t).replace(/^\s*[-–•]\s*/, '').trim();
+    return '<div class="it' + (h ? ' h' : sub ? ' s' : '') + (feitas[t] ? ' d' : '') + '" data-t="' + E(t) + '"><span class="ck">' + (feitas[t] ? '✓' : '') + '</span><span class="tx">' + E(tx) + '</span>' + (k ? '<span class="k">' + E(k) + '</span>' : '') + '</div>';
+  }).join('') || '<p id="vz">Sem roteiro. Edite-o nos Bastidores.</p>';
 }
 function reuEstado(w, ok) { var s = w.document.getElementById('st'); if (!s) return; s.className = ok ? '' : 'off'; s.querySelector('small').textContent = ok ? 'ligado' : 'sem ligação'; }
 function reuPoll(w) {
@@ -1778,27 +1792,22 @@ function reuPoll(w) {
     var al = w.document.getElementById('al'), vz = w.document.getElementById('vz');
     (r.msgs || []).forEach(function (m) {
       if (REUDESDE === -1) return; // primeira leitura: só regista o ponto de partida
-      var d = w.document.createElement('div'); d.className = 'a'; d.innerHTML = E(m.texto) + '<small>' + E(m.quando) + ' · clique para fechar</small>';
-      d.onclick = function () { d.remove(); if (vz) vz.style.display = al.children.length ? 'none' : ''; };
+      var d = w.document.createElement('div'); d.className = 'a'; d.innerHTML = '<b>' + E(m.texto) + '</b><small>' + E(m.quando) + ' · clique para fechar</small>';
+      d.onclick = function () { d.remove(); if (vz) vz.style.display = al.children.length ? 'none' : ''; try { w.document.title = 'Reunião'; } catch (e) { } };
       al.insertBefore(d, al.firstChild); if (vz) vz.style.display = 'none';
       try { w.document.title = '● ' + m.texto.slice(0, 30); w.focus(); } catch (e) { }
     });
     REUDESDE = r.ultimo || 0;
   }, function (e) { if (w.closed) return; reuEstado(w, false); if (e && e.auth) { clearInterval(REUTA); REUTA = 0; } });
 }
-// painel 1: roteiro
 function reuPopup() {
-  var w = reuAbreJanela('ob_roteiro', 460, 780, 500); if (!w) return; REUW = w;
+  var H = Math.max(520, (screen.availHeight || 900) - 90), W = 330;
+  var w = reuAbreJanela('ob_reuniao', W, H, W + 24); if (!w) return; REUW = REUWA = w;
   w.document.open(); w.document.write(reuPopHtml()); w.document.close();
   var rot = function () { reuPopRot(w); };
   w.document.getElementById('at').onclick = function () { reuCarrega2().then(rot); };
-  w.document.getElementById('rt').addEventListener('click', function (ev) { var p = ev.target.closest('p'); if (p && !p.classList.contains('sp')) p.classList.toggle('d'); });
+  w.document.getElementById('rt').addEventListener('click', function (ev) { var p = ev.target.closest('.it'); if (!p) return; var d = p.classList.toggle('d'); p.querySelector('.ck').textContent = d ? '✓' : ''; });
   (REU ? Promise.resolve() : reuCarrega()).then(rot); rot();
-}
-// painel 2: avisos enviados do telemóvel
-function reuAvisos() {
-  var w = reuAbreJanela('ob_avisos', 400, 360, 440); if (!w) return; REUWA = w;
-  w.document.open(); w.document.write(reuAvisosHtml()); w.document.close();
   REUDESDE = -1; clearInterval(REUTA); reuPoll(w); REUTA = setInterval(function () { reuPoll(w); }, 4000);
 }
 function reuCarrega2() { REUCARR = false; return rpc('api_reu_ler').then(function (r) { REU = r; return r; }, function () { }); }
@@ -2942,7 +2951,6 @@ var act = {
   lembSem: function (d) { var sem = d.v === '1'; run(rpc('api_lemb_cliente', d.id, sem), sem ? 'Este casal deixa de receber lembretes' : 'Lembretes ligados para este casal'); },
   reuEx: function (d) { if (d.v === 'abrir') { window.open(REU_DEMO, '_blank', 'noopener'); return; } try { navigator.clipboard.writeText(REU_DEMO).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', REU_DEMO); }); } catch (e) { prompt('Copie o link:', REU_DEMO); } },
   reuPop: function () { reuPopup(); },
-  reuAv: function () { reuAvisos(); },
   reuRot: function () { if (!REU) return; reuRoteiro(); },
   reuEnv: function () { var i = $('#rmT'); reuEnviar(i && i.value); },
   reuRap: function (d) { reuEnviar(REU_RAP[+d.i]); },
