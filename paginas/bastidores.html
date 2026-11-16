@@ -346,6 +346,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .exr2{border-bottom:1px solid var(--sf);padding:6px 0}#ob .exr2 .exf{display:none;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:4px 0 10px 30px}#ob .exr2.on .exf{display:grid}#ob .exr2 .exf label span{font-size:10.5px}
 #ob .recx{margin-top:34px;text-align:center}#ob .recx .lnk{font-size:12px;color:var(--mt)}
 #ob .qpr.qoff b{color:var(--mt);text-decoration:line-through}#ob .qpr .rt{gap:8px}
+#ob .kpb{text-align:left;cursor:pointer;display:block;width:100%;padding:0;border:0;background:none;font:inherit;color:inherit}#ob .kpb:hover .num,#ob .fdl:hover .num{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}#ob .lgb{display:flex;align-items:center;gap:7px;cursor:pointer;background:none;border:0;padding:0;font:inherit;color:inherit}#ob .gc{cursor:pointer}#ob .fdl{font:inherit;font-style:normal;text-decoration:none;color:inherit;letter-spacing:inherit;text-transform:none;padding:0}#ob .fdp{background:none;border:0;padding:0;cursor:pointer}#ob .fdr small.fdf{margin-top:6px}
 #ob .seg{display:flex;gap:22px;flex-wrap:wrap}
 #ob .seg button{font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding-bottom:3px;border-bottom:2px solid transparent}
 #ob .seg button.on{border-color:var(--bt)}
@@ -574,7 +575,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .wab{border-radius:50%}
 /* indicadores em cartões */
 #ob .kpi{border-bottom:0;padding-bottom:0}
-#ob .kpi>div{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(42,38,20,.06),0 4px 14px rgba(42,38,20,.05)}
+#ob .kpi>div,#ob .kpi>.kpb{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(42,38,20,.06),0 4px 14px rgba(42,38,20,.05)}
 #ob .kpi .lb{margin-bottom:6px}
 /* aviso destacado (pós-produção) */
 #ob .alerta{display:flex;gap:12px;align-items:center;width:100%;text-align:left;margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:#f3dcd5;color:#7a2f22;font-size:14px;line-height:1.35;cursor:pointer}
@@ -635,7 +636,7 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .wkb .fbar{display:none}
 #ob .wkb .fmob{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 2px}
 #ob .wkb .kdica{display:none}
-#ob .kpi>div{padding:12px}
+#ob .kpi>div,#ob .kpi>.kpb{padding:12px}
 #ob .kpi .num{font-size:19px}
 #ob .funil div{grid-template-columns:112px 1fr auto}
 #ob #pa{height:calc(100dvh - var(--mhh,64px) - 62px - env(safe-area-inset-bottom,0px))}
@@ -1883,28 +1884,44 @@ function finTopo(lb, h1, extra) {
     '<div class="ctab" role="tablist">' + [['emp', 'Empresa'], ['g', 'Gabriel'], ['y', 'Ylana']].map(function (t) { return '<button role="tab" data-a="pes" data-v="' + t[0] + '" class="' + (PES === t[0] ? 'on' : '') + '" aria-selected="' + (PES === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>' +
     '<div class="fbar"><div class="seg" role="group" aria-label="Ano">' + anos.slice(0, 4).map(function (a) { return '<button data-a="fano" data-v="' + a + '" class="' + (FANO === a ? 'on' : '') + '">' + a + '</button>'; }).join('') + '</div></div>';
 }
+/* ---------- finanças: de onde vem cada número ---------- */
+var FDET = null;
+var descPag = function (p) { var c = (D.cli || []).find(function (x) { return x.id === p.id_cliente; }) || {}, sv = c.pacote || c.tipo_de_servico || catDe(c);
+  var t = p.tipo === 'Depósito' ? 'Entrada (depósito)' : p.tipo === 'Parcela' ? (p.parcela ? p.parcela + '.ª parcela' : 'Parcela') : p.tipo === 'Extras' ? 'Extras no dia do casamento' : p.tipo || 'Pagamento';
+  return t + (sv ? ' · ' + sv : '') + (p.metodo ? ' · ' + p.metodo : ''); };
+function finDetHtml() {
+  var x = FDET; if (!x) return ''; var pes = x.pes || 'emp';
+  var tot = x.par ? sum(x.l, function (p) { return p.valor; }) : sum(x.l, function (p) { return pes === 'nd' ? +p.valor || 0 : parteDe(p, pes); });
+  var linhas = x.par ? x.l.slice().sort(function (a, b) { return a.vencimento < b.vencimento ? -1 : 1; }).map(function (p) { return '<div class="rw r2 fdr"><div><b><button class="lnk" data-a="fdf" data-id="' + E(p.id_cliente) + '">' + E(nc(p.cliente || (cli(p.id_cliente) || {}).nome_do_casal || '')) + '</button></b>' + tg(p.estado) + '<small>' + E(p.parcela) + '.ª parcela · vence ' + fd(p.vencimento) + '</small></div><div class="rt"><span class="num s">' + eur(p.valor) + '</span></div></div>'; }).join('')
+    : x.l.slice().sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }).map(function (p) { var v = pes === 'nd' ? +p.valor || 0 : parteDe(p, pes); return '<div class="rw r2 fdr"><div><b><button class="lnk" data-a="fdf" data-id="' + E(p.id_cliente) + '">' + E(nc(p.cliente || (cli(p.id_cliente) || {}).nome_do_casal || '')) + '</button></b><small>' + fd(p.data) + ' · ' + E(descPag(p)) + '</small><small class="fdf">' + fatCell(p) + '</small></div><div class="rt"><span class="num s">' + eur(v) + '</span>' + (v !== +p.valor ? '<small>de ' + eur(p.valor) + '</small>' : '') + '</div></div>'; }).join('');
+  return '<div id="fdet"><p class="lb">' + E(x.sub || 'Finanças') + '</p><h3 class="h2 mh2">' + E(x.t) + '</h3><p class="sm" style="margin:6px 0 14px">' + pl(x.l.length, x.par ? 'parcela' : 'pagamento', x.par ? 'parcelas' : 'pagamentos') + ' · <b>' + eur(tot) + '</b></p>' + (linhas || '<p class="em">Nada aqui.</p>') + '</div>';
+}
+function finDet(t, l, o) { o = o || {}; FDET = { t: t, l: l, par: !!o.par, pes: o.pes || PES, sub: o.sub, k: o.k }; openM(finDetHtml()); }
+// depois de marcar uma fatura, a lista volta a abrir já atualizada
+function finDetReabre() { if (!FDET || !FDET.k) return; var n = FDET.k(); if (n) { FDET.l = n; openM(finDetHtml()); } }
+
 function vFres() {
   var ano = FANO, L = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }), atual = ano === TODAY.slice(0, 4);
   var tot = function (l) { return sum(l, function (p) { return parteDe(p, PES); }); };
   var tri = Math.floor((+TODAY.slice(5, 7) - 1) / 3) + 1, mes = TODAY.slice(0, 7);
   var ab = D.par.filter(function (p) { return p.estado !== 'Paga'; }), atv = sum(ab.filter(function (p) { return p.estado === 'Em atraso'; }), function (p) { return p.valor; });
   var nd = L.filter(semDono), tAno = tot(L), iv = ivaDe(tAno, PES);
-  var kpi = '<div class="kpi"><div><span class="lb">Recebido em ' + E(ano) + '</span><span class="num">' + eur(tAno) + '</span></div>' +
-    (atual ? '<div><span class="lb">Este trimestre</span><span class="num">' + eur(tot(L.filter(function (p) { return noTri(p, tri); }))) + '</span></div><div><span class="lb">Este mês</span><span class="num">' + eur(tot(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; }))) + '</span></div>'
+  var kpi = '<div class="kpi"><button class="kpb" data-a="fdet" data-v="ano"><span class="lb">Recebido em ' + E(ano) + '</span><span class="num">' + eur(tAno) + '</span></button>' +
+    (atual ? '<button class="kpb" data-a="fdet" data-v="tri"><span class="lb">Este trimestre</span><span class="num">' + eur(tot(L.filter(function (p) { return noTri(p, tri); }))) + '</span></button><button class="kpb" data-a="fdet" data-v="mes"><span class="lb">Este mês</span><span class="num">' + eur(tot(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; }))) + '</span></button>'
       : '<div><span class="lb">Pagamentos</span><span class="num">' + L.filter(function (p) { return parteDe(p, PES) > 0; }).length + '</span></div><div></div>') + '</div>';
-  var info = PES === 'emp' ? '<p class="lead2">Por receber: <b>' + eur(sum(ab, function (p) { return p.valor; })) + '</b>. ' + (atv ? 'Em atraso: <b class="rdt">' + eur(atv) + '</b>.' : 'Nada em atraso.') + '</p>'
+  var info = PES === 'emp' ? '<p class="lead2">Por receber: <button class="lnk fdl" data-a="fdet" data-v="porrec"><b>' + eur(sum(ab, function (p) { return p.valor; })) + '</b></button>. ' + (atv ? 'Em atraso: <button class="lnk fdl" data-a="fdet" data-v="atraso"><b class="rdt">' + eur(atv) + '</b></button>.' : 'Nada em atraso.') + '</p>'
     : '<p class="lead2">' + (PESSOAS[PES].iva ? 'Com IVA a ' + PESSOAS[PES].iva + ' %: base <b>' + eur(iv.base) + '</b> e IVA <b>' + eur(iv.iva) + '</b>.' : 'Isento de IVA: o valor recebido é todo base.') + '</p>';
   var aviso = nd.length ? '<button class="avd" data-a="verNd"><b>' + pl(nd.length, 'pagamento', 'pagamentos') + ' sem indicação de quem recebe</b> (' + eur(sum(nd, function (p) { return p.valor; })) + ')' + (PES === 'emp' ? '' : ', fora destas contas') + '. Definir agora →</button>' : '';
   var g = sum(L, function (p) { return parteDe(p, 'g'); }), y = sum(L, function (p) { return parteDe(p, 'y'); }), n = sum(nd, function (p) { return p.valor; }), T = g + y + n || 1;
   var div = PES === 'emp' ? '<hr class="st"><p class="lb gl">Divisão do recebido em ' + E(ano) + '</p><div class="stk"><i class="pg" style="width:' + (g / T * 100) + '%"></i><i class="py" style="width:' + (y / T * 100) + '%"></i><i class="nd" style="width:' + (n / T * 100) + '%"></i></div>' +
-    '<div class="lgd"><span><i class="pg"></i>Gabriel <b>' + eur(g) + '</b></span><span><i class="py"></i>Ylana <b>' + eur(y) + '</b></span>' + (n ? '<span><i class="nd"></i>Não definido <b>' + eur(n) + '</b></span>' : '') + '</div>' : '';
+    '<div class="lgd"><button class="lgb" data-a="fdet" data-v="pg"><i class="pg"></i>Gabriel <b>' + eur(g) + '</b></button><button class="lgb" data-a="fdet" data-v="py"><i class="py"></i>Ylana <b>' + eur(y) + '</b></button>' + (n ? '<button class="lgb" data-a="fdet" data-v="nd"><i class="nd"></i>Não definido <b>' + eur(n) + '</b></button>' : '') + '</div>' : '';
   var meses = MESES.map(function (m, i) { var k = ano + '-' + String(i + 1).padStart(2, '0'), l = L.filter(function (p) { return String(p.data).slice(0, 7) === k; }); return { m: m, g: sum(l, function (p) { return parteDe(p, 'g'); }), y: sum(l, function (p) { return parteDe(p, 'y'); }), n: sum(l.filter(semDono), function (p) { return p.valor; }), t: tot(l) }; });
   var mx = Math.max.apply(null, [1].concat(meses.map(function (x) { return PES === 'emp' ? x.g + x.y + x.n : x.t; })));
   var graf = '<hr class="st"><p class="lb gl">Recebido por mês</p><div class="gm">' + meses.map(function (x) { var h = function (v) { return (v / mx * 100).toFixed(1) + '%'; };
-    return '<div class="gc" title="' + E(x.m + ' · ' + eur(PES === 'emp' ? x.g + x.y + x.n : x.t)) + '"><div class="gb">' + (PES === 'emp' ? '<i class="nd" style="height:' + h(x.n) + '"></i><i class="py" style="height:' + h(x.y) + '"></i><i class="pg" style="height:' + h(x.g) + '"></i>' : '<i class="' + (PES === 'g' ? 'pg' : 'py') + '" style="height:' + h(x.t) + '"></i>') + '</div><small>' + x.m + '</small></div>'; }).join('') + '</div>';
+    return '<div class="gc" data-a="fdet" data-v="m' + (MESES.indexOf(x.m) + 1) + '" role="button" tabindex="0" title="' + E(x.m + ' · ' + eur(PES === 'emp' ? x.g + x.y + x.n : x.t)) + ' · ver pagamentos"><div class="gb">' + (PES === 'emp' ? '<i class="nd" style="height:' + h(x.n) + '"></i><i class="py" style="height:' + h(x.y) + '"></i><i class="pg" style="height:' + h(x.g) + '"></i>' : '<i class="' + (PES === 'g' ? 'pg' : 'py') + '" style="height:' + h(x.t) + '"></i>') + '</div><small>' + x.m + '</small></div>'; }).join('') + '</div>';
   var tris = '<hr class="st"><p class="lb gl">Por trimestre</p><table class="tb tt"><thead><tr><th>Trimestre</th><th class="r">Recebido</th>' + (PES !== 'emp' && PESSOAS[PES].iva ? '<th class="r">Base</th><th class="r">IVA</th>' : '') + '<th class="r">Fatura por emitir</th></tr></thead><tbody>' + [1, 2, 3, 4].map(function (t) {
     var l = L.filter(function (p) { return noTri(p, t); }), v = tot(l), i = ivaDe(v, PES), por = l.filter(function (p) { return p.fatura_emitida !== 'Sim' && parteDe(p, PES) > 0; });
-    return '<tr><td><b>' + t + '.º</b> <span class="sm" style="display:inline">' + ['jan–mar', 'abr–jun', 'jul–set', 'out–dez'][t - 1] + '</span></td><td class="r"><span class="num s">' + eur(v) + '</span></td>' + (PES !== 'emp' && PESSOAS[PES].iva ? '<td class="r">' + eur(i.base) + '</td><td class="r">' + eur(i.iva) + '</td>' : '') + '<td class="r">' + (por.length ? tg(por.length + ' por emitir', 'oc') : '—') + '</td></tr>'; }).join('') + '</tbody></table>';
+    return '<tr><td><b>' + t + '.º</b> <span class="sm" style="display:inline">' + ['jan–mar', 'abr–jun', 'jul–set', 'out–dez'][t - 1] + '</span></td><td class="r"><button class="lnk fdl" data-a="fdet" data-v="t' + t + '"><span class="num s">' + eur(v) + '</span></button></td>' + (PES !== 'emp' && PESSOAS[PES].iva ? '<td class="r">' + eur(i.base) + '</td><td class="r">' + eur(i.iva) + '</td>' : '') + '<td class="r">' + (por.length ? '<button class="fdp" data-a="fdet" data-v="f' + t + '">' + tg(por.length + ' por emitir', 'oc') + '</button>' : '—') + '</td></tr>'; }).join('') + '</tbody></table>';
   var bts = '<div class="acts2" style="margin-top:22px">' + (PES === 'emp' ? '<button class="bt" data-a="contab" data-v="g">Resumo do Gabriel para o contabilista</button><button class="bt" data-a="contab" data-v="y">Resumo da Ylana para o contabilista</button>' : '<button class="bt" data-a="contab" data-v="' + PES + '">Resumo para o contabilista</button>') + '</div>';
   return '<div class="w1">' + finTopo('Finanças · ' + (PES === 'emp' ? 'empresa' : PESSOAS[PES].nome), 'Resumo', '<button class="b1" data-a="np">Registar pagamento</button>') + kpi + info + aviso + bts + div + graf + tris + '</div>';
 }
@@ -2715,7 +2732,23 @@ var act = {
   qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = qLink(cli(d.id), q, d.v === 'q'); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
-  fat: function (d) { var was = view === 'ficha' && fid === d.id; run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }); },
+  fat: function (d) { var was = view === 'ficha' && fid === d.id, det = !!($('#fdet') && FDET); run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }).then(function () { if (det) finDetReabre(); }); },
+  fdf: function (d) { closeM(); FDET = null; ficha(d.id, 'p'); },
+  fdet: function (d) { var ano = FANO, P = PES, L = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }), mine = function (l) { return l.filter(function (p) { return P === 'emp' || parteDe(p, P) > 0; }); };
+    var tri = Math.floor((+TODAY.slice(5, 7) - 1) / 3) + 1, mes = TODAY.slice(0, 7), v = d.v, sub = 'Finanças · ' + (P === 'emp' ? 'empresa' : PESSOAS[P].nome);
+    var Lf = function () { return D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }); };
+    if (v === 'ano') return finDet('Recebido em ' + ano, mine(L), { sub: sub });
+    if (v === 'tri') return finDet('Recebido este trimestre', mine(L.filter(function (p) { return noTri(p, tri); })), { sub: sub });
+    if (v === 'mes') return finDet('Recebido este mês', mine(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; })), { sub: sub });
+    if (v === 'porrec') return finDet('Por receber', D.par.filter(function (p) { return p.estado !== 'Paga'; }), { par: 1, sub: 'Parcelas por pagar' });
+    if (v === 'atraso') return finDet('Em atraso', D.par.filter(function (p) { return p.estado === 'Em atraso'; }), { par: 1, sub: 'Parcelas por pagar' });
+    if (v === 'pg' || v === 'py') return finDet('Recebido em ' + ano + ' · ' + (v === 'pg' ? 'Gabriel' : 'Ylana'), L.filter(function (p) { return parteDe(p, v === 'pg' ? 'g' : 'y') > 0; }), { pes: v === 'pg' ? 'g' : 'y', sub: 'Divisão do recebido' });
+    if (v === 'nd') return finDet('Sem indicação de quem recebe', L.filter(semDono), { pes: 'nd', sub: 'Divisão do recebido' });
+    if (/^m\d+$/.test(v)) { var k = ano + '-' + String(+v.slice(1)).padStart(2, '0'); return finDet('Recebido em ' + MESES[+v.slice(1) - 1] + ' de ' + ano, mine(L.filter(function (p) { return String(p.data).slice(0, 7) === k; })), { sub: sub }); }
+    if (/^t\d$/.test(v)) { var t = +v.slice(1); return finDet('Recebido no ' + t + '.º trimestre', mine(L.filter(function (p) { return noTri(p, t); })), { sub: sub }); }
+    if (/^f\d$/.test(v)) { var t2 = +v.slice(1), q = function () { return Lf().filter(function (p) { return noTri(p, t2) && p.fatura_emitida !== 'Sim' && parteDe(p, P) > 0; }); };
+      return finDet('Faturas por emitir · ' + t2 + '.º trimestre', q(), { sub: sub, k: q }); }
+  },
   ent: function (d) { var c = cli(d.id), pg = sum(D.pag.filter(function (p) { return p.id_cliente === d.id && p.tipo === 'Depósito'; }), function (p) { return p.valor; }); novoPag(d.id, 'Depósito', Math.max(0, Math.round((vEnt(c) - pg) * 100) / 100)); },
   ne: function (d) { if (!D.srv.length) return toast('Sem serviços na folha Serviços.', 1); form('Adicionar extra', [['Extra', [['servico', 'Serviço', 'sel', D.srv.map(function (s) { return s.servico; })], ['quantidade', 'Quantidade (horas, se for hora extra)', 'number']]]], { quantidade: 1, servico: D.srv[0].servico }, function (v) { run(rpc('api_add', 'Extras', Object.assign({}, v, { id_cliente: d.id })), 'Extra adicionado', function () { ficha(d.id, 'e'); }); }); },
   ed: function (d) { var x = D.doc.find(function (y) { return y.id_cliente === d.id; }) || {}; form('Documentos', [['Links', [['link_do_pdf_do_contrato', 'Link do PDF do contrato', 'url'], ['link_do_google_docs', 'Link do Google Docs', 'url'], ['notas', 'Notas', 'text']]]], Object.assign({}, x), function (v) { var o = {}; Object.keys(v).forEach(function (k) { if (k !== '_row' && k !== 'id_cliente') o[k] = v[k]; }); run(rpc('api_upd', 'Documentos', d.id, o), 'Guardado', function () { ficha(d.id, 'd'); }); }); },
