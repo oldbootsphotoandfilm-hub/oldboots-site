@@ -2458,7 +2458,8 @@ function qAcoes(c, q) {
   return linha('Página do casal', false) + linha('Questionário', true) +
     (dono() ? '<p class="lb" style="margin-top:22px">Estado</p><p class="sm" style="margin:8px 0 10px">' + (q.desativada ? tg('Fora do ar', 'rd') : exp ? tg('Link expirado', 'rd') : tg('No ar', 'gr')) + ' ' +
       (q.valido_ate ? (exp ? 'Expirou a ' + fdc(q.valido_ate) + ': o casal vê «Este link expirou».' : 'Link válido até ' + fdc(q.valido_ate) + '.') : 'Sem data do casamento: o link não expira.') + '</p>' +
-      '<div class="qic">' + (q.desativada ? bt(I.off, 'Pôr no ar', 'qforaC', '', 'on') : bt(I.off, 'Tirar do ar', 'qforaC', '1')) + bt(I.nov, 'Novo link', 'qnovo') + '</div>' : '');
+      '<div class="qic">' + (q.desativada ? bt(I.off, 'Pôr no ar', 'qforaC', '', 'on') : bt(I.off, 'Tirar do ar', 'qforaC', '1')) + bt(I.nov, 'Novo link', 'qnovo') + '</div>' +
+      '<p class="lb" style="margin-top:22px">Resumo do dia</p><p class="sm" style="margin:8px 0 10px">Um PDF com tudo para o dia do casamento: horários, locais, contactos, cronograma, pessoas com foto, momentos, a história do casal, inspirações e o que falta receber.</p><div class="qic">' + bt(SV('<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>'), 'Gerar PDF do dia', 'diaPdf') + '</div>' : '');
 }
 // separador «Questionário» da ficha
 function qAba(c) {
@@ -2989,6 +2990,9 @@ var act = {
   pcasal: function (d) { var c = cli(d.id), q = qDe(d.id);
     if (!q) return ask('Criar a página do casal de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_link', d.id), 'Página do casal criada', function () { act.pcasal(d); }); }, 'Criar link', '<p class="sm">É o link que se envia aos noivos. O questionário do dia abre lá 2 meses antes do casamento.</p>');
     openM('<p class="lb">Página do casal</p><h3 class="h2 mh2">' + E(c.nome_do_casal) + '</h3><p style="margin-top:12px">Questionário: ' + qEstado(c, q) + '</p>' + qAcoes(c, q) + '<div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
+  diaPdf: function (d) { var c = cli(d.id); nGrav++; sv(); toast('A criar o resumo do dia… pode demorar até um minuto.');
+    rpc('api_dia_pdf', d.id).then(function (r) { nGrav--; sv(); openM('<p class="lb">Resumo do dia</p><h3 class="h2 mh2">' + E(c.nome_do_casal || '') + '</h3><p style="margin-top:12px">O PDF ficou guardado na pasta do casal no Drive (pasta «Questionário»). Cada vez que gera, fica uma versão nova.</p><div class="btns"><button class="b2" data-a="x">Fechar</button><a class="b1" href="' + E(r.url) + '" target="_blank" rel="noopener" style="text-decoration:none">Abrir o PDF</a></div>'); },
+      function (e) { nGrav--; sv(); toast(e && e.message || 'Não foi possível criar o PDF.', 1); }); },
   qcop: function (d) { var q = qDe(d.id); if (!q) return; var u = qLink(cli(d.id), q, d.v === 'q'); try { navigator.clipboard.writeText(u).then(function () { toast('Link copiado'); }, function () { prompt('Copie o link:', u); }); } catch (e) { prompt('Copie o link:', u); } },
   concl: function (d) { run(rpc('api_upd', 'Clientes', d.id, { status: 'Concluído' }), 'Marcado como concluído', function () { ficha(d.id); }); },
   gp: function (d) { gerar(d.id, false); },
