@@ -2378,11 +2378,11 @@ function pdfResumo(c) {
 // resumo do contrato sempre atualizado: se uma gravação muda o que o PDF mostra (valores, extras, parcelas, pagamentos…),
 // o PDF guardado é refeito sozinho (só para quem já tem resumo)
 var RES_OFF = 0, RES_FILA = [];
-function resSigs() { if (RES_OFF || !D || !D.cli || !dono()) return null; var m = {};
+function resSigs() { if (!D || !D.cli || !dono()) return null; var m = {}; // calcula mesmo durante uma atualização em curso
   D.cli.forEach(function (c) { if (c.resumo_do_contrato && ehCas(c)) try { m[c.id] = resumoHtml(c); } catch (e) { } }); return m; }
 function resAuto(a) { if (!a) return; var b = resSigs() || {};
-  Object.keys(a).forEach(function (id) { if (b[id] !== undefined && b[id] !== a[id] && RES_FILA.indexOf(id) < 0) RES_FILA.push(id); });
-  if (RES_FILA.length === 1 || (RES_FILA.length && !RES_OFF)) resProx(); }
+  Object.keys(a).forEach(function (id) { if (b[id] !== undefined && b[id] !== a[id] && RES_FILA.indexOf(id, RES_OFF ? 1 : 0) < 0) RES_FILA.push(id); }); // se o que está a ser refeito mudou outra vez, volta para a fila
+  resProx(); }
 function resProx() { if (RES_OFF || !RES_FILA.length) return; var id = RES_FILA[0], c = cli(id); if (!c.id) { RES_FILA.shift(); return resProx(); }
   RES_OFF++; pdfResumo(c).then(function (uri) { return rpc('api_resumo_guardar', id, uri); }).then(function (r) { if (r && r.resumo) { var x = cli(id); if (x.id) x.resumo_do_contrato = r.resumo; guardaCopia(); } toast('Resumo do contrato atualizado'); }, function (e) { toast('O resumo em PDF não foi atualizado: ' + (e && e.message || '') + ' Use «Gerar resumo de novo» em Documentos.', 1); })
     .then(function () { RES_OFF--; RES_FILA.shift(); resProx(); }); }
