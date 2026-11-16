@@ -1,5 +1,5 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin><link rel="preconnect" href="https://accounts.google.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap">
 <style>
 #ob{--ink:#4a4429;--ol:#5b523a;--pp:#f7f6f0;--sf:#c9c7bb;--bt:#8a5a34;--gd:#c08a2b;--mt:#6b6548;--rd:#8a3b2e;--bl:#2f5575;--oc:#7a5712;--gr:#3f6236;--gy:#6f6a5b;
 position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--pp);color:var(--ink);font:400 15px/1.6 Lora,Georgia,serif;text-align:left;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
@@ -641,6 +641,98 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob .funil div{grid-template-columns:112px 1fr auto}
 #ob #pa{height:calc(100dvh - var(--mhh,64px) - 62px - env(safe-area-inset-bottom,0px))}
 }
+/* ---------- Old Media: tema escuro, limpo (estilo iOS) ---------- */
+#ob.om{--ink:#f2f2f7;--ol:#f2f2f7;--pp:#000;--sf:#2c2c2e;--bt:#d4b06a;--gd:#d4b06a;--mt:#8e8e93;--rd:#ff6961;--oc:#d4b06a;--gr:#7fd18b;--gy:#8e8e93;--omc:#1c1c1e;--oms:#2c2c2e;--omt:#8e8e93;background:#000;color:#f2f2f7;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+#ob.om .mh{background:rgba(0,0,0,.82);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid #1c1c1e}
+#ob.om .mh .nav button,#ob.om .mh .sx,#ob.om .lb{font-family:inherit}
+#ob.om .b1{background:#d4b06a;color:#000;border-color:#d4b06a;border-radius:999px;font-family:inherit;letter-spacing:.02em;text-transform:none;font-size:15px;font-weight:600}
+#ob.om .b2,#ob.om .bt{font-family:inherit;border-radius:999px}
+#ob.om #ov{background:rgba(0,0,0,.55)}
+#ob.om #m{background:#1c1c1e;border-left:0;color:#f2f2f7;font-family:inherit}
+#ob.om #m .h2,#ob.om #m .mh2{font-size:22px;font-weight:600;line-height:1.25;font-style:normal;letter-spacing:-.01em}
+#ob.om #m .lb{letter-spacing:.02em;text-transform:none;font-size:13px;font-weight:500}
+#ob.om .fm input,#ob.om .fm select,#ob.om .fm textarea{color:#f2f2f7;border-color:#3a3a3c;font-family:inherit}
+#ob.om .fm select option{background:#1c1c1e;color:#f2f2f7}
+#ob.om .fm input[type=date],#ob.om .fm input[type=time]{color-scheme:dark}
+#ob.om .tg{background:rgba(255,255,255,.1);color:#f2f2f7;font-family:inherit}
+#ob.om .tg.oc{color:#d4b06a}#ob.om .tg.gr{color:#7fd18b}
+#ob.om .qm{font-family:inherit}
+@media(max-width:820px){
+#ob.om .mh{padding-bottom:10px}
+#ob.om .bnav{left:14px;right:14px;bottom:max(14px,env(safe-area-inset-bottom,0px));border-radius:32px;background:rgba(44,44,46,.72);border:1px solid rgba(255,255,255,.08);padding:6px 6px}
+#ob.om .bnav button{color:#8e8e93;font-weight:500;border-radius:24px;padding:6px 2px}
+#ob.om .bnav button.on{color:#d4b06a;font-weight:600;background:rgba(255,255,255,.08)}
+#ob.om .bnav button.on::before,#ob.om .bnav button.on::after{display:none}
+#ob.om #m{border-radius:22px 22px 0 0}
+}
+#ob .omw{max-width:640px;padding:28px max(20px,env(safe-area-inset-right,0px)) 140px max(20px,env(safe-area-inset-left,0px));margin:0 auto;font-size:15px;line-height:1.35}
+#ob .omw button{font-family:inherit}
+#ob .omhd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
+#ob .omt{font-size:34px;font-weight:700;line-height:1.1;letter-spacing:-.02em;text-wrap:balance}
+#ob .omsub{font-size:13px;color:var(--omt);margin-bottom:2px!important}
+#ob .ompl,#ob .omcirc{width:40px;height:40px;border-radius:20px;background:var(--omc);display:flex;align-items:center;justify-content:center;flex:none;color:#f2f2f7}
+#ob .omcirc{width:44px;height:44px;border-radius:22px}
+#ob .ompl svg,#ob .omcirc svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#ob .omnav{display:flex;justify-content:space-between;align-items:center;margin:-8px -8px 18px}
+#ob .omcap{height:44px;border-radius:22px;background:var(--omc);padding:0 18px;font-weight:500}
+#ob .omg{background:var(--omc);border-radius:16px;overflow:hidden}
+#ob .omg>*+*{background-image:linear-gradient(var(--oms),var(--oms));background-size:calc(100% - 16px) 1px;background-position:right top;background-repeat:no-repeat}
+#ob .omgl{font-size:13px;color:var(--omt);margin:24px 0 8px 16px!important}
+#ob .omrw{display:flex;gap:12px;align-items:center;width:100%;padding:13px 16px;text-align:left;color:#f2f2f7}
+#ob .omrw:active,#ob .omrw:hover{background-color:#242426}
+#ob .omx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+#ob .omx b{font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ob .omx small{font-size:13px;color:var(--omt)}
+#ob .omn{font-size:13px;color:var(--omt);white-space:nowrap}
+#ob .omok{color:#7fd18b;font-weight:600}
+#ob .omch{width:14px;height:14px;fill:none;stroke:#636366;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#ob .omred{color:#ff6961!important}#ob .omgr{color:#7fd18b!important}
+#ob .omdt{width:42px;flex:none;display:flex;flex-direction:column;align-items:center;font-size:20px;font-weight:600;line-height:1.1}
+#ob .omdt small{font-size:10px;color:#d4b06a;font-weight:600;letter-spacing:.04em}
+#ob .omem{padding:14px 16px;color:var(--omt);font-size:14px;font-style:normal}
+#ob .omban{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:rgba(212,176,106,.12);border-radius:16px;color:#d4b06a;font-weight:500;margin-bottom:6px;text-align:left}
+#ob .omban i{width:8px;height:8px;border-radius:4px;background:#d4b06a;flex:none}
+#ob .omban span{flex:1}#ob .omban .omch{stroke:#d4b06a}
+#ob .omseg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);background:var(--omc);border-radius:10px;padding:2px;margin-bottom:18px}
+#ob .omseg button{height:32px;border-radius:8px;font-size:13px;font-weight:500;text-align:center;color:#f2f2f7}
+#ob .omseg button.on{background:#48484a;font-weight:600}
+#ob .omkv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;min-height:48px}
+#ob .omkv>span:last-child{color:var(--omt);text-align:right}
+#ob .omkv a{color:#d4b06a;text-decoration:none}
+#ob .omst{font-size:15px;color:var(--omt);margin-top:6px!important}
+#ob .omck{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer}
+#ob .omck input{width:22px;height:22px;flex:none;-webkit-appearance:auto!important;appearance:auto!important;accent-color:#d4b06a;margin:0}
+#ob .omdone{color:var(--omt);text-decoration:line-through;text-decoration-color:#48484a}
+#ob .omlk{display:block;width:100%;padding:13px 16px;color:#d4b06a;text-align:left}
+#ob .omlk.inl{display:inline;width:auto;padding:0}
+#ob .omact{display:flex;flex-wrap:wrap;gap:0 18px;margin-top:10px}#ob .omact .omlk{width:auto;padding:10px 4px}
+#ob .omdel{display:block;margin:30px auto 0;color:#ff6961;font-size:15px;padding:10px}
+#ob .omfix{position:sticky;bottom:calc(96px + env(safe-area-inset-bottom,0px));margin-top:24px}
+@media(min-width:821px){#ob .omfix{bottom:20px}}
+#ob .omcta{width:100%;height:52px;border-radius:26px;background:#d4b06a;color:#000;font-weight:600;font-size:16px;text-align:center}
+#ob .omft{font-size:13px;color:var(--omt);margin:10px 16px 0!important;line-height:1.45}
+#ob .omhero{text-align:center;padding:6px 0 22px}
+#ob .omhero small{font-size:13px;color:var(--omt)}
+#ob .omhero b{display:block;font-size:40px;font-weight:600;letter-spacing:-.02em;margin-top:4px}
+#ob .ombdg{min-width:22px;height:22px;border-radius:11px;background:#d4b06a;color:#000;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+#ob .omin{width:130px;text-align:right;border:0;background:none;color:var(--omt);font:inherit;padding:0;color-scheme:dark}
+#ob .omsw{position:relative;width:51px;height:31px;flex:none}
+#ob .omsw input{position:absolute;inset:0;opacity:0;margin:0;z-index:1;cursor:pointer;width:100%;height:100%}
+#ob .omsw i{position:absolute;inset:0;border-radius:16px;background:#48484a;transition:background .2s}
+#ob .omsw i::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:14px;background:#fff;transition:transform .2s}
+#ob .omsw input:checked+i{background:#d4b06a}#ob .omsw input:checked+i::after{transform:translateX(20px)}
+#ob .omsw input:focus-visible+i{outline:3px solid #d4b06a;outline-offset:2px}
+#ob #m .omg{background:#2c2c2e;--oms:#3a3a3c}
+#ob .fmar{display:inline-flex;background:rgba(74,68,41,.08);border-radius:10px;padding:2px;margin-top:14px}
+#ob .fmar button{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500}
+#ob .fmar button.on{background:var(--ink);color:var(--pp);font-weight:600}
+#ob.om .b2,#ob.om .bt,#ob.om .xm,#ob.om .xe{letter-spacing:0;text-transform:none;border-bottom:0;font-size:15px;color:#d4b06a}
+#ob.om .bt.sm{font-size:13px;color:#d4b06a}
+#ob.om #m .btns{background:#1c1c1e;border-top-color:#2c2c2e}
+#ob.om .fm label>span{letter-spacing:0;text-transform:none;font-size:13px}
+#ob.om #t{background:rgba(44,44,46,.92);color:#f2f2f7}#ob.om #t.e{color:#ff6961}
+#ob.om .chk{color:#f2f2f7}
+#ob.om,#ob.om *{font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
 </style>
 
 <div id="ob" lang="pt-PT">
@@ -765,10 +857,10 @@ var cli = function (id) { return todosCli().find(function (c) { return c.id === 
 var SEL = { cat: ['Casamento', 'Ensaio', 'Evento'], sub: { Ensaio: ['Noivado', 'Pré-casamento', 'Gestante', 'Família', 'Casal', 'Retrato', 'Outro'], Evento: ['Batizado', 'Aniversário', 'Pedido de casamento', 'Corporativo', 'Outro'] }, origem: ['Instagram', 'Indicação', 'TikTok', 'Google', 'Site', 'Outro'], serv: ['Foto', 'Vídeo', 'Foto + Vídeo'], orc: ['Novo pedido', 'Orçamento enviado', 'Em negociação', 'Perdido'], cs: ['Fechado', 'Concluído', 'Cancelado'], fp: ['À vista', 'Parcelado', 'Entrada + parcelas'], sn: ['Não', 'Sim'], cp: ['Não enviado', 'Enviado'], tp: ['Depósito', 'Parcela', 'Pagamento total', 'Extras', 'Outro'], mt: ['MB Way', 'Transferência', 'Dinheiro', 'Cartão', 'Outro'] };
 var av = function (s) { return String(s || '').replace('⚠', '').trim(); };
 var hasF = function (p) { return 'fatura_emitida' in p; };
-var semFat = function () { return D.pag.filter(function (p) { return hasF(p) && p.fatura_emitida !== 'Sim'; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }); };
-var fatBtn = function (p, c, l) { return '<button class="' + c + '" data-a="fat" data-id="' + E(p.id_cliente) + '" data-r="' + E(p._row) + '" data-v="' + E(p.valor) + '" data-d="' + E(p.data) + '" data-f="' + (p.fatura_emitida === 'Sim' ? 'Não' : 'Sim') + '">' + l + '</button>'; };
+var semFat = function (l) { return (l || D.pag).filter(function (p) { return hasF(p) && p.fatura_emitida !== 'Sim'; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }); };
+var fatBtn = function (p, c, l) { if (p._om) return '<button class="' + c + '" data-a="omfat" data-id="' + E(p._om) + '" data-f="' + (p.fatura_emitida === 'Sim' ? 'Não' : 'Sim') + '">' + l + '</button>'; return '<button class="' + c + '" data-a="fat" data-id="' + E(p.id_cliente) + '" data-r="' + E(p._row) + '" data-v="' + E(p.valor) + '" data-d="' + E(p.data) + '" data-f="' + (p.fatura_emitida === 'Sim' ? 'Não' : 'Sim') + '">' + l + '</button>'; };
 var fatCell = function (p, semQuem) { return (semQuem ? '' : quemTag(p) + ' ') + (hasF(p) ? (p.fatura_emitida === 'Sim' ? tg('Emitida', 'gr') + fatBtn(p, 'bt sm', 'Desfazer') : tg('Por emitir', 'oc') + fatBtn(p, 'bt sm', 'Marcar emitida')) : ''); };
-var fatRow = function (p, n) { return '<div class="rw" data-a="f" data-id="' + E(p.id_cliente) + '">' + (n || '<span class="n">' + fds(p.data) + '</span>') + '<div><b>' + E(nc(p.cliente)) + '</b>' + tg('Fatura por emitir', 'oc') + '<br>' + quemTag(p, 1) + '<small>' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' · recebido ' + fd(p.data) + ' · ' + eur(p.valor) + '</small></div><div class="rt">' + fatBtn(p, 'bt', 'Emitida') + '</div></div>'; };
+var fatRow = function (p, n) { return '<div class="rw" ' + (p._om ? 'data-a="omtrA" data-id="' + E(p.id_trabalho) + '"' : 'data-a="f" data-id="' + E(p.id_cliente) + '"') + '>' + (n || '<span class="n">' + fds(p.data) + '</span>') + '<div><b>' + E(nc(p.cliente)) + '</b>' + tg('Fatura por emitir', 'oc') + '<br>' + quemTag(p, 1) + '<small>' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' · recebido ' + fd(p.data) + ' · ' + eur(p.valor) + '</small></div><div class="rt">' + fatBtn(p, 'bt', 'Emitida') + '</div></div>'; };
 var tbx = function () { $$('.rw[data-a]').forEach(function (r) { r.tabIndex = 0; r.setAttribute('role', 'button'); }); };
 
 /* ---------- ligação ao Google (login + pedidos) ---------- */
@@ -924,6 +1016,7 @@ function run(p, msg, after) {
     // o servidor devolve só as folhas que podem ter mudado (allp); versões antigas devolviam tudo (all)
     return (r && r.all ? Promise.resolve(r.all) : r && r.allp ? Promise.resolve(Object.assign({}, D, r.allp)) : r && r.parcial ? Promise.resolve(Object.assign({}, D, r.parcial)) : rpc('api_all')).then(function (all) {
       if (!all.papel) { all.ses = D.ses; all.papel = D.papel; all.ped = D.ped; all.pedP = D.pedP; all.pos = D.pos; all.eq = D.eq; all.desp = D.desp; all.q = D.q; all.casalFora = D.casalFora; all.lemb = D.lemb; all.quota = D.quota; }
+      if (!('om' in all) && D.om) all.om = D.om;
       var sigA = resSigs(); D = all; ultimaCarga = Date.now(); guardaCopia(); resAuto(sigA); var mesmoSitio = (view + '|' + fid) === onde && !$('#ov').classList.contains('on');
       render();
       if (r && r.pendente) { toast('Pedido enviado. Só entra depois de o Gabriel ou a Ylana aprovarem.'); return r; }
@@ -1599,7 +1692,7 @@ var ICN = { reu: '<rect x="3" y="7" width="12" height="10" rx="2"/><path d="M15 
   orc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>', cli: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.6-3.4 3-5.4 5.5-5.4s4.9 2 5.5 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c2.5.2 4.3 2.1 4.9 5"/>',
   ag: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', pos: '<rect x="3.5" y="4" width="5" height="16" rx="1.2"/><rect x="10" y="4" width="5" height="11" rx="1.2"/><rect x="16.5" y="4" width="4" height="7" rx="1.2"/>',
   equip: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', fres: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', frec: '<circle cx="12" cy="12" r="8.5"/><path d="M15 8.6a4 4 0 1 0 0 6.8M7.5 11h6M7.5 13.4h6"/>',
-  ffat: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', fdesp: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>', ses: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5.5-4.5-5.5-2S10 9 12 9zM12 9c1.5-3.5 5.5-4.5 5.5-2S14 9 12 9z"/>', mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
+  ffat: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', fdesp: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/>', ses: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3.5-5.5-4.5-5.5-2S10 9 12 9zM12 9c1.5-3.5 5.5-4.5 5.5-2S14 9 12 9z"/>', omh: '<circle cx="12" cy="12" r="4"/><path d="M12 3v1.5M12 19.5V21M3 12h1.5M19.5 12H21M5.6 5.6l1 1M17.4 17.4l1 1M5.6 18.4l1-1M17.4 6.6l1-1"/>', omt: '<rect x="3" y="6.5" width="18" height="13" rx="3"/><path d="M8.5 6.5V5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v1.5"/>', omr: '<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/>', omc: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>', omf: '<path d="M5 20V11M12 20V5M19 20v-6"/>', mais: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>' };
 /* ---------- Reunião: página de exemplo, roteiro em popup, mensagens do telemóvel e agenda ---------- */
 var REU = null, REUCARR = false, REUW = null, REUT = 0, REUDESDE = 0;
 var REU_DEMO = 'https://oldbootsphotoandfilm.com/pagina-do-casal/#demo';
@@ -1750,9 +1843,9 @@ function reuMsgWa(x) {
   var d = x.data ? dt(x.data) : null, quando = d ? REU_DIAS[d.getDay()] + ', ' + d.getDate() + ' de ' + d.toLocaleDateString('pt-PT', { month: 'long' }) + (x.hora ? ' às ' + x.hora : '') : '';
   return 'Olá, ' + x.casal + '! Confirmo a nossa reunião ' + (quando ? 'na ' + quando.replace(/^(domingo|sábado)/, 'no $1') : '') + '.\nO link da videochamada (Google Meet) é este: ' + x.link + '\nAté lá! Gabriel · Old Boots';
 }
-var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda'], ['ses', 'Sessões'], ['reu', 'Reunião']], prod: [['pos', 'Pós-produção'], ['equip', 'Equipamento']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas'], ['fdesp', 'Despesas']] };
-var APPS = [['bast', 'Bastidores', 'Clientes, orçamentos e agenda'], ['prod', 'Produção', 'Pós-produção e equipamento'], ['fin', 'Finanças', 'Recebimentos, faturas e contabilista'], ['prop', 'Propostas', 'Gerador de propostas']];
-var VIEW0 = { bast: 'hoje', prod: 'pos', fin: 'fres', prop: 'prop', eq: 'equipa' };
+var NAVS = { bast: [['hoje', 'Hoje'], ['orc', 'Orçamentos'], ['cli', 'Clientes'], ['ag', 'Agenda'], ['ses', 'Sessões'], ['reu', 'Reunião']], prod: [['pos', 'Pós-produção'], ['equip', 'Equipamento']], fin: [['fres', 'Resumo'], ['frec', 'Recebimentos'], ['ffat', 'Faturas'], ['fdesp', 'Despesas']], om: [['omh', 'Hoje'], ['omt', 'Trabalhos'], ['omr', 'Recorrentes'], ['omc', 'Clientes'], ['omf', 'Finanças']] };
+var APPS = [['bast', 'Bastidores', 'Clientes, orçamentos e agenda'], ['prod', 'Produção', 'Pós-produção e equipamento'], ['fin', 'Finanças', 'Recebimentos, faturas e contabilista'], ['prop', 'Propostas', 'Gerador de propostas'], ['om', 'Old Media', 'Clientes empresariais e conteúdos']];
+var VIEW0 = { om: 'omh', bast: 'hoje', prod: 'pos', fin: 'fres', prop: 'prop', eq: 'equipa' };
 var parteG = function (p) { var r = p.recebido_por; if (r === 'Gabriel') return 1; if (r === 'Ylana') return 0; if (r === 'Ambos') { var x = p.parte_do_gabriel; return x === '' || x == null || !isFinite(+x) ? .5 : Math.max(0, Math.min(100, +x)) / 100; } return null; };
 var parteDe = function (p, pes) { var v = +p.valor || 0; if (pes === 'emp') return v; var g = parteG(p); if (g === null) return 0; return Math.round(v * (pes === 'g' ? g : 1 - g) * 100) / 100; };
 var semDono = function (p) { return parteG(p) === null; };
@@ -1761,7 +1854,7 @@ var quemTxt = function (p, fat) {
   if (g === 1) return 'Gabriel' + (fat ? ' emite' : ''); if (g === 0) return 'Ylana' + (fat ? ' emite' : '');
   var a = Math.round(g * 100); return fat ? 'Gabriel emite ' + eur(parteDe(p, 'g')) + ' · Ylana ' + eur(parteDe(p, 'y')) : 'Gabriel ' + a + ' % · Ylana ' + (100 - a) + ' %';
 };
-var quemTag = function (p, fat) { var t = quemTxt(p, fat), g = parteG(p); return '<button class="qm ' + (g === null ? 'nd' : g === 1 ? 'pg' : g === 0 ? 'py' : 'pa') + '" data-a="quem" data-r="' + E(p._row) + '" title="Mudar quem recebe">' + E(t || (fat ? 'quem emite? não especificado' : 'quem recebe? não especificado')) + '</button>'; };
+var quemTag = function (p, fat) { var t = quemTxt(p, fat), g = parteG(p); return '<button class="qm ' + (g === null ? 'nd' : g === 1 ? 'pg' : g === 0 ? 'py' : 'pa') + '" ' + (p._om ? 'data-a="omquem" data-id="' + E(p._om) + '"' : 'data-a="quem" data-r="' + E(p._row) + '"') + ' title="Mudar quem recebe">' + E(t || (fat ? 'quem emite? não especificado' : 'quem recebe? não especificado')) + '</button>'; };
 var OPS_REC = [['', 'Ainda não definido'], ['Gabriel', 'Gabriel'], ['Ylana', 'Ylana'], ['Ambos', 'Os dois (dividido)']];
 var CAMPOS_REC = [['recebido_por', 'Quem recebe', 'sel', OPS_REC], ['parte_do_gabriel', 'Parte do Gabriel (%) · o resto é da Ylana', 'number', null, function (v) { return v.recebido_por === 'Ambos'; }]];
 var recOk = function (v) { if (v.recebido_por !== 'Ambos') { v.parte_do_gabriel = ''; return true; } var x = +v.parte_do_gabriel; if (v.parte_do_gabriel === '' || !(x >= 0 && x <= 100)) { toast('Indique a parte do Gabriel, de 0 a 100 %.', 1); return false; } v.parte_do_gabriel = Math.round(x); return true; };
@@ -1868,32 +1961,181 @@ function prePropostas() {
 }
 function abrirApps() {
   var m = $('#apm'); if (!m.hidden) return fecharApps();
-  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin' && x[0] !== 'prod'; })).concat(!dono() ? [] : [['qst', 'Questionários', 'Perguntas e respostas dos casais']]).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
+  m.innerHTML = (dono() ? APPS : APPS.filter(function (x) { return x[0] !== 'fin' && x[0] !== 'prod' && x[0] !== 'om'; })).concat(!dono() ? [] : [['qst', 'Questionários', 'Perguntas e respostas dos casais']]).concat(!dono() ? [] : [['eq', 'Equipa e acessos', nPed() ? pl(nPed(), 'pedido para aprovar', 'pedidos para aprovar') : 'Secretária e outras pessoas']]).map(function (x) { return '<button role="menuitem" data-a="app" data-v="' + x[0] + '" class="' + (APP === x[0] ? 'on' : '') + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('');
   if (matchMedia('(max-width:820px)').matches) m.innerHTML += '<button role="menuitem" data-a="sair"><b>Sair</b><small>' + E(ME) + '</small></button>';
   m.hidden = false; $('.brand').setAttribute('aria-expanded', 'true');
 }
 function fecharApps() { var m = $('#apm'); if (m && !m.hidden) { m.hidden = true; $('.brand').setAttribute('aria-expanded', 'false'); } }
 document.addEventListener('click', function (e) { if (!e.target.closest || (!e.target.closest('#apm') && !e.target.closest('.brand'))) fecharApps(); });
 
+/* ---------- Old Media: app à parte (clientes empresariais). Só as finanças conversam com a Old Boots ---------- */
+var OMTF = 'abertos', OMID = '', OMMES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+var OMD = function () { return D.om || { cli: [], trab: [], rec: [], pag: [], mes: TODAY.slice(0, 7) }; };
+var omCli = function (id) { return OMD().cli.find(function (c) { return c.id === id; }) || {}; };
+var omTr = function (id) { return OMD().trab.find(function (t) { return t.id === id; }) || null; };
+var omPago = function (t) { return sum(OMD().pag.filter(function (p) { return p.id_trabalho === t.id; }), function (p) { return p.valor; }); };
+var omFalta = function (t) { return t.valor === '' || t.valor == null ? 0 : Math.max(0, Math.round((+t.valor - omPago(t)) * 100) / 100); };
+var omOk = function (t) { var e = t.entregas || []; return { ok: e.filter(function (x) { return x.ok; }).length, n: e.length }; };
+var omEstado = function (t) { var k = omOk(t), cap = (t.captacoes || []).map(function (c) { return c.d; }).sort();
+  if (k.n && k.ok === k.n) return 'Entregue'; if (t.entrega_ate && t.entrega_ate < TODAY) return 'Atrasado'; if (cap.length && cap[0] > TODAY) return 'Por captar'; return 'Em edição'; };
+var omMesNome = function (m) { return OMMES[+String(m).slice(5, 7) - 1] || ''; };
+var omProxMes = function (m) { var y = +m.slice(0, 4), mo = +m.slice(5, 7); return mo === 12 ? (y + 1) + '-01' : y + '-' + String(mo + 1).padStart(2, '0'); };
+var omPorRenovar = function (m) { return OMD().rec.filter(function (r) { return r.ativo !== 'Não' && String(r.ultimo_mes || '') < m; }); };
+var omChev = '<svg class="omch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+var omDia = function (s) { var d = new Date(s + 'T12:00'); return { w: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'][d.getDay()], d: d.getDate() }; };
+var omFd = function (s) { return s ? +String(s).slice(8, 10) + ' ' + ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'][+String(s).slice(5, 7) - 1] : ''; };
+function omSalva(p, msg) { nGrav++; sv(); return p.then(function (r) { nGrav--; sv(); if (r && r.cli) { D.om = r; guardaCopia(); } closeM(); render(); toast(msg); return r; }, function (e) { nGrav--; sv(); toast(e && e.message || 'Não foi possível guardar.', 1); throw e; }); }
+var omTop = function (t, sub, btn) { return '<div class="omhd"><div>' + (sub ? '<p class="omsub">' + sub + '</p>' : '') + '<h1 class="omt">' + t + '</h1></div>' + (btn || '') + '</div>'; };
+var omMais = function (a, rot, extra) { return '<button class="ompl" data-a="' + a + '"' + (extra || '') + ' aria-label="' + E(rot) + '" title="' + E(rot) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>'; };
+var omLinhaTr = function (t) { var k = omOk(t), e = omEstado(t), c = omCli(t.id_cliente);
+  return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(c.nome || '') + ((t.captacoes || [])[0] ? ' · captação ' + omFd(t.captacoes[0].d) : '') + (t.entrega_ate ? ' · <span' + (e === 'Atrasado' ? ' class="omred"' : '') + '>entrega ' + omFd(t.entrega_ate) + '</span>' : '') + '</small></span>' + (k.n ? '<span class="omn">' + k.ok + '/' + k.n + '</span>' : '') + (e === 'Entregue' ? '<span class="omok">✓</span>' : '') + omChev + '</button>'; };
+var omGrupo = function (titulo, linhas, vazio) { return '<p class="omgl">' + titulo + '</p><div class="omg">' + (linhas.join('') || '<p class="omem">' + vazio + '</p>') + '</div>'; };
+
+function vOmHoje() {
+  var d = OMD(), m = d.mes || TODAY.slice(0, 7), pr = omPorRenovar(m), lim = new Date(TODAY + 'T12:00'); lim.setDate(lim.getDate() + 7); var L7 = iso(lim);
+  var caps = []; d.trab.forEach(function (t) { (t.captacoes || []).forEach(function (c) { if (c.d >= TODAY && c.d <= L7) caps.push({ t: t, c: c }); }); });
+  caps.sort(function (a, b) { return (a.c.d + a.c.h) < (b.c.d + b.c.h) ? -1 : 1; });
+  var ent = d.trab.filter(function (t) { return omEstado(t) !== 'Entregue' && omEstado(t) !== 'Por captar'; }).sort(function (a, b) { return String(a.entrega_ate || '9') < String(b.entrega_ate || '9') ? -1 : 1; });
+  var dt = new Date(TODAY + 'T12:00').toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' });
+  return '<div class="omw">' + omTop('Hoje', 'Old Media · ' + E(dt), omMais('omNovoTr', 'Novo trabalho')) +
+    (pr.length ? '<button class="omban" data-a="omRen" data-v="' + m + '"><i></i><span>' + pl(pr.length, 'recorrente por renovar', 'recorrentes por renovar') + ' em ' + omMesNome(m) + '</span>' + omChev + '</button>' : '') +
+    omGrupo('Captações · próximos 7 dias', caps.map(function (x) { var w = omDia(x.c.d); return '<button class="omrw" data-a="omtrA" data-id="' + E(x.t.id) + '"><span class="omdt"><small>' + w.w + '</small>' + w.d + '</span><span class="omx"><b>' + E(x.t.titulo) + '</b><small>' + (x.c.h ? E(x.c.h) + ' · ' : '') + E(omCli(x.t.id_cliente).nome || '') + ' · ' + E(x.t.quem_faz || 'Gabriel') + '</small></span>' + omChev + '</button>'; }), 'Nenhuma captação nos próximos 7 dias.') +
+    omGrupo('Entregas', ent.map(omLinhaTr), 'Nada por entregar.') + '</div>';
+}
+function vOmTrab() {
+  var l = OMD().trab.filter(function (t) { var en = omEstado(t) === 'Entregue'; return OMTF === 'todos' || (OMTF === 'entregues' ? en : !en); })
+    .sort(function (a, b) { return OMTF === 'entregues' ? (String(a.entrega_ate) < String(b.entrega_ate) ? 1 : -1) : (String(a.entrega_ate || '9') < String(b.entrega_ate || '9') ? -1 : 1); });
+  return '<div class="omw">' + omTop('Trabalhos', '', omMais('omNovoTr', 'Novo trabalho')) +
+    '<div class="omseg">' + [['abertos', 'Por entregar'], ['entregues', 'Entregues'], ['todos', 'Todos']].map(function (x) { return '<button data-a="omTF" data-v="' + x[0] + '" class="' + (OMTF === x[0] ? 'on' : '') + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="omg">' + (l.map(omLinhaTr).join('') || '<p class="omem">' + (OMD().cli.length ? 'Nenhum trabalho aqui.' : 'Comece por criar um cliente em Clientes.') + '</p>') + '</div></div>';
+}
+function vOmTrabF() {
+  var t = omTr(OMID); if (!t) { view = 'omt'; return vOmTrab(); }
+  var c = omCli(t.id_cliente), k = omOk(t), e = omEstado(t), pg = OMD().pag.filter(function (p) { return p.id_trabalho === t.id; }).sort(function (a, b) { return a.data < b.data ? -1 : 1; }), falta = omFalta(t);
+  var lin = function (a, b, cls) { return '<div class="omkv"><span>' + a + '</span><span' + (cls ? ' class="' + cls + '"' : '') + '>' + b + '</span></div>'; };
+  return '<div class="omw"><div class="omnav"><button class="omcirc" data-a="go" data-v="omt" aria-label="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button class="omcap" data-a="omEdTr" data-id="' + E(t.id) + '">Editar</button></div>' +
+    '<p class="omsub">' + E(c.nome || '') + (t.id_recorrente ? ' · recorrente' : ' · avulso') + '</p><h1 class="omt" style="font-size:28px">' + E(t.titulo) + '</h1><p class="omst' + (e === 'Atrasado' ? ' omred' : e === 'Entregue' ? ' omgr' : '') + '">' + e + (e === 'Atrasado' ? ' · ' + pl(Math.round((new Date(TODAY) - new Date(t.entrega_ate)) / 864e5), 'dia', 'dias') : '') + '</p>' +
+    '<div class="omg">' + ((t.captacoes || []).map(function (x, i) { return lin(i ? '' : 'Captação', omFd(x.d) + (x.h ? ', ' + E(x.h) : '')); }).join('') || lin('Captação', 'por marcar')) +
+      lin('Entrega até', t.entrega_ate ? omFd(t.entrega_ate) : '—', e === 'Atrasado' ? 'omred' : '') + lin('Quem faz', E(t.quem_faz || 'Gabriel')) + '</div>' +
+    '<p class="omgl">Entregas' + (k.n ? ' · ' + k.ok + ' de ' + k.n : '') + '</p><div class="omg">' + ((t.entregas || []).map(function (x, i) { return '<label class="omck"><input type="checkbox" data-a="omEnt" data-id="' + E(t.id) + '" data-i="' + i + '"' + (x.ok ? ' checked' : '') + '><span' + (x.ok ? ' class="omdone"' : '') + '>' + E(x.t) + '</span></label>'; }).join('') || '<p class="omem">Sem entregas definidas. Use Editar para as acrescentar.</p>') + '</div>' +
+    '<div class="omg" style="margin-top:22px">' + lin('Valor', t.valor === '' || t.valor == null ? '—' : eur(t.valor)) + lin('Pago', eur(omPago(t))) + (t.valor !== '' && t.valor != null ? lin('Falta', eur(falta), falta > 0 ? '' : 'omgr') : '') +
+      pg.map(function (p) { return '<div class="omkv"><span>' + fd(p.data) + ' · ' + eur(p.valor) + '</span><span>' + fatCell(omFinMap(p)) + '</span></div>'; }).join('') +
+      '<button class="omlk" data-a="omNovoPag" data-id="' + E(t.id) + '">Registar pagamento</button></div>' +
+    (t.notas ? '<p class="omgl">Notas</p><div class="omg"><p class="omem" style="font-style:normal;color:var(--omt)">' + E(t.notas) + '</p></div>' : '') +
+    '<button class="omdel" data-a="omExc" data-t="trab" data-id="' + E(t.id) + '">Excluir trabalho</button>' +
+    (e !== 'Entregue' && k.n ? '<div class="omfix"><button class="omcta" data-a="omTudo" data-id="' + E(t.id) + '">Marcar tudo entregue</button></div>' : '') + '</div>';
+}
+function vOmRec() {
+  var d = OMD(), m = d.mes || TODAY.slice(0, 7), pr = omPorRenovar(m), prox = omProxMes(m), prx = omPorRenovar(prox).length;
+  var l = d.rec.slice().sort(function (a, b) { return (a.ativo === 'Não') - (b.ativo === 'Não') || String(omCli(a.id_cliente).nome).localeCompare(String(omCli(b.id_cliente).nome)); });
+  return '<div class="omw">' + omTop('Recorrentes', '', omMais('omNovoRec', 'Novo recorrente')) +
+    (pr.length ? '<button class="omban" data-a="omRen" data-v="' + m + '"><i></i><span>Renovar ' + omMesNome(m) + ' · ' + pl(pr.length, 'cliente', 'clientes') + '</span>' + omChev + '</button>' : '') +
+    '<div class="omg">' + (l.map(function (r) { var c = omCli(r.id_cliente); return '<button class="omrw" data-a="omEdRec" data-id="' + E(r.id) + '"><span class="omx"><b>' + E(r.titulo) + '</b><small>' + E(c.nome || '') + ' · ' + (r.valor !== '' ? eur(r.valor) + '/mês' : 'sem valor') + (r.dia_de_captacao ? ' · dia ' + E(r.dia_de_captacao) : '') + (r.ativo === 'Não' ? ' · <span class="omred">pausado</span>' : '') + '</small></span><span class="omn">' + (r.ultimo_mes ? omMesNome(r.ultimo_mes).slice(0, 3) : '') + '</span>' + omChev + '</button>'; }).join('') || '<p class="omem">Ainda sem clientes recorrentes.</p>') + '</div>' +
+    (l.length ? '<p class="omft">No início de cada mês aparece «Renovar» no Hoje. Só depois de confirmar é que o trabalho e o valor do mês são criados.' + (prx && !pr.length ? ' <button class="omlk inl" data-a="omRen" data-v="' + prox + '">Preparar ' + omMesNome(prox) + ' já</button>' : '') + '</p>' : '') + '</div>';
+}
+function vOmCli() {
+  var l = OMD().cli.slice().sort(function (a, b) { return String(a.nome).localeCompare(String(b.nome)); });
+  return '<div class="omw">' + omTop('Clientes', '', omMais('omNovoCli', 'Novo cliente')) +
+    '<div class="omg">' + (l.map(function (c) { var n = OMD().trab.filter(function (t) { return t.id_cliente === c.id && omEstado(t) !== 'Entregue'; }).length;
+      return '<button class="omrw" data-a="omCliA" data-id="' + E(c.id) + '"><span class="omx"><b>' + E(c.nome) + '</b><small>' + E([c.empresa, c.tipo || 'Avulso'].filter(Boolean).join(' · ')) + '</small></span>' + (n ? '<span class="omn">' + n + ' em curso</span>' : '') + omChev + '</button>'; }).join('') || '<p class="omem">Ainda sem clientes. Toque em + para criar o primeiro.</p>') + '</div></div>';
+}
+function vOmCliF() {
+  var c = OMD().cli.find(function (x) { return x.id === OMID; }); if (!c) { view = 'omc'; return vOmCli(); }
+  var tr = OMD().trab.filter(function (t) { return t.id_cliente === c.id; }).sort(function (a, b) { return String(a.entrega_ate) < String(b.entrega_ate) ? 1 : -1; }), rc = OMD().rec.filter(function (r) { return r.id_cliente === c.id; });
+  var pago = sum(OMD().pag.filter(function (p) { return p.id_cliente === c.id; }), function (p) { return p.valor; }), falta = sum(tr, omFalta);
+  var lin = function (a, b) { return b ? '<div class="omkv"><span>' + a + '</span><span>' + b + '</span></div>' : ''; };
+  return '<div class="omw"><div class="omnav"><button class="omcirc" data-a="go" data-v="omc" aria-label="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button class="omcap" data-a="omEdCli" data-id="' + E(c.id) + '">Editar</button></div>' +
+    '<p class="omsub">' + E(c.tipo || 'Avulso') + '</p><h1 class="omt" style="font-size:28px">' + E(c.nome) + '</h1>' +
+    '<div class="omg" style="margin-top:16px">' + lin('Empresa', E(c.empresa)) + lin('Telefone', c.telefone ? '<a href="' + E(wa(c.telefone)) + '" target="_blank" rel="noopener">' + E(c.telefone) + '</a>' : '') + lin('Email', E(c.email)) + lin('NIF', E(c.nif)) + lin('Pago', eur(pago)) + lin('Por receber', falta ? eur(falta) : '') + '</div>' +
+    (rc.length ? omGrupo('Recorrente', rc.map(function (r) { return '<button class="omrw" data-a="omEdRec" data-id="' + E(r.id) + '"><span class="omx"><b>' + E(r.titulo) + '</b><small>' + (r.valor !== '' ? eur(r.valor) + '/mês' : '') + (r.ativo === 'Não' ? ' · pausado' : '') + '</small></span>' + omChev + '</button>'; }), '') : '') +
+    omGrupo('Trabalhos', tr.map(omLinhaTr), 'Ainda sem trabalhos.') +
+    '<div class="omact"><button class="omlk" data-a="omNovoTr" data-id="' + E(c.id) + '">Novo trabalho</button>' + (c.tipo === 'Recorrente' ? '<button class="omlk" data-a="omNovoRec" data-id="' + E(c.id) + '">Novo recorrente</button>' : '') + '</div>' +
+    (c.notas ? '<p class="omgl">Notas</p><div class="omg"><p class="omem" style="font-style:normal;color:var(--omt)">' + E(c.notas) + '</p></div>' : '') +
+    '<button class="omdel" data-a="omExc" data-t="cli" data-id="' + E(c.id) + '">Excluir cliente</button></div>';
+}
+function vOmFin() {
+  var d = OMD(), ano = TODAY.slice(0, 4), mes = TODAY.slice(0, 7), L = d.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; });
+  var por = d.trab.filter(function (t) { return omFalta(t) > 0; }), fx = d.pag.filter(function (p) { return p.fatura_emitida !== 'Sim'; });
+  var kv = function (a, b, act) { return '<button class="omrw" data-a="' + act + '"><span class="omx"><b style="font-weight:400">' + a + '</b></span><span class="omn">' + b + '</span>' + omChev + '</button>'; };
+  return '<div class="omw">' + omTop('Finanças', 'Old Media') +
+    '<div class="omhero"><small>Recebido em ' + ano + '</small><b>' + eur(sum(L, function (p) { return p.valor; })) + '</b></div>' +
+    '<div class="omg">' + kv('Este mês', eur(sum(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; }), function (p) { return p.valor; })), 'omFinMes') + kv('Por receber', eur(sum(por, omFalta)), 'omFinPor') + kv('Faturas por emitir', fx.length ? '<span class="ombdg">' + fx.length + '</span>' : '0', 'omFinFat') + '</div>' +
+    omGrupo('Por receber', por.map(function (t) { return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(omCli(t.id_cliente).nome || '') + ' · ' + E(t.quem_faz || 'Gabriel') + '</small></span><span class="omn">' + eur(omFalta(t)) + '</span>' + omChev + '</button>'; }), 'Nada por receber.') +
+    '<p class="omft">Estes pagamentos também entram nas Finanças da Old Boots (filtro «Old Media» ou «Tudo») e nos resumos para o contabilista. <button class="omlk inl" data-a="omParaFin">Abrir nas Finanças</button></p></div>';
+}
+// pagamento da Old Media no formato das Finanças da Old Boots
+var omFinMap = function (p) { return { _om: p.id, id_trabalho: p.id_trabalho, id_cliente: '', cliente: (p.cliente || '') + ' · Old Media', data: p.data, valor: p.valor, tipo: 'Old Media', metodo: p.metodo, recebido_por: p.recebido_por, parte_do_gabriel: p.parte_do_gabriel, fatura_emitida: p.fatura_emitida === 'Sim' ? 'Sim' : 'Não', parcela: '', desc: p.trabalho || '' }; };
+var omPagFin = function () { return (OMD().pag || []).map(omFinMap); };
+var FMARCA = 'ob';
+var PF = function (m) { m = m || FMARCA; return m === 'om' ? omPagFin() : m === 'tudo' ? D.pag.concat(omPagFin()) : D.pag; };
+
+// formulários
+function omCliForm(c) {
+  form(c ? 'Editar cliente' : 'Novo cliente', [['Cliente', [['nome', 'Nome', 'text'], ['empresa', 'Empresa (opcional)', 'text'], ['tipo', 'Tipo', 'sel', [['Avulso', 'Avulso'], ['Recorrente', 'Recorrente']]], ['telefone', 'Telefone', 'tel'], ['email', 'Email', 'email'], ['nif', 'NIF (para as faturas)', 'text'], ['notas', 'Notas', 'area']]]],
+    c ? { nome: c.nome, empresa: c.empresa, tipo: c.tipo || 'Avulso', telefone: c.telefone, email: c.email, nif: c.nif, notas: c.notas } : { tipo: 'Avulso' },
+    function (v) { if (!String(v.nome || '').trim()) return toast('Escreva o nome.', 1); omSalva(rpc('api_om_guardar', 'cli', Object.assign({ id: c ? c.id : '' }, v)), c ? 'Cliente guardado' : 'Cliente criado').then(function (r) { if (!c && r) { var n = r.cli[r.cli.length - 1]; if (n) { OMID = n.id; view = 'omcf'; render(); } } }); }, c ? 'Guardar' : 'Criar');
+}
+function omTrabForm(t, cid) {
+  var cl = OMD().cli.map(function (c) { return [c.id, c.nome]; }); if (!cl.length) { toast('Crie primeiro um cliente.', 1); trocarApp('om', 'omc'); return; }
+  var cp = (t && t.captacoes) || [];
+  var v0 = t ? { id_cliente: t.id_cliente, titulo: t.titulo, d1: (cp[0] || {}).d || '', h1: (cp[0] || {}).h || '', d2: (cp[1] || {}).d || '', d3: (cp[2] || {}).d || '', entrega_ate: t.entrega_ate || '', entregas: (t.entregas || []).map(function (x) { return x.t; }).join('\n'), quem_faz: t.quem_faz || 'Gabriel', valor: t.valor, notas: t.notas || '' }
+    : { id_cliente: cid || cl[0][0], quem_faz: 'Gabriel', d1: '', entrega_ate: '' };
+  form(t ? 'Editar trabalho' : 'Novo trabalho', [['Trabalho', [['id_cliente', 'Cliente', 'sel', cl], ['titulo', 'Título (ex.: Vídeo da moradia em Leiria)', 'text'], ['d1', 'Captação', 'date'], ['h1', 'Hora (opcional)', 'time'], ['d2', 'Outra data de captação (opcional)', 'date'], ['d3', 'Mais uma (opcional)', 'date'], ['entrega_ate', 'Entrega até', 'date'],
+    ['entregas', 'Entregas (uma por linha)', 'area'], ['quem_faz', 'Quem faz', 'sel', [['Gabriel', 'Gabriel'], ['Ylana', 'Ylana']]], ['valor', 'Valor (€)', 'number'], ['notas', 'Notas', 'area']]]], v0, function (v) {
+    if (!String(v.titulo || '').trim()) return toast('Escreva o título.', 1);
+    var caps = [[v.d1, v.h1], [v.d2, ''], [v.d3, '']].filter(function (x) { return x[0]; }).map(function (x) { return { d: x[0], h: x[1] || '' }; });
+    var ant = (t && t.entregas) || [], ent = String(v.entregas || '').split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) { var a = ant.find(function (y) { return y.t === x; }); return { t: x, ok: a ? a.ok : 0 }; });
+    var o = { id: t ? t.id : '', id_cliente: v.id_cliente, titulo: v.titulo, captacoes: caps, entrega_ate: v.entrega_ate || '', entregas: ent, quem_faz: v.quem_faz, valor: v.valor === '' ? '' : v.valor, notas: v.notas || '' };
+    omSalva(rpc('api_om_guardar', 'trab', o), t ? 'Trabalho guardado' : 'Trabalho criado').then(function (r) { if (!t && r) { var n = r.trab[r.trab.length - 1]; if (n) { OMID = n.id; view = 'omtf'; render(); } } }); }, t ? 'Guardar' : 'Criar');
+}
+function omRecForm(r, cid) {
+  var cl = OMD().cli.map(function (c) { return [c.id, c.nome]; }); if (!cl.length) { toast('Crie primeiro um cliente.', 1); trocarApp('om', 'omc'); return; }
+  form(r ? 'Editar recorrente' : 'Novo recorrente', [['Recorrente', [['id_cliente', 'Cliente', 'sel', cl], ['titulo', 'Serviço (ex.: Podcast mensal)', 'text'], ['valor', 'Valor habitual por mês (€)', 'number'], ['dia_de_captacao', 'Dia habitual de captação (1 a 31)', 'number'], ['dias_para_entregar', 'Dias para entregar depois da captação', 'number'],
+    ['entregas', 'Entregas de cada mês (uma por linha)', 'area'], ['quem_faz', 'Quem faz', 'sel', [['Gabriel', 'Gabriel'], ['Ylana', 'Ylana']]], ['ativo', 'Ativo (perguntar todos os meses)', 'chk']]]],
+    r ? { id_cliente: r.id_cliente, titulo: r.titulo, valor: r.valor, dia_de_captacao: r.dia_de_captacao, dias_para_entregar: r.dias_para_entregar, entregas: r.entregas, quem_faz: r.quem_faz || 'Gabriel', ativo: r.ativo === 'Não' ? 'Não' : 'Sim' } : { id_cliente: cid || cl[0][0], dias_para_entregar: 7, quem_faz: 'Gabriel', ativo: 'Sim' },
+    function (v) { if (!String(v.titulo || '').trim()) return toast('Escreva o nome do serviço.', 1); omSalva(rpc('api_om_guardar', 'rec', Object.assign({ id: r ? r.id : '' }, v)), r ? 'Recorrente guardado' : 'Recorrente criado'); }, r ? 'Guardar' : 'Criar');
+  if (r) { var b = $('#m .btns'); if (b) b.insertAdjacentHTML('afterbegin', '<button class="b2" data-a="omExc" data-t="rec" data-id="' + E(r.id) + '">Excluir</button>'); }
+}
+function omPagForm(t) {
+  form('Registar pagamento', [['Pagamento · ' + E(t.titulo), [['data', 'Data', 'date'], ['valor', 'Valor (€)', 'number'], ['metodo', 'Método', 'sel', SEL.mt]].concat(CAMPOS_REC).concat([['fatura_emitida', 'Fatura já emitida', 'chk'], ['notas', 'Notas', 'text']])]],
+    { data: TODAY, valor: omFalta(t) || '', metodo: 'MB Way', recebido_por: t.quem_faz || 'Gabriel', parte_do_gabriel: 50, fatura_emitida: 'Não' },
+    function (v) { if (!(+v.valor > 0)) return toast('Indique o valor.', 1); if (!recOk(v)) return; omSalva(rpc('api_om_guardar', 'pag', Object.assign({ id: '', id_trabalho: t.id }, v)), 'Pagamento registado'); }, 'Registar');
+}
+function omRenovar(m) {
+  var l = omPorRenovar(m); if (!l.length) return toast('Nada por renovar em ' + omMesNome(m) + '.');
+  var ultimo = function (r) { var x = OMD().trab.filter(function (t) { return t.id_recorrente === r.id && t.valor !== '' && t.valor != null; }).sort(function (a, b) { return String(a.mes) < String(b.mes) ? 1 : -1; })[0]; return x ? x.valor : r.valor; };
+  var dia = function (r) { var y = +m.slice(0, 4), mo = +m.slice(5, 7), dd = Math.min(+r.dia_de_captacao || 1, new Date(y, mo, 0).getDate()); return r.dia_de_captacao ? m + '-' + String(dd).padStart(2, '0') : ''; };
+  openM('<p class="lb">Recorrentes</p><h3 class="h2 mh2">Renovar ' + omMesNome(m) + '?</h3><p class="sm">Escolha quem continua este mês e o valor. O trabalho e o valor de ' + omMesNome(m) + ' só são criados depois de confirmar.</p><div id="omrl">' +
+    l.map(function (r) { var c = omCli(r.id_cliente); return '<div class="omrn" data-id="' + E(r.id) + '"><p class="omgl" style="margin-top:20px">' + E(c.nome || '') + ' · ' + E(r.titulo) + '</p><div class="omg">' +
+      '<label class="omkv"><span>Renovar em ' + omMesNome(m) + '</span><span class="omsw"><input type="checkbox" class="omr-on" checked aria-label="Renovar ' + E(r.titulo) + '"><i></i></span></label>' +
+      '<label class="omkv"><span>Valor (€)</span><input type="text" inputmode="decimal" class="omr-v omin" value="' + E(String(ultimo(r) === '' || ultimo(r) == null ? '' : ultimo(r)).replace('.', ',')) + '"></label>' +
+      '<label class="omkv"><span>Captação</span><input type="date" class="omr-d omin" value="' + E(dia(r)) + '"></label></div></div>'; }).join('') +
+    '</div><div class="btns"><button class="b2" data-a="x">Depois</button><button class="b1" id="omRok">Confirmar ' + omMesNome(m) + '</button></div>');
+  $('#omRok').onclick = function () { var out = [], erro = '';
+    $$('#omrl .omrn').forEach(function (x) { var v = numPT(x.querySelector('.omr-v').value); if (v === null) erro = 'Valor inválido.'; out.push({ id: x.dataset.id, renovar: x.querySelector('.omr-on').checked, valor: v === null ? '' : v, captacao: x.querySelector('.omr-d').value || '' }); });
+    if (erro) return toast(erro, 1); omSalva(rpc('api_om_renovar', m, out), omMesNome(m).replace(/^./, function (c) { return c.toUpperCase(); }) + ' renovado'); };
+}
+
 /* ---------- finanças: vistas ---------- */
 var noTri = function (p, t) { var m = +String(p.data).slice(5, 7); return Math.floor((m - 1) / 3) + 1 === t; };
 var ivaDe = function (v, pes) { var t = pes === 'emp' ? 0 : PESSOAS[pes].iva; var b = t ? Math.round(v / (1 + t / 100) * 100) / 100 : v; return { base: b, iva: Math.round((v - b) * 100) / 100 }; };
 function finTopo(lb, h1, extra) {
-  var anos = D.pag.map(function (p) { return String(p.data).slice(0, 4); }).concat([TODAY.slice(0, 4)]).filter(function (x, i, a) { return /^\d{4}$/.test(x) && a.indexOf(x) === i; }).sort().reverse();
+  var anos = PF('tudo').map(function (p) { return String(p.data).slice(0, 4); }).concat([TODAY.slice(0, 4)]).filter(function (x, i, a) { return /^\d{4}$/.test(x) && a.indexOf(x) === i; }).sort().reverse();
   return '<div class="pt"><div><p class="lb">' + lb + '</p><h1 class="h1">' + h1 + '</h1></div>' + (extra || '') + '</div>' +
     '<div class="ctab" role="tablist">' + [['emp', 'Empresa'], ['g', 'Gabriel'], ['y', 'Ylana']].map(function (t) { return '<button role="tab" data-a="pes" data-v="' + t[0] + '" class="' + (PES === t[0] ? 'on' : '') + '" aria-selected="' + (PES === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+    (OMD().pag.length || FMARCA !== 'ob' ? '<div class="fmar" role="group" aria-label="Marca">' + [['ob', 'Old Boots'], ['om', 'Old Media'], ['tudo', 'Tudo']].map(function (t) { return '<button data-a="fmarca" data-v="' + t[0] + '" class="' + (FMARCA === t[0] ? 'on' : '') + '" aria-pressed="' + (FMARCA === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>' : '') +
     '<div class="fbar"><div class="seg" role="group" aria-label="Ano">' + anos.slice(0, 4).map(function (a) { return '<button data-a="fano" data-v="' + a + '" class="' + (FANO === a ? 'on' : '') + '">' + a + '</button>'; }).join('') + '</div></div>';
 }
 /* ---------- finanças: de onde vem cada número ---------- */
 var FDET = null;
-var descPag = function (p) { var c = (D.cli || []).find(function (x) { return x.id === p.id_cliente; }) || {}, sv = c.pacote || c.tipo_de_servico || catDe(c);
+var descPag = function (p) { if (p._om) return 'Old Media' + (p.desc ? ' · ' + p.desc : '') + (p.metodo ? ' · ' + p.metodo : ''); var c = (D.cli || []).find(function (x) { return x.id === p.id_cliente; }) || {}, sv = c.pacote || c.tipo_de_servico || catDe(c);
   var t = p.tipo === 'Depósito' ? 'Entrada (depósito)' : p.tipo === 'Parcela' ? (p.parcela ? p.parcela + '.ª parcela' : 'Parcela') : p.tipo === 'Extras' ? 'Extras no dia do casamento' : p.tipo || 'Pagamento';
   return t + (sv ? ' · ' + sv : '') + (p.metodo ? ' · ' + p.metodo : ''); };
 function finDetHtml() {
   var x = FDET; if (!x) return ''; var pes = x.pes || 'emp';
   var tot = x.par ? sum(x.l, function (p) { return p.valor; }) : sum(x.l, function (p) { return pes === 'nd' ? +p.valor || 0 : parteDe(p, pes); });
   var linhas = x.par ? x.l.slice().sort(function (a, b) { return a.vencimento < b.vencimento ? -1 : 1; }).map(function (p) { return '<div class="rw r2 fdr"><div><b><button class="lnk" data-a="fdf" data-id="' + E(p.id_cliente) + '">' + E(nc(p.cliente || (cli(p.id_cliente) || {}).nome_do_casal || '')) + '</button></b>' + tg(p.estado) + '<small>' + E(p.parcela) + '.ª parcela · vence ' + fd(p.vencimento) + '</small></div><div class="rt"><span class="num s">' + eur(p.valor) + '</span></div></div>'; }).join('')
-    : x.l.slice().sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }).map(function (p) { var v = pes === 'nd' ? +p.valor || 0 : parteDe(p, pes); return '<div class="rw r2 fdr"><div><b><button class="lnk" data-a="fdf" data-id="' + E(p.id_cliente) + '">' + E(nc(p.cliente || (cli(p.id_cliente) || {}).nome_do_casal || '')) + '</button></b><small>' + fd(p.data) + ' · ' + E(descPag(p)) + '</small><small class="fdf">' + fatCell(p) + '</small></div><div class="rt"><span class="num s">' + eur(v) + '</span>' + (v !== +p.valor ? '<small>de ' + eur(p.valor) + '</small>' : '') + '</div></div>'; }).join('');
+    : x.l.slice().sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; }).map(function (p) { var v = pes === 'nd' ? +p.valor || 0 : parteDe(p, pes); return '<div class="rw r2 fdr"><div><b><button class="lnk" ' + (p._om ? 'data-a="omtrA" data-id="' + E(p.id_trabalho) + '"' : 'data-a="fdf" data-id="' + E(p.id_cliente) + '"') + '>' + E(nc(p.cliente || (cli(p.id_cliente) || {}).nome_do_casal || '')) + '</button></b><small>' + fd(p.data) + ' · ' + E(descPag(p)) + '</small><small class="fdf">' + fatCell(p) + '</small></div><div class="rt"><span class="num s">' + eur(v) + '</span>' + (v !== +p.valor ? '<small>de ' + eur(p.valor) + '</small>' : '') + '</div></div>'; }).join('');
   return '<div id="fdet"><p class="lb">' + E(x.sub || 'Finanças') + '</p><h3 class="h2 mh2">' + E(x.t) + '</h3><p class="sm" style="margin:6px 0 14px">' + pl(x.l.length, x.par ? 'parcela' : 'pagamento', x.par ? 'parcelas' : 'pagamentos') + ' · <b>' + eur(tot) + '</b></p>' + (linhas || '<p class="em">Nada aqui.</p>') + '</div>';
 }
 function finDet(t, l, o) { o = o || {}; FDET = { t: t, l: l, par: !!o.par, pes: o.pes || PES, sub: o.sub, k: o.k }; openM(finDetHtml()); }
@@ -1901,7 +2143,7 @@ function finDet(t, l, o) { o = o || {}; FDET = { t: t, l: l, par: !!o.par, pes: 
 function finDetReabre() { if (!FDET || !FDET.k) return; var n = FDET.k(); if (n) { FDET.l = n; openM(finDetHtml()); } }
 
 function vFres() {
-  var ano = FANO, L = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }), atual = ano === TODAY.slice(0, 4);
+  var ano = FANO, L = PF().filter(function (p) { return String(p.data).slice(0, 4) === ano; }), atual = ano === TODAY.slice(0, 4);
   var tot = function (l) { return sum(l, function (p) { return parteDe(p, PES); }); };
   var tri = Math.floor((+TODAY.slice(5, 7) - 1) / 3) + 1, mes = TODAY.slice(0, 7);
   var ab = D.par.filter(function (p) { return p.estado !== 'Paga'; }), atv = sum(ab.filter(function (p) { return p.estado === 'Em atraso'; }), function (p) { return p.valor; });
@@ -1909,7 +2151,7 @@ function vFres() {
   var kpi = '<div class="kpi"><button class="kpb" data-a="fdet" data-v="ano"><span class="lb">Recebido em ' + E(ano) + '</span><span class="num">' + eur(tAno) + '</span></button>' +
     (atual ? '<button class="kpb" data-a="fdet" data-v="tri"><span class="lb">Este trimestre</span><span class="num">' + eur(tot(L.filter(function (p) { return noTri(p, tri); }))) + '</span></button><button class="kpb" data-a="fdet" data-v="mes"><span class="lb">Este mês</span><span class="num">' + eur(tot(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; }))) + '</span></button>'
       : '<div><span class="lb">Pagamentos</span><span class="num">' + L.filter(function (p) { return parteDe(p, PES) > 0; }).length + '</span></div><div></div>') + '</div>';
-  var info = PES === 'emp' ? '<p class="lead2">Por receber: <button class="lnk fdl" data-a="fdet" data-v="porrec"><b>' + eur(sum(ab, function (p) { return p.valor; })) + '</b></button>. ' + (atv ? 'Em atraso: <button class="lnk fdl" data-a="fdet" data-v="atraso"><b class="rdt">' + eur(atv) + '</b></button>.' : 'Nada em atraso.') + '</p>'
+  var info = FMARCA === 'om' ? '<p class="lead2">Por receber na Old Media: <b>' + eur(sum(OMD().trab, omFalta)) + '</b>.</p>' : PES === 'emp' ? '<p class="lead2">Por receber: <button class="lnk fdl" data-a="fdet" data-v="porrec"><b>' + eur(sum(ab, function (p) { return p.valor; })) + '</b></button>. ' + (atv ? 'Em atraso: <button class="lnk fdl" data-a="fdet" data-v="atraso"><b class="rdt">' + eur(atv) + '</b></button>.' : 'Nada em atraso.') + '</p>'
     : '<p class="lead2">' + (PESSOAS[PES].iva ? 'Com IVA a ' + PESSOAS[PES].iva + ' %: base <b>' + eur(iv.base) + '</b> e IVA <b>' + eur(iv.iva) + '</b>.' : 'Isento de IVA: o valor recebido é todo base.') + '</p>';
   var aviso = nd.length ? '<button class="avd" data-a="verNd"><b>' + pl(nd.length, 'pagamento', 'pagamentos') + ' sem indicação de quem recebe</b> (' + eur(sum(nd, function (p) { return p.valor; })) + ')' + (PES === 'emp' ? '' : ', fora destas contas') + '. Definir agora →</button>' : '';
   var g = sum(L, function (p) { return parteDe(p, 'g'); }), y = sum(L, function (p) { return parteDe(p, 'y'); }), n = sum(nd, function (p) { return p.valor; }), T = g + y + n || 1;
@@ -1927,15 +2169,15 @@ function vFres() {
 }
 function vFrec() {
   var ab = D.par.filter(function (p) { return p.estado !== 'Paga'; }).sort(function (a, b) { return a.vencimento < b.vencimento ? -1 : 1; });
-  var L = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === FANO && (FND ? semDono(p) : PES === 'emp' || parteDe(p, PES) > 0); }).sort(function (a, b) { return String(b.data) < String(a.data) ? -1 : 1; });
-  var nNd = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === FANO && semDono(p); }).length;
+  var L = PF().filter(function (p) { return String(p.data).slice(0, 4) === FANO && (FND ? semDono(p) : PES === 'emp' || parteDe(p, PES) > 0); }).sort(function (a, b) { return String(b.data) < String(a.data) ? -1 : 1; });
+  var nNd = PF().filter(function (p) { return String(p.data).slice(0, 4) === FANO && semDono(p); }).length;
   return '<div class="w1">' + finTopo('Finanças', 'Recebimentos', '<button class="b1" data-a="np">Registar pagamento</button>') +
-    (PES === 'emp' && !FND ? '<p class="lb gl" style="margin-top:26px">Parcelas por pagar · ' + ab.length + '</p>' + (ab.map(function (p) { return '<div class="rw" data-a="f" data-id="' + E(p.id_cliente) + '"><span class="n">' + fds(p.vencimento) + '</span><div><b>' + E(nc(p.cliente)) + '</b>' + tg(p.estado) + '<small>Parcela ' + E(p.parcela) + ' · vence ' + fd(p.vencimento) + '</small></div><div class="rt"><span class="num s">' + eur(p.valor) + '</span><button class="bt" data-a="paga" data-id="' + E(p.id_cliente) + '" data-p="' + E(p.parcela) + '">Marcar paga</button></div></div>'; }).join('') || '<p class="em">Sem parcelas por pagar.</p>') + '<hr class="st">' : '') +
+    (PES === 'emp' && !FND && FMARCA !== 'om' ? '<p class="lb gl" style="margin-top:26px">Parcelas por pagar · ' + ab.length + '</p>' + (ab.map(function (p) { return '<div class="rw" data-a="f" data-id="' + E(p.id_cliente) + '"><span class="n">' + fds(p.vencimento) + '</span><div><b>' + E(nc(p.cliente)) + '</b>' + tg(p.estado) + '<small>Parcela ' + E(p.parcela) + ' · vence ' + fd(p.vencimento) + '</small></div><div class="rt"><span class="num s">' + eur(p.valor) + '</span><button class="bt" data-a="paga" data-id="' + E(p.id_cliente) + '" data-p="' + E(p.parcela) + '">Marcar paga</button></div></div>'; }).join('') || '<p class="em">Sem parcelas por pagar.</p>') + '<hr class="st">' : '') +
     '<div class="fbar" style="margin-top:22px"><p class="lb gl" style="margin:0">Recebido em ' + E(FANO) + (PES !== 'emp' ? ' · parte ' + (PES === 'g' ? 'do Gabriel' : 'da Ylana') : '') + ' · ' + L.length + '</p>' + (nNd ? '<div class="seg"><button data-a="fnd" class="' + (FND ? 'on' : '') + '">Sem quem recebe (' + nNd + ')</button></div>' : '') + '</div>' +
     (L.length ? '<table class="tb tr6"><thead><tr><th>Data</th><th>Cliente</th><th>Tipo · método</th><th class="r">Valor</th><th>Quem recebe</th><th class="r">Fatura</th></tr></thead><tbody>' + L.map(function (p) { var v = parteDe(p, FND ? 'emp' : PES); return '<tr><td>' + fd(p.data) + '</td><td><b>' + E(nc(p.cliente)) + '</b></td><td>' + E(p.tipo) + (p.parcela ? ' ' + E(p.parcela) : '') + ' · ' + E(p.metodo) + '</td><td class="r"><span class="num s">' + eur(v) + '</span>' + (v !== +p.valor ? '<small class="sm">de ' + eur(p.valor) + '</small>' : '') + '</td><td>' + quemTag(p) + '</td><td class="r">' + fatCell(p, 1) + '</td></tr>'; }).join('') + '</tbody></table>' : '<p class="em">' + (FND ? 'Todos os pagamentos têm quem recebe.' : 'Sem pagamentos neste ano.') + '</p>') + '</div>';
 }
 function vFfat() {
-  var fx = semFat(), grupos = [['g', 'Gabriel tem de emitir', function (p) { return parteG(p) === 1; }], ['y', 'Ylana tem de emitir', function (p) { return parteG(p) === 0; }], ['a', 'Os dois · cada um emite a sua parte', function (p) { var g = parteG(p); return g !== null && g > 0 && g < 1; }], ['n', 'Quem emite? Ainda não definido', semDono]];
+  var fx = semFat(PF('tudo')), grupos = [['g', 'Gabriel tem de emitir', function (p) { return parteG(p) === 1; }], ['y', 'Ylana tem de emitir', function (p) { return parteG(p) === 0; }], ['a', 'Os dois · cada um emite a sua parte', function (p) { var g = parteG(p); return g !== null && g > 0 && g < 1; }], ['n', 'Quem emite? Ainda não definido', semDono]];
   var tot = function (l, k) { return sum(l, function (p) { return k === 'g' || k === 'y' ? parteDe(p, k) : p.valor; }); };
   return '<div class="w1"><div class="pt"><div><p class="lb">Finanças</p><h1 class="h1">Faturas por emitir</h1></div></div>' +
     '<p class="lead2">' + (fx.length ? pl(fx.length, 'pagamento', 'pagamentos') + ' à espera de fatura. Toque em quem emite para mudar.' : 'Todas as faturas estão emitidas.') + '</p>' +
@@ -2512,9 +2754,9 @@ function reneg(id) {
 function contab(ano, t, pes) {
   ano = ano || FANO || TODAY.slice(0, 4); t = +t || Math.floor((+TODAY.slice(5, 7) - 1) / 3) + 1; pes = pes === 'y' ? 'y' : 'g';
   var P = PESSOAS[pes], tx = P.iva;
-  var anos = D.pag.map(function (p) { return String(p.data).slice(0, 4); }).concat([TODAY.slice(0, 4)]).filter(function (x, i, a) { return /^\d{4}$/.test(x) && a.indexOf(x) === i; }).sort().reverse();
+  var anos = PF('tudo').map(function (p) { return String(p.data).slice(0, 4); }).concat([TODAY.slice(0, 4)]).filter(function (x, i, a) { return /^\d{4}$/.test(x) && a.indexOf(x) === i; }).sort().reverse();
   var ms = [1, 2, 3].map(function (i) { return String((t - 1) * 3 + i).padStart(2, '0'); });
-  var doTri = D.pag.filter(function (p) { var d = String(p.data); return d.slice(0, 4) === ano && ms.indexOf(d.slice(5, 7)) >= 0; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; });
+  var doTri = PF('tudo').filter(function (p) { var d = String(p.data); return d.slice(0, 4) === ano && ms.indexOf(d.slice(5, 7)) >= 0; }).sort(function (a, b) { return String(a.data) < String(b.data) ? -1 : 1; });
   var l = doTri.filter(function (p) { return parteDe(p, pes) > 0; }), nd = doTri.filter(semDono);
   var tot = sum(l, function (p) { return parteDe(p, pes); }), iv = ivaDe(tot, pes);
   var em = l.filter(function (p) { return p.fatura_emitida === 'Sim'; }), por = l.filter(function (p) { return p.fatura_emitida !== 'Sim'; });
@@ -2734,9 +2976,33 @@ var act = {
   gp: function (d) { gerar(d.id, false); },
   fat: function (d) { var was = view === 'ficha' && fid === d.id, det = !!($('#fdet') && FDET); run(rpc('api_fatura', +d.r, d.id, +d.v, d.d, d.f), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir', function () { if (was) ficha(d.id, 'p'); }).then(function () { if (det) finDetReabre(); }); },
   fdf: function (d) { closeM(); FDET = null; ficha(d.id, 'p'); },
-  fdet: function (d) { var ano = FANO, P = PES, L = D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }), mine = function (l) { return l.filter(function (p) { return P === 'emp' || parteDe(p, P) > 0; }); };
+  omTF: function (d) { OMTF = d.v; render(); },
+  omtrA: function (d) { closeM(); FDET = null; if (APP !== 'om') { APP = 'om'; try { localStorage.setItem('ob_app', 'om'); } catch (e) { } } OMID = d.id; view = 'omtf'; render(); R.scrollTop = 0; },
+  omCliA: function (d) { OMID = d.id; view = 'omcf'; render(); R.scrollTop = 0; },
+  omNovoTr: function (d) { omTrabForm(null, d.id); },
+  omEdTr: function (d) { var t = omTr(d.id); if (t) omTrabForm(t); },
+  omNovoCli: function () { omCliForm(); },
+  omEdCli: function (d) { var c = OMD().cli.find(function (x) { return x.id === d.id; }); if (c) omCliForm(c); },
+  omNovoRec: function (d) { omRecForm(null, d.id); },
+  omEdRec: function (d) { var r = OMD().rec.find(function (x) { return x.id === d.id; }); if (r) omRecForm(r); },
+  omNovoPag: function (d) { var t = omTr(d.id); if (t) omPagForm(t); },
+  omRen: function (d) { omRenovar(d.v); },
+  omParaFin: function () { FMARCA = 'om'; trocarApp('fin', 'fres'); },
+  omFinMes: function () { var m = TODAY.slice(0, 7); finDet('Old Media · recebido este mês', omPagFin().filter(function (p) { return String(p.data).slice(0, 7) === m; }), { pes: 'emp', sub: 'Old Media' }); },
+  omFinFat: function () { var k = function () { return omPagFin().filter(function (p) { return p.fatura_emitida !== 'Sim'; }); }; finDet('Faturas por emitir', k(), { pes: 'emp', sub: 'Old Media', k: k }); },
+  omFinPor: function () { var l = OMD().trab.filter(function (t) { return omFalta(t) > 0; }); openM('<p class="lb">Old Media</p><h3 class="h2 mh2">Por receber · ' + eur(sum(l, omFalta)) + '</h3><div class="omg" style="margin-top:16px">' + (l.map(function (t) { return '<button class="omrw" data-a="omtrA" data-id="' + E(t.id) + '"><span class="omx"><b>' + E(t.titulo) + '</b><small>' + E(omCli(t.id_cliente).nome || '') + '</small></span><span class="omn">' + eur(omFalta(t)) + '</span>' + omChev + '</button>'; }).join('') || '<p class="omem">Nada por receber.</p>') + '</div><div class="btns"><button class="b1" data-a="x">Fechar</button></div>'); },
+  omEnt: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x, i) { return { t: x.t, ok: String(i) === String(d.i) ? (x.ok ? 0 : 1) : x.ok }; }); t.entregas = l; render(); omSalva(rpc('api_om_guardar', 'trab', { id: t.id, entregas: l }), 'Guardado').catch(function () { render(); }); },
+  omTudo: function (d) { var t = omTr(d.id); if (!t) return; var l = (t.entregas || []).map(function (x) { return { t: x.t, ok: 1 }; }); omSalva(rpc('api_om_guardar', 'trab', { id: t.id, entregas: l }), 'Tudo entregue'); },
+  omExc: function (d) { var nome = d.t === 'cli' ? 'este cliente' : d.t === 'rec' ? 'este recorrente' : 'este trabalho'; ask('Excluir ' + nome + '?', function () { omSalva(rpc('api_om_excluir', d.t, d.id), 'Excluído').then(function () { view = d.t === 'cli' ? 'omc' : d.t === 'rec' ? 'omr' : 'omt'; render(); }); }, 'Excluir', '<p class="sm">Deixa de aparecer na app. A linha fica guardada na planilha (coluna «Excluído»), nada se apaga.</p>'); },
+  omfat: function (d) { var det = !!($('#fdet') && FDET); omSalva(rpc('api_om_guardar', 'pag', { id: d.id, fatura_emitida: d.f }), d.f === 'Sim' ? 'Fatura marcada como emitida' : 'Fatura marcada como por emitir').then(function () { if (det) finDetReabre(); }); },
+  omquem: function (d) { var p = OMD().pag.find(function (x) { return x.id === d.id; }); if (!p) return;
+    openM('<p class="lb">Pagamento · ' + E(p.cliente) + ' · Old Media</p><h3 class="h2 mh2">' + eur(p.valor) + ' · ' + fd(p.data) + '</h3><p class="sm">Indique quem recebe este valor. É essa pessoa que emite a fatura.</p><div class="fm" style="margin-top:16px">' + recHtml(p.recebido_por, p.parte_do_gabriel) + '</div><div class="btns"><button class="b2" data-a="x">Cancelar</button><button class="b1" id="qok">Guardar</button></div>');
+    recLigar(); $('#qok').onclick = function () { var v = recLer(); if (!v) return; omSalva(rpc('api_om_guardar', 'pag', { id: p.id, recebido_por: v.r, parte_do_gabriel: v.p }), 'Guardado'); }; },
+  fmarca: function (d) { FMARCA = d.v; render(); },
+
+  fdet: function (d) { var ano = FANO, P = PES, L = PF().filter(function (p) { return String(p.data).slice(0, 4) === ano; }), mine = function (l) { return l.filter(function (p) { return P === 'emp' || parteDe(p, P) > 0; }); };
     var tri = Math.floor((+TODAY.slice(5, 7) - 1) / 3) + 1, mes = TODAY.slice(0, 7), v = d.v, sub = 'Finanças · ' + (P === 'emp' ? 'empresa' : PESSOAS[P].nome);
-    var Lf = function () { return D.pag.filter(function (p) { return String(p.data).slice(0, 4) === ano; }); };
+    var Lf = function () { return PF().filter(function (p) { return String(p.data).slice(0, 4) === ano; }); };
     if (v === 'ano') return finDet('Recebido em ' + ano, mine(L), { sub: sub });
     if (v === 'tri') return finDet('Recebido este trimestre', mine(L.filter(function (p) { return noTri(p, tri); })), { sub: sub });
     if (v === 'mes') return finDet('Recebido este mês', mine(L.filter(function (p) { return String(p.data).slice(0, 7) === mes; })), { sub: sub });
@@ -2791,17 +3057,18 @@ function render() {
   var sitio = view + '|' + fid + '|' + (view === 'ficha' ? ftab : ''), y = R.scrollTop, mesmo = sitio === ultimoSitio; ultimoSitio = sitio;
   if (view === 'pag') { APP = 'fin'; view = 'frec'; }
   if (!dono() && APP !== 'bast' && APP !== 'prop') { APP = 'bast'; view = 'hoje'; }
+  R.classList.toggle('om', APP === 'om');
   var np = dono() ? nPed() : 0, bd = $('.brand .bdg'); if (bd) { bd.textContent = np; bd.hidden = !np; }
   var nv = (NAVS[APP] || []).filter(function (x) { return (x[0] !== 'ses' && x[0] !== 'reu') || dono(); });
   $('.nav').innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + (APP === 'bast' ? '<button class="pqm" data-a="pq">Pesquisar</button>' : '');
   var bn = $('.bnav'); if (bn) { bn.innerHTML = nv.map(function (x) { return '<button data-a="go" data-v="' + x[0] + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + (ICN[x[0]] || ICN.mais) + '</svg><span>' + x[1] + '</span></button>'; }).join('') + '<button data-a="apps" aria-haspopup="menu"><svg viewBox="0 0 24 24" aria-hidden="true">' + ICN.mais + '</svg><span>Mais</span></button>'; bn.hidden = APP === 'prop' && !nv.length ? false : false; }
   if (bn && TAPV) { var tb = bn.querySelector('[data-v="' + TAPV + '"]') || (TAPV === 'apps' && bn.querySelector('[data-a=apps]')); if (tb) tb.classList.add('tap'); TAPV = ''; }
-  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || view === 'ag' || view === 'sesv' || view === 'quest';
+  var fb = $('.fabm'); if (fb) fb.hidden = APP === 'prop' || APP === 'eq' || APP === 'om' || view === 'ag' || view === 'sesv' || view === 'quest';
   $('.nav').hidden = !nv.length; $('#apn').textContent = APP === 'eq' ? 'Equipa' : (APPS.find(function (x) { return x[0] === APP; }) || APPS[0])[1];
-  $('.mh .nw').hidden = APP === 'prop'; $('.mh .pqh').hidden = APP !== 'bast';
+  $('.mh .nw').hidden = APP === 'prop' || APP === 'om'; $('.mh .pqh').hidden = APP !== 'bast';
   $('#v').hidden = APP === 'prop'; $('#pa').hidden = APP !== 'prop';
-  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses') || (view === 'sesf' && b.dataset.v === 'ses'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFichaArq, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, quest: vQuest, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp })[view]();
+  $$('.mh [data-a=go], .bnav [data-a=go]').forEach(function (b) { var on = b.dataset.v === view || (view === 'ficha' && b.dataset.v === 'cli') || (view === 'sesv' && b.dataset.v === 'ses') || (view === 'sesf' && b.dataset.v === 'ses') || (view === 'omtf' && b.dataset.v === 'omt') || (view === 'omcf' && b.dataset.v === 'omc'); b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  $('#v').innerHTML = ({ hoje: vHoje, orc: vOrc, cli: vCli, ag: vAg, ficha: vFichaArq, ses: vSes, sesv: vSesV, sesf: vSesF, reu: vReu, quest: vQuest, fres: vFres, frec: vFrec, ffat: vFfat, prop: vProp, equipa: vEquipa, pos: vPos, equip: vEquip, fdesp: vDesp, omh: vOmHoje, omt: vOmTrab, omtf: vOmTrabF, omr: vOmRec, omc: vOmCli, omcf: vOmCliF, omf: vOmFin })[view]();
   tbx();
   var ct = $('.ctab'); if (ct) { var on = ct.querySelector('.on'); if (on && on.offsetLeft + on.offsetWidth > ct.clientWidth) ct.scrollLeft = on.offsetLeft - 20; var f = function () { ct.classList.toggle('fim', ct.scrollLeft + ct.clientWidth >= ct.scrollWidth - 4); }; f(); ct.addEventListener('scroll', f, { passive: true }); }
   try { R.style.setProperty('--mhh', $('.mh').offsetHeight + 'px'); } catch (e) { }
