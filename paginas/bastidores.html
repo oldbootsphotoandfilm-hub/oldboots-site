@@ -1,5 +1,5 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin><link rel="preconnect" href="https://accounts.google.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600;700&family=Luxurious+Script&family=Montserrat:wght@500;600&display=swap">
 <style>
 #ob{--ink:#4a4429;--ol:#5b523a;--pp:#f7f6f0;--sf:#c9c7bb;--bt:#8a5a34;--gd:#c08a2b;--mt:#6b6548;--rd:#8a3b2e;--bl:#2f5575;--oc:#7a5712;--gr:#3f6236;--gy:#6f6a5b;
 position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--pp);color:var(--ink);font:400 15px/1.6 Lora,Georgia,serif;text-align:left;-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
@@ -735,6 +735,18 @@ position:fixed;inset:0;z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:
 #ob.om #t{background:rgba(44,44,46,.92);color:#f2f2f7}#ob.om #t.e{color:#ff6961}
 #ob.om .chk{color:#f2f2f7}
 #ob.om,#ob.om *{font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+#ob .incp{background:#fbfaf7 url(https://oldbootsphotoandfilm.com/wp-content/uploads/2026/10/ob-papel.jpg) center/cover;color:#2b2a07;padding:24px 20px 16px;margin:6px 0 4px;box-shadow:0 1px 0 rgba(0,0,0,.05),0 6px 20px rgba(43,42,7,.08)}
+#ob .incp .incT{font:400 40px/1 'Luxurious Script',cursive;text-align:center;margin:0 0 12px;color:#2b2a07;text-transform:none;letter-spacing:0}
+#ob .incp ul{list-style:none;margin:0;padding:0}
+#ob .incp li{display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(43,42,7,.12);padding:2px 0 2px 18px;position:relative}
+#ob .incp li::before{content:'';position:absolute;left:2px;top:50%;margin-top:-3px;width:6px;height:6px;border-radius:50%;background:#454205}
+#ob .incp li textarea{flex:1;min-width:0;resize:none;overflow:hidden;min-height:0;display:block;border:0!important;background:transparent!important;font:500 11px/1.5 Montserrat,Arial,sans-serif!important;letter-spacing:.06em;text-transform:uppercase;color:#2b2a07;padding:8px 0!important;box-shadow:none!important}
+#ob .incp li textarea:focus{outline:0;background:rgba(69,66,5,.06)!important}
+#ob .incp li button{width:30px;height:30px;flex:none;border-radius:50%;color:#8a3b2e;font-size:18px;line-height:1;opacity:.55}
+#ob .incp li button:hover,#ob .incp li button:focus-visible{opacity:1;background:rgba(138,59,46,.08)}
+#ob .incp .incA{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:12px}
+#ob .incp .incA button{font:500 11px/1.5 Montserrat,Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#454205;border-bottom:1px solid currentColor;padding:4px 0}
+#ob .incp .incV{font:italic 13px Lora,serif;color:#6b6548;text-align:center;padding:10px 0}
 </style>
 
 <div id="ob" lang="pt-PT">
@@ -1091,6 +1103,30 @@ function extEd(id) { var c = cli(id), ano = anoEv(c.data_do_evento), sel = {};
 }
 
 /* ---------- formulários (passos curtos) ---------- */
+/* «O que inclui»: o mesmo cartão da página do casal, editável (tirar, escrever, acrescentar, repor o pacote) */
+// a mesma regra da página do casal: se a lista tem itens de pacote é ela a lista completa; só notas soltas (fichas antigas) = pacote + notas
+var incLista = function (c) { var l = incLinhas(c.descricao_do_servico), todos = {}; Object.keys(PACS).forEach(function (p) { PACS[p].forEach(function (x) { todos[x] = 1; }); });
+  return l.some(function (x) { return todos[x]; }) ? l : (PACS[c.pacote] || []).concat(l); };
+var incLinhas = function (t) { return String(t || '').split(/\r?\n/).map(function (x) { return x.replace(/^\s*(\d+[.)]|[-•·])\s*/, '').trim(); }).filter(Boolean); };
+function incEditor(txt, pac, k) {
+  var l = incLista({ descricao_do_servico: txt, pacote: pac });
+  return '<div class="incp" data-k0="' + E(k) + '"><p class="incT">' + E(pac || 'O que inclui') + '</p><ul>' + l.map(incLi).join('') + '</ul>' +
+    '<div class="incA"><button type="button" data-inc="add">+ Acrescentar item</button>' + (PACS[pac] ? '<button type="button" data-inc="rep">Repor o pacote</button>' : '') + '</div><textarea data-k="' + E(k) + '" hidden>' + E(l.join('\n')) + '</textarea></div>';
+}
+var incLi = function (x) { return '<li><textarea rows="1" aria-label="Item incluído" placeholder="Escreva o item">' + E(x) + '</textarea><button type="button" data-inc="del" aria-label="Tirar este item" title="Tirar este item">×</button></li>'; };
+function incLiga(p, pacDe) {
+  var ta = p.querySelector('textarea[data-k]'), ul = p.querySelector('ul');
+  var alto = function () { Array.prototype.forEach.call(ul.querySelectorAll('textarea'), function (t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }); };
+  var sinc = function () { alto(); var l = Array.prototype.map.call(ul.querySelectorAll('textarea'), function (i) { return i.value.trim(); }).filter(Boolean); ta.value = l.join('\n'); if (!ul.children.length) ul.insertAdjacentHTML('beforeend', ''); };
+  p.addEventListener('input', sinc);
+  p.addEventListener('click', function (ev) { var b = ev.target.closest('[data-inc]'); if (!b) return; ev.preventDefault(); ev.stopPropagation();
+    if (b.dataset.inc === 'del') { var li = b.closest('li'), nx = li.nextElementSibling || li.previousElementSibling; li.remove(); if (nx) nx.querySelector('textarea').focus(); }
+    if (b.dataset.inc === 'add') { ul.insertAdjacentHTML('beforeend', incLi('')); ul.lastElementChild.querySelector('textarea').focus(); }
+    if (b.dataset.inc === 'rep') { var pd = PACS[pacDe()]; if (pd) ul.innerHTML = pd.map(incLi).join(''); }
+    sinc(); });
+  p.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && ev.target.closest('li')) { ev.preventDefault(); var li = ev.target.closest('li'); li.insertAdjacentHTML('afterend', incLi('')); li.nextElementSibling.querySelector('textarea').focus(); sinc(); } });
+  sinc(); setTimeout(alto, 60);
+}
 function form(title, steps, val, save, btn) {
   btn = btn || 'Guardar'; var s = 0;
   var draw = function () {
@@ -1098,6 +1134,7 @@ function form(title, steps, val, save, btn) {
     var campos = f[1].filter(function (x) { return !x[4] || x[4](val); }).map(function (x) {
       var k = x[0], l = fv(x[1]), t = x[2], o = fv(x[3]);
       if (t === 'ext') { var esc = {}; Object.keys(val[k] || {}).forEach(function (n) { var e = val[k][n]; esc[n] = typeof e === 'object' ? e : { q: e, v: '', p: 'Nas parcelas' }; }); return '<div class="exs"><span>' + l + '</span></div><div id="exform" data-ano="' + anoEv(val.data_do_evento) + '">' + extEditor(esc, anoEv(val.data_do_evento)) + '</div>'; }
+      if (t === 'inc') return '<div class="exs"><span>' + l + '</span></div>' + incEditor(val[k], val.pacote, k);
       if (t === 'chk') return '<label class="chk"><input type="checkbox" data-k="' + k + '" ' + (val[k] === 'Sim' ? 'checked' : '') + '><span>' + l + '</span></label>';
       var ctl;
       if (t === 'sel') {
@@ -1111,6 +1148,7 @@ function form(title, steps, val, save, btn) {
       (steps.length > 1 ? '<div class="stp">' + steps.map(function (x, i) { return '<i class="' + (i <= s ? 'on' : '') + '"></i>'; }).join('') + '</div>' : '') +
       '<div class="fm">' + campos + '</div><div class="btns">' + (s ? '<button class="b2" id="bk2">Voltar</button>' : '') + '<button class="b1" id="nx">' + (s < steps.length - 1 ? 'Seguinte' : btn) + '</button></div>');
     var exf0 = $('#exform'); if (exf0) extLiga(exf0, +exf0.dataset.ano);
+    $$('#m .incp').forEach(function (p) { incLiga(p, function () { return val.pacote; }); });
     var numErr = '';
     var grab = function () { numErr = ''; $$('#m [data-k]').forEach(function (i) { if (i.dataset.num) { var n = numPT(i.value); if (n === null) { numErr = numErr || ((i.closest('label') || {}).textContent || '').replace(/\s+/g, ' ').trim(); val[i.dataset.k] = i.value; } else val[i.dataset.k] = n; return; } val[i.dataset.k] = i.type === 'checkbox' ? (i.checked ? 'Sim' : 'Não') : i.value; });
       var exf = $('#exform'); if (exf) { var rx = extLe(exf); val.extras = rx.sel; if (rx.erro) numErr = numErr || rx.erro; } };
@@ -1139,7 +1177,7 @@ var PACS = {
 };
 var PAC_OPTS = [['', '—']].concat(Object.keys(PACS).map(function (k) { return [k, k]; })).concat([['Personalizado', 'Personalizado']]);
 var PAC_TXT = Object.keys(PACS).map(function (k) { return PACS[k].join('\n'); });
-var CAMPOS_PAC = [['pacote', 'Pacote fechado', 'sel', PAC_OPTS, ehCas], ['descricao_do_servico', 'O que inclui (uma linha por item)', 'area', null, ehCas], ['deslocacao', 'Deslocação (€)', 'number', null, ehCas]];
+var CAMPOS_PAC = [['pacote', 'Pacote fechado', 'sel', PAC_OPTS, ehCas], ['descricao_do_servico', 'O que inclui (é esta a lista que aparece na página do casal)', 'inc', null, ehCas], ['deslocacao', 'Deslocação (€)', 'number', null, ehCas]];
 var SRV = function () { return D.srv.filter(function (x) { return x.servico; }); };
 var ehHora = function (sv) { return /hora/i.test(String(sv.unidade || '') + ' ' + String(sv.servico || '')); };
 var CAMPOS_EXT = [['extras', 'Extras escolhidos pelo casal', 'ext', null, ehCas]];
@@ -2518,7 +2556,7 @@ function vFicha() {
   var c = todosCli().find(function (x) { return x.id === fid; }); if (!c) { view = 'cli'; return vCli(); }
   var id = fid, tab = ftab, d = c.data_do_evento ? dias(c.data_do_evento) : null, pc = c.valor_final ? Math.min(100, Math.round(c.total_pago / c.valor_final * 100)) : 0, doc = D.doc.find(function (x) { return x.id_cliente === id; }) || {};
   var tb = [['r', 'Resumo'], ['p', 'Pagamentos'], ['e', 'Extras'], ['d', 'Documentos'], ['q', 'Questionário'], ['n', 'Notas']].filter(function (t) { return (dono() || t[0] !== 'p') && (t[0] !== 'q' || temQ(c)); }), h = ''; if (tab === 'q' && !temQ(c)) tab = 'r'; if (!dono() && tab === 'p') tab = 'r';
-  if (tab === 'r') h = lines([['Língua do cliente', E(lngSug(c)) + (c.idioma ? '' : ' <small style="color:var(--mt)">(sugerida; escolha em Editar)</small>')], ['Cerimónia', E(c.local_da_cerimonia)], ['Receção', E(c.local_da_rececao)], ['Hora', E(c.hora)], ['Serviço', E(c.tipo_de_servico)], ['Pacote', E(c.pacote)], ['Origem', E(c.origem)], ['Pagamento', E(c.forma_de_pagamento) + (c.entrada ? ' · entrada ' + E(c.entrada) + ' % (' + eur(vEnt(c)) + ')' : '')], ['Contrato', E(c.contrato_previo) + ' · ' + (c.contrato_assinado === 'Sim' ? 'assinado' : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>')], ['Aviso', av(c.aviso_de_data) ? tg(av(c.aviso_de_data), 'rd') : ''], ['Ligado a', c.ligado_a && cli(c.ligado_a).id ? '<button class="lnk" data-a="f" data-id="' + E(c.ligado_a) + '">' + E(cli(c.ligado_a).nome_do_casal) + '</button> · casamento' : ''], ['Ensaios ligados', D.cli.filter(function (x) { return x.ligado_a === c.id; }).map(function (x) { return '<button class="lnk" data-a="f" data-id="' + E(x.id) + '">' + E(x.nome_do_casal) + '</button>' + (x.subtipo ? ' · ' + E(x.subtipo) : '') + ' · ' + fd(x.data_do_evento); }).join('<br>')]]) +
+  if (tab === 'r') h = lines([['Língua do cliente', E(lngSug(c)) + (c.idioma ? '' : ' <small style="color:var(--mt)">(sugerida; escolha em Editar)</small>')], ['Cerimónia', E(c.local_da_cerimonia)], ['Receção', E(c.local_da_rececao)], ['Hora', E(c.hora)], ['Serviço', E(c.tipo_de_servico)], ['Pacote', E(c.pacote)], ['O que inclui', ehCas(c) ? (dono() ? '<button class="lnk" data-a="incEd" data-id="' + E(id) + '">' + pl(incLista(c).length, 'item', 'itens') + ' · ver e editar</button>' : E(incLista(c).join(' · '))) : ''], ['Origem', E(c.origem)], ['Pagamento', E(c.forma_de_pagamento) + (c.entrada ? ' · entrada ' + E(c.entrada) + ' % (' + eur(vEnt(c)) + ')' : '')], ['Contrato', E(c.contrato_previo) + ' · ' + (c.contrato_assinado === 'Sim' ? 'assinado' : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>')], ['Aviso', av(c.aviso_de_data) ? tg(av(c.aviso_de_data), 'rd') : ''], ['Ligado a', c.ligado_a && cli(c.ligado_a).id ? '<button class="lnk" data-a="f" data-id="' + E(c.ligado_a) + '">' + E(cli(c.ligado_a).nome_do_casal) + '</button> · casamento' : ''], ['Ensaios ligados', D.cli.filter(function (x) { return x.ligado_a === c.id; }).map(function (x) { return '<button class="lnk" data-a="f" data-id="' + E(x.id) + '">' + E(x.nome_do_casal) + '</button>' + (x.subtipo ? ' · ' + E(x.subtipo) : '') + ' · ' + fd(x.data_do_evento); }).join('<br>')]]) +
     '<div class="btns">' + (c.sugestao ? '<button class="b2" data-a="ec" data-id="' + E(id) + '">Editar dados</button><button class="b1" data-a="concl" data-id="' + E(id) + '">' + E(c.sugestao) + '</button>' : '<button class="b1" data-a="ec" data-id="' + E(id) + '">Editar dados</button>') + '</div>';
   if (tab === 'p') {
     var P = D.par.filter(function (p) { return p.id_cliente === id; }).sort(function (a, b) { return a.parcela - b.parcela; }),
@@ -2540,7 +2578,7 @@ function vFicha() {
       (X.length ? '<div class="ln"><span>Nas parcelas <i style="color:var(--mt)">(entram na entrada e nas parcelas)</i></span><span><b>' + eur(nP) + '</b></span></div><div class="ln"><span>No dia do casamento <i style="color:var(--mt)">(fora das parcelas)</i></span><span><b>' + eur(nD) + '</b></span></div><p class="sm" style="margin-top:10px">O valor final (' + eur(c.valor_final) + ') já inclui os ' + eur(nP + nD) + ' de extras.</p>' : '') +
       (dono() ? '<div class="btns"><button class="b1" data-a="exed" data-id="' + E(id) + '">' + (X.length ? 'Editar extras' : 'Adicionar extras') + '</button></div>' : ''); }
   if (tab === 'd') h = lines([['Contrato', c.contrato_assinado === 'Sim' ? tg('Assinado', 'gr') : '<button class="lnk" data-a="assinar" data-id="' + E(id) + '">por assinar · marcar como assinado</button>'],
-      ['Resumo do contrato', c.resumo_do_contrato ? '<a href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">abrir PDF</a>' : (ehCas(c) && c.contrato_assinado === 'Sim' ? 'ainda não criado' : '')], ['Contrato (PDF)', doc.link_do_pdf_do_contrato ? '<a href="' + E(su(doc.link_do_pdf_do_contrato)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Google Docs', doc.link_do_google_docs ? '<a href="' + E(su(doc.link_do_google_docs)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Notas', E(doc.notas)]]) + '<div class="btns">' + (ehCas(c) && c.contrato_assinado === 'Sim' && dono() ? '<button class="b2" data-a="resumo" data-id="' + E(id) + '">' + (c.resumo_do_contrato ? 'Gerar resumo de novo' : 'Gerar resumo do contrato') + '</button>' : '') + '<button class="b1" data-a="ed" data-id="' + E(id) + '">Editar links</button></div>';
+      ['Resumo do contrato', c.resumo_do_contrato ? '<a href="' + E(su(c.resumo_do_contrato)) + '" target="_blank" rel="noopener">abrir PDF</a>' : (ehCas(c) && c.contrato_assinado === 'Sim' ? 'ainda não criado' : '')], ['Contrato assinado (PDF)', (doc.link_do_pdf_do_contrato ? '<a href="' + E(su(doc.link_do_pdf_do_contrato)) + '" target="_blank" rel="noopener">abrir</a> · ' : '') + (dono() ? '<button class="lnk" data-a="ctrPdf" data-id="' + E(id) + '">' + (doc.link_do_pdf_do_contrato ? 'substituir' : 'anexar o PDF') + '</button>' + (doc.link_do_pdf_do_contrato ? ' <small style="color:var(--mt)">· também na pasta do Drive e na página do casal</small>' : '') : '')], ['Google Docs', doc.link_do_google_docs ? '<a href="' + E(su(doc.link_do_google_docs)) + '" target="_blank" rel="noopener">abrir</a>' : ''], ['Notas', E(doc.notas)]]) + '<div class="btns">' + (ehCas(c) && c.contrato_assinado === 'Sim' && dono() ? '<button class="b2" data-a="resumo" data-id="' + E(id) + '">' + (c.resumo_do_contrato ? 'Gerar resumo de novo' : 'Gerar resumo do contrato') + '</button>' : '') + '<button class="b1" data-a="ed" data-id="' + E(id) + '">Editar links</button></div>';
   if (tab === 'q') h = qAba(c);
   if (tab === 'n') h = '<div class="fm" style="margin-top:20px"><label><span>Notas do casal</span><textarea id="nt" rows="7">' + E(c.observacoes) + '</textarea></label></div><div class="btns"><button class="b1" data-a="sn" data-id="' + E(id) + '">Guardar notas</button></div>';
   return '<div class="w"><div><button class="bk" data-a="go" data-v="cli">← Clientes</button>' +
@@ -2664,8 +2702,7 @@ var eurR = function (n) { var v = Math.round((+n || 0) * 100) / 100, p = v.toFix
 function resumoHtml(c) {
   var id = c.id, ext = D.ext.filter(function (x) { return x.id_cliente === id; }), par = D.par.filter(function (x) { return x.id_cliente === id; }).sort(function (a, b) { return a.parcela - b.parcela; }),
     pag = D.pag.filter(function (x) { return x.id_cliente === id; }), v = +c.valor_final || 0, pago = sum(pag, function (x) { return x.valor; });
-  var itens = String(c.descricao_do_servico || '').split(/\r?\n/).map(function (x) { return x.replace(/^\s*(\d+[.)]|[-•])\s*/, '').trim(); }).filter(Boolean);
-  if (!itens.length && PACS[c.pacote]) itens = PACS[c.pacote].slice();
+  var itens = incLista(c);
   var locais = [c.local_da_cerimonia, c.local_da_rececao].filter(Boolean);
   var f = c.forma_de_pagamento || '', vE = vEnt(c);
   var en = ehEN(c), L = function (pt, eng) { return en ? eng : pt; }, TT = function (x) { x = String(x == null ? '' : x); return en && EN_TXT[x.trim()] ? EN_TXT[x.trim()] : x; };
@@ -2936,6 +2973,18 @@ var act = {
     ask('Marcar o contrato de ' + E(c.nome_do_casal) + ' como assinado?', function () { run(rpc('api_upd', 'Clientes', d.id, { contrato_assinado: 'Sim' }), 'Contrato marcado como assinado').then(depoisDeGravar); }, 'Marcar como assinado',
       ehCas(c) ? '<p class="sm" style="margin:-6px 0 6px">Vou criar o resumo do contrato em PDF com os dados, o pacote, os extras, os valores e o plano de pagamento.' + (c.pacote ? '' : ' <b>Ainda não escolheu o pacote</b>: pode fazê-lo em "Editar dados" e gerar o resumo de novo depois.') + '</p>' : ''); },
   resumo: function (d) { gerarResumo(d.id); },
+  ctrPdf: function (d) { var c = cli(d.id); if (!c.id) return;
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/pdf,.pdf'; inp.style.display = 'none'; document.body.appendChild(inp);
+    inp.onchange = function () { var f = inp.files && inp.files[0]; inp.remove(); if (!f) return;
+      if (!/\.pdf$/i.test(f.name) && f.type !== 'application/pdf') return toast('Escolha um ficheiro PDF.', 1);
+      if (f.size > 25 * 1048576) return toast('O PDF tem mais de 25 MB.', 1);
+      var rd = new FileReader(); rd.onload = function () { var uri = String(rd.result).replace(/^data:[^;,]*/, 'data:application/pdf');
+        run(rpc('api_contrato_pdf', d.id, uri), 'Contrato assinado anexado', function () { ficha(d.id, 'd'); }).then(function (r) { if (r && r.assinou) gerarResumo(r.assinou); }); };
+      rd.onerror = function () { toast('Não foi possível ler o ficheiro.', 1); }; rd.readAsDataURL(f); };
+    inp.click(); },
+  incEd: function (d) { var c = cli(d.id); if (!c.id) return;
+    form('O que inclui', [[E(c.nome_do_casal), [['descricao_do_servico', 'Tal como aparece na página do casal. Toque num item para o escrever, × para o tirar.', 'inc']]]], { pacote: c.pacote, descricao_do_servico: c.descricao_do_servico },
+      function (v) { run(rpc('api_upd', 'Clientes', d.id, { descricao_do_servico: v.descricao_do_servico }), 'Guardado · a página do casal já mostra a nova lista', function () { ficha(d.id, 'r'); }).then(depoisDeGravar); }); },
   qforaC: function (d) { var c = cli(d.id), sim = d.v === '1';
     ask((sim ? 'Tirar do ar' : 'Voltar a pôr no ar') + ' a página de «' + E(nc(c.nome_do_casal)) + '»?', function () { run(rpc('api_q_desativar', d.id, sim), sim ? 'Página do casal fora do ar' : 'Página do casal de novo no ar'); }, sim ? 'Tirar do ar' : 'Pôr no ar',
       '<p class="sm">' + (sim ? 'O casal passa a ver «A vossa página está em manutenção» até a voltar a pôr no ar. Nada se apaga.' : 'O casal volta a ver a sua página normalmente.') + '</p>'); },

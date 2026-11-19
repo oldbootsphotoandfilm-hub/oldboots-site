@@ -333,7 +333,12 @@ var descExtra = function (I) {
   return l.length ? '<p style="margin-top:12px;font-size:15px;white-space:pre-line">' + E(l.map(TR).join('\n')) + '</p>' : '';
 };
 var servDe = function (I) { var p = String(I.pacote || ''); return /fotos/i.test(p) && /filme/i.test(p) ? 'Foto + Vídeo' : /filme/i.test(p) ? 'Vídeo' : /fotos/i.test(p) ? 'Foto' : I.servico; };
-var TR = function (x) { x = String(x == null ? '' : x); return L === 'en' && EN_TXT[x.trim()] ? EN_TXT[x.trim()] : x; };
+// itens escritos à mão nos Bastidores (ex.: «Vídeo trailer completo de 7-10 minutos»): tradução pelos padrões mais comuns
+var EN_RE = [[/^Duração: (\d+) horas de cobertura$/i, 'Duration: $1 hours of coverage'], [/^Vídeo trailer completo de (\d+) ?- ?(\d+) minutos$/i, 'Full $1–$2 minute trailer film'],
+  [/^Vídeo highlights de (\d+) ?- ?(\d+) minutos$/i, '$1–$2 minute highlights video'], [/^Vídeo teaser de (\d+) segundos( em (\d+) horas)?$/i, function (m, a, b, h) { return a + '-second teaser video' + (h ? ' within ' + h + ' hours' : ''); }],
+  [/^(\d+) fotos editadas em (\d+) horas$/i, '$1 edited photos within $2 hours'], [/^(\d+) horas? extra(s)?$/i, function (m, n) { return n + ' extra hour' + (+n === 1 ? '' : 's'); }]];
+var TR = function (x) { x = String(x == null ? '' : x); var t = x.trim(); if (L !== 'en') return x; if (EN_TXT[t]) return EN_TXT[t];
+  for (var i = 0; i < EN_RE.length; i++) if (EN_RE[i][0].test(t)) return t.replace(EN_RE[i][0], EN_RE[i][1]); return x; };
 var SIM3 = [['sim', 'Sim', 'Yes'], ['nao', 'Não', 'No'], ['nsei', 'Ainda não sabemos', 'Not sure yet']];
 var REL = [['mae', 'Mãe', 'Mother'], ['pai', 'Pai', 'Father'], ['avo_f', 'Avó', 'Grandmother'], ['avo_m', 'Avô', 'Grandfather'], ['madrinha', 'Madrinha', 'Godmother / bridesmaid'], ['padrinho', 'Padrinho', 'Godfather / best man'], ['irma', 'Irmã', 'Sister'], ['irmao', 'Irmão', 'Brother'], ['filha', 'Filha', 'Daughter'], ['filho', 'Filho', 'Son'], ['amigo', 'Amigo/a', 'Friend'], ['outro', 'Outro', 'Other']];
 
